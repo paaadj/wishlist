@@ -7,7 +7,9 @@ from typing import List
 
 app = FastAPI()
 
-origins = ["*"]
+origins = [
+    "http://localhost:3000",
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
