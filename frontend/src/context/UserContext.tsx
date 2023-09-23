@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 
-type UserContextType = {
+export type UserContextType = {
   token: string | null;
   setToken: React.Dispatch<React.SetStateAction<string | null>>;
 };

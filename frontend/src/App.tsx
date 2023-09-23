@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import Registration from "./components/Registration/Registration";
 
 interface Item {
   id: number;
@@ -100,6 +101,10 @@ function App() {
           <button onClick={handleCreate}>Добавить</button>
         )}
       </div>
+
+          <h1>Регистрация</h1>
+          <Registration/>
+
     </>
   );
 }
