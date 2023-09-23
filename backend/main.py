@@ -19,7 +19,7 @@ app.add_middleware(
 router = APIRouter(prefix="/api")
 
 
-@router.on_event("startup")
+@app.on_event("startup")
 async def init():
     await Tortoise.init(
         db_url=settings.DATABASE_URL,
@@ -28,7 +28,7 @@ async def init():
     await Tortoise.generate_schemas()
 
 
-@router.on_event("shutdown")
+@app.on_event("shutdown")
 async def shutdown_db():
     await Tortoise.close_connections()
 
