@@ -1,9 +1,10 @@
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
 from config import settings
 from models import *
 from typing import List
+from auth.routes import auth_router
 
 app = FastAPI()
 
@@ -79,8 +80,7 @@ async def delete_item(item_id: int):
 
 
 app.include_router(router)
-
-
+app.include_router(auth_router)
 if __name__ == "__main__":
     import uvicorn
 
