@@ -3,17 +3,17 @@ import "./App.css";
 
 interface Item {
   id: number;
-  text: string;
+  title: string;
 }
 
 function App() {
-  const [items, setItems] = useState<Item[]>([{ id: 1, text: "test1" }]);
+  const [items, setItems] = useState<Item[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [editItem, setEditItem] = useState<Item | null>(null);
 
   const handleRead = async function () {
     try {
-      const response = await fetch("/api/smth");
+      const response = await fetch("http://localhost:8000/api/get_item");
       const data = await response.json();
       setItems(data);
     } catch (error) {
@@ -26,9 +26,9 @@ function App() {
     if (!newItem) {
       return;
     }
-    await fetch("/api/smth", {
+    await fetch("http://localhost:8000/api/create_item", {
       method: "POST",
-      body: JSON.stringify({ text: newItem }),
+      body: JSON.stringify({ title: newItem }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -43,9 +43,9 @@ function App() {
     if (!editItem) {
       return;
     }
-    await fetch(`/api/smth/${editItem.id}`, {
+    await fetch(`http://localhost:8000/api/update_item/${editItem.id}`, {
       method: "PUT",
-      body: JSON.stringify({ text: newItem }),
+      body: JSON.stringify({ title: newItem }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -57,7 +57,7 @@ function App() {
   };
 
   const handleDelete = async function (id: number) {
-    await fetch(`/api/smth/${id}`, {
+    await fetch(`http://localhost:8000/api/delete/${id}`, {
       method: "DELETE",
     });
     await handleRead();
@@ -73,7 +73,7 @@ function App() {
           <ul>
             {items.map((item) => (
               <li key={item.id}>
-                {item.text}
+                {item.title}
                 {"          "}
                 <button onClick={() => setEditItem(item)}>Редактировать</button>
                 <button onClick={() => handleDelete(item.id)}>Удалить</button>
