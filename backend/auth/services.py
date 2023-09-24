@@ -1,6 +1,6 @@
-from models import User
+from models.user import User
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 from config import settings
 
 import jwt

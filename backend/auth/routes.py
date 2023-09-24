@@ -1,10 +1,11 @@
 from fastapi import APIRouter
+from fastapi.security import OAuth2PasswordRequestForm
 from passlib.hash import bcrypt
 from .services import *
-from models import User_Pydantic, UserCreate, User
+from models.user import User_Pydantic, UserCreate, User
 from config import settings
 
-auth_router = APIRouter(prefix="/api")
+auth_router = APIRouter()
 JWT_SECRET = settings.SECRET_KEY
 
 
