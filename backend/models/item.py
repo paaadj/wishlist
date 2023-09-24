@@ -1,8 +1,9 @@
-from tortoise import fields, models
+from tortoise.models import Model
+from tortoise import fields
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 
-class Item(models.Model):
+class Item(Model):
     id = fields.IntField(pk=True)
     title = fields.CharField(max_length=50, null=False)
 
@@ -11,4 +12,4 @@ class Item(models.Model):
 
 
 item_create = pydantic_model_creator(Item, name="Item", exclude=("id",))
-item_response = pydantic_model_creator(Item)
+item_response = pydantic_model_creator(Item, name="ItemResponse")

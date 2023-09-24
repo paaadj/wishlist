@@ -1,9 +1,9 @@
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
 from config import settings
-from models import *
-from typing import List
+from auth.routes import auth_router
+from api.routes import router
 
 app = FastAPI()
 
@@ -18,14 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-router = APIRouter(prefix="/api")
-
 
 @app.on_event("startup")
 async def init():
     await Tortoise.init(
         db_url=settings.DATABASE_URL,
-        modules={"models": ["models"]}
+        modules={"models": ["models.item", "models.user"]}
     )
     await Tortoise.generate_schemas()
 
@@ -34,53 +32,8 @@ async def init():
 async def shutdown_db():
     await Tortoise.close_connections()
 
-
-@router.post("/create_item", response_model=item_response)
-async def create_item(item: item_create):
-    new_item = await Item.create(**item.dict())
-    return new_item
-
-
-@router.get("/get_item", response_model=List[item_response])
-async def get_item():
-    items = await Item.all()
-    return items
-
-
-@router.get("/get_item/{item_id}", response_model=item_response)
-async def get_item_via_id(item_id: int):
-    item = await Item.get_or_none(id=item_id)
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
-
-
-@router.put("/update_item/{item_id}", response_model=item_response)
-async def update_item(item_id: int, item_update: item_create):
-    item = await Item.get_or_none(id=item_id)
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item doesn't exist")
-
-    for field, value in item_update.dict().items():
-        setattr(item, field, value)
-    await item.save()
-
-    return item
-
-
-@router.delete("/delete/{item_id}", response_model=item_response)
-async def delete_item(item_id: int):
-    item = await Item.get_or_none(id=item_id)
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    await Item.delete(item)
-    return item
-
-
-app.include_router(router)
-
-
+app.include_router(router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 if __name__ == "__main__":
     import uvicorn
 
