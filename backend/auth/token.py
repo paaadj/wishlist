@@ -26,7 +26,6 @@ async def create_refresh_token(user: User):
     sub['scope'] = 'refresh'
     token_expiry_days = 30
     sub['exp'] = time.time() + 86400 * token_expiry_days
-    print(time.time())
     refresh_token = jwt.encode(sub, JWT_SECRET, algorithm=ALGORITHM)
     refresh_token_db = await RefreshToken.get_or_none(user=user)
     if refresh_token_db is None:
@@ -42,8 +41,10 @@ async def refresh_tokens(token: str):
         payload = jwt.decode(token, JWT_SECRET, algorithms=ALGORITHM)
         if payload.get('scope') != "refresh":
             raise jwt.exceptions.InvalidTokenError
-        print(payload.get('id'))
         user = await User.get(username=payload.get('username'))
+        refresh_token_db = await RefreshToken.get_or_none(user=user)
+        if refresh_token_db is None or refresh_token_db.token != token:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
         access_token = await create_access_token(user)
         refresh_token = await create_refresh_token(user)
         return {'access_token': access_token, 'refresh_token': refresh_token, 'token_type': 'bearer'}
