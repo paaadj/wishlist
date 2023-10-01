@@ -6,19 +6,19 @@ from typing import List
 router = APIRouter()
 
 
-@router.post("/create_item", response_model=item_response)
+@router.post("/create_item", response_model=item_response, tags=["item"])
 async def create_item(item: item_create):
     new_item = await Item.create(**item.dict())
     return new_item
 
 
-@router.get("/get_item", response_model=List[item_response])
+@router.get("/get_item", response_model=List[item_response], tags=["item"])
 async def get_item():
     items = await Item.all()
     return items
 
 
-@router.get("/get_item/{item_id}", response_model=item_response)
+@router.get("/get_item/{item_id}", response_model=item_response, tags=["item"])
 async def get_item_via_id(item_id: int):
     item = await Item.get_or_none(id=item_id)
     if item is None:
@@ -26,7 +26,7 @@ async def get_item_via_id(item_id: int):
     return item
 
 
-@router.put("/update_item/{item_id}", response_model=item_response)
+@router.put("/update_item/{item_id}", response_model=item_response, tags=["item"])
 async def update_item(item_id: int, item_update: item_create):
     item = await Item.get_or_none(id=item_id)
     if item is None:
@@ -39,7 +39,7 @@ async def update_item(item_id: int, item_update: item_create):
     return item
 
 
-@router.delete("/delete/{item_id}", response_model=item_response)
+@router.delete("/delete/{item_id}", response_model=item_response, tags=["item"])
 async def delete_item(item_id: int):
     item = await Item.get_or_none(id=item_id)
     if item is None:
