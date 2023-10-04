@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException
 from models.item import Item, item_create, item_response
-from typing import List
 
 
 router = APIRouter()
@@ -12,7 +11,7 @@ async def create_item(item: item_create):
     return new_item
 
 
-@router.get("/get_item", response_model=List[item_response], tags=["item"])
+@router.get("/get_item", response_model=list[item_response], tags=["item"])
 async def get_item():
     items = await Item.all()
     return items

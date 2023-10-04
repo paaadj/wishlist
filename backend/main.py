@@ -8,7 +8,7 @@ from api.routes import router
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",
+    "*"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -36,5 +36,6 @@ app.include_router(router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 if __name__ == "__main__":
     import uvicorn
-
+    print("Docs: http://127.0.0.1:8000/docs")
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
+

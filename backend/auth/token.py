@@ -29,7 +29,8 @@ async def create_refresh_token(user: User):
     refresh_token = jwt.encode(sub, JWT_SECRET, algorithm=ALGORITHM)
     refresh_token_db = await RefreshToken.get_or_none(user=user)
     if refresh_token_db is None:
-        await RefreshToken.create(user=user, refresh_token=refresh_token)
+        refresh_token_db = await RefreshToken.create(user=user, token=refresh_token)
+        await refresh_token_db.save()
     else:
         refresh_token_db.token = refresh_token
         await refresh_token_db.save()
