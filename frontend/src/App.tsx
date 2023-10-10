@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./App.css";
 import Registration from "./components/Registration/Registration";
+import { UserContext, UserContextType } from "./context/UserContext";
+import Login from "./components/Login/Login";
+
 
 interface Item {
   id: number;
@@ -8,13 +11,14 @@ interface Item {
 }
 
 function App() {
+  const { accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(UserContext) as UserContextType;
   const [items, setItems] = useState<Item[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [editItem, setEditItem] = useState<Item | null>(null);
 
   const handleRead = async function () {
     try {
-      const response = await fetch("http://localhost:8000/api/get_item");
+      const response = await fetch("http://26.76.195.236:8000/api/get_item");
       const data = await response.json();
       setItems(data);
     } catch (error) {
@@ -27,7 +31,7 @@ function App() {
     if (!newItem) {
       return;
     }
-    await fetch("http://localhost:8000/api/create_item", {
+    await fetch("http://26.76.195.236:8000/api/create_item", {
       method: "POST",
       body: JSON.stringify({ title: newItem }),
       headers: {
@@ -44,7 +48,7 @@ function App() {
     if (!editItem) {
       return;
     }
-    await fetch(`http://localhost:8000/api/update_item/${editItem.id}`, {
+    await fetch(`http://26.76.195.236:8000/api/update_item/${editItem.id}`, {
       method: "PUT",
       body: JSON.stringify({ title: newItem }),
       headers: {
@@ -58,7 +62,7 @@ function App() {
   };
 
   const handleDelete = async function (id: number) {
-    await fetch(`http://localhost:8000/api/delete/${id}`, {
+    await fetch(`http://26.76.195.236:8000/api/delete/${id}`, {
       method: "DELETE",
     });
     await handleRead();
@@ -104,7 +108,10 @@ function App() {
 
           <h1>Регистрация</h1>
           <Registration/>
+          <Login/>
 
+
+          { !accessToken  ? (<h2>Не авторизован</h2>) : (<><h2>Авторизирован</h2><button onClick={() => {setRefreshToken(undefined); setAccessToken(undefined)}}>Выйти</button></>)}
     </>
   );
 }

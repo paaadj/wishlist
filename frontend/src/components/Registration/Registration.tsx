@@ -6,9 +6,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { UserContextType } from "../../context/UserContext";
 
 interface IRegistrationInput {
-  firstName: string;
-  lastName: string;
-  email: string;
+  username: string;
+  email?: string;
   password: string;
   confirmPassword: string;
 }
@@ -17,18 +16,14 @@ const emailRegex =
   /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
 
 const registrationValidationSchema = yup.object().shape({
-  firstName: yup
+  username: yup
     .string()
-    .matches(/^([^0-9]*)$/, "First name should not contain numbers")
-    .required("First name is a required field"),
-  lastName: yup
-    .string()
-    .matches(/^([^0-9]*)$/, "Last name should not contain numbers")
-    .required("Last name is a required field"),
+    .matches(/^([^0-9]*)$/, "Username should not contain numbers")
+    .required("Username is a required field"),
   email: yup
     .string()
-    .matches(emailRegex, "Email should have correct format")
-    .required("Email is a required field"),
+    // .matches(emailRegex, "Email should have correct format")
+    ,
   password: yup
     .string()
     .test("length", "More than or exactly 7 symbols", (value) =>
@@ -42,16 +37,14 @@ const registrationValidationSchema = yup.object().shape({
 });
 
 const Registration = () => {
-  const { token, setToken } = useContext(UserContext) as UserContextType;
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
+  //const { accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(UserContext) as UserContextType;
+  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   const defaultValues = {
-    firstName: firstName,
-    lastName: lastName,
+    username: username,
     email: email,
   };
   const {
@@ -65,28 +58,28 @@ const Registration = () => {
   });
 
   const onSubmitHandler = async (values: IRegistrationInput) => {
-    // const requestParams = {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     firstName: firstName,
-    //     lastName: lastName,
-    //     email: email,
-    //     password: password,
-    //   }),
-    // };
+    const requestParams = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,
+        email: email,
+        password: password,
+      }),
+    };
+    console.log(requestParams);
+    const response = await fetch("http://localhost:8000/api/register", requestParams);
+    const data = await response.json();
 
-    // const response = await fetch("/api/register", requestParams);
-    // const data = await response.json();
-
-    // if(!response.ok){
-    //     console.log("DB error");
-    // }
-    // else{
-    //     setToken(data.access_token);
-    // }
+    if(!response.ok){
+        console.log("DB error");
+    }
+    else{
+        // setToken(data.access_token);
+        console.log("Registration successful");
+    }
     console.table(values);
   };
 
@@ -95,26 +88,16 @@ const Registration = () => {
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <div>
           <input
-            {...register("firstName")}
+            {...register("username")}
             type="text"
-            id="firstName"
-            placeholder="First Name"
+            id="username"
+            placeholder="Username"
             onChange={(e) => {
-              setFirstName(e.target.value);
+              setUsername(e.target.value);
             }}
           />
         </div>
-        <div>
-          <input
-            {...register("lastName")}
-            type="text"
-            id="lastName"
-            placeholder="Last Name"
-            onChange={(e) => {
-              setLastName(e.target.value);
-            }}
-          />
-        </div>
+        
         <div>
           <input
             {...register("email")}
@@ -150,8 +133,7 @@ const Registration = () => {
         </div>
         {errors && (
           <div>
-            <p>{errors.firstName?.message}</p>
-            <p>{errors.lastName?.message}</p>
+            <p>{errors.username?.message}</p>
             <p>{errors.email?.message}</p>
             <p>{errors.password?.message}</p>
             <p>{errors.confirmPassword?.message}</p>
