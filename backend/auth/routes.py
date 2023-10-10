@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.hash import bcrypt
 from .services import *
@@ -13,7 +13,6 @@ JWT_SECRET = settings.SECRET_KEY
 @auth_router.post("/token", tags=["auth"], response_model=TokenResponse)
 async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await authenticate_user(form_data.username, form_data.password)
-
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
