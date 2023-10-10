@@ -3,6 +3,9 @@ import "./App.css";
 import Registration from "./components/Registration/Registration";
 import { UserContext, UserContextType } from "./context/UserContext";
 import Login from "./components/Login/Login";
+import { Link, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import User from "./components/User/User";
 
 interface Item {
   id: number;
@@ -71,6 +74,7 @@ function App() {
 
   return (
     <>
+      
       <div>
         <h2>{"Прочитать из бд"}</h2>
         <button onClick={handleRead}>Прочитать</button>
@@ -112,10 +116,14 @@ function App() {
       <Login />
 
       {!isAuthenticated ? (
-        <h2>Не авторизован</h2>
+        <h2>
+          <Link to="/user">Чел</Link>
+        </h2>
       ) : (
         <>
-          <h2>Авторизирован</h2>
+          <h2>
+            <Link to="/user">Чел</Link>
+          </h2>
           <button
             onClick={() => {
               console.log(isAuthenticated);
@@ -126,6 +134,19 @@ function App() {
           </button>
         </>
       )}
+
+
+<Routes>
+        <Route
+          path="user" 
+          element={
+            <ProtectedRoute
+              component={<User />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
+      </Routes>
     </>
   );
 }
