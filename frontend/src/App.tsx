@@ -4,14 +4,15 @@ import Registration from "./components/Registration/Registration";
 import { UserContext, UserContextType } from "./context/UserContext";
 import Login from "./components/Login/Login";
 
-
 interface Item {
   id: number;
   title: string;
 }
 
 function App() {
-  const { accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(UserContext) as UserContextType;
+  const { setAuthorizationTokens, isAuthenticated } = useContext(
+    UserContext
+  ) as UserContextType;
   const [items, setItems] = useState<Item[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [editItem, setEditItem] = useState<Item | null>(null);
@@ -106,12 +107,25 @@ function App() {
         )}
       </div>
 
-          <h1>Регистрация</h1>
-          <Registration/>
-          <Login/>
+      <h1>Регистрация</h1>
+      <Registration />
+      <Login />
 
-
-          { !accessToken  ? (<h2>Не авторизован</h2>) : (<><h2>Авторизирован</h2><button onClick={() => {setRefreshToken(undefined); setAccessToken(undefined)}}>Выйти</button></>)}
+      {!isAuthenticated ? (
+        <h2>Не авторизован</h2>
+      ) : (
+        <>
+          <h2>Авторизирован</h2>
+          <button
+            onClick={() => {
+              console.log(isAuthenticated);
+              setAuthorizationTokens(undefined, undefined);
+            }}
+          >
+            Выйти
+          </button>
+        </>
+      )}
     </>
   );
 }

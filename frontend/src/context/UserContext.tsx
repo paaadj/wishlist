@@ -1,25 +1,29 @@
 import { createContext, useEffect, useState } from "react";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 export type UserContextType = {
   accessToken: string | undefined;
-  setAccessToken: React.Dispatch<React.SetStateAction<string | undefined>>;
   refreshToken: string | undefined;
-  setRefreshToken: React.Dispatch<React.SetStateAction<string | undefined>>;
-  fetchUser: (access_token: string | undefined, refresh_token: string | undefined) => Promise<void>
+  setAuthorizationTokens: (
+    access_token: string | undefined,
+    refresh_token: string | undefined
+  ) => void;
+  isAuthenticated: boolean;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = (props: any) => {
-  const [refreshToken, setRefreshToken] = useState(
-    Cookies.get("refreshToken")
-  );
-  const [accessToken, setAccessToken] = useState(
-    Cookies.get("accessToken")
-  );
-  
-  const fetchUser = async (access_token: string | undefined, refresh_token: string | undefined) => {
+  const [refreshToken, setRefreshToken] = useState(Cookies.get("refreshToken"));
+  const [accessToken, setAccessToken] = useState(Cookies.get("accessToken"));
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const fetchUser = async (
+    access_token: string | undefined,
+    refresh_token: string | undefined
+  ) => {
+    if (accessToken === undefined && refreshToken === undefined) {
+      return false;
+    }
     const requestParams = {
       method: "GET",
       headers: {
@@ -34,43 +38,67 @@ export const UserProvider = (props: any) => {
       },
       body: JSON.stringify({ token: refresh_token }),
     };
-    const response = await fetch("http://localhost:8000/api/users/me", requestParams);
+    const response = await fetch(
+      "http://localhost:8000/api/users/me",
+      requestParams
+    );
     if (!response.ok) {
       const refreshResponse = await fetch(
         "http://localhost:8000/api/refresh_token",
         requestRefreshParams
       );
       if (!refreshResponse.ok) {
-        setRefreshToken(undefined);
-        setAccessToken(undefined);
+        await setAuthorizationTokens(undefined, undefined);
+        return false;
       } else {
         const refreshData = await refreshResponse.json();
-        Cookies.set("accessToken", refreshData.access_token ?? undefined)
-        Cookies.set("refreshToken", refreshData.refresh_token ?? undefined)
-        // localStorage.setItem(
-        //   "accessToken",
-        //   refreshData.access_token ?? "null"
-        // );
-        // localStorage.setItem(
-        //   "refreshToken",
-        //   refreshData.refresh_token ?? "null"
-        // );
+        await setAuthorizationTokens(
+          refreshData.access_token ?? undefined,
+          refreshData.refresh_token ?? undefined
+        );
+        return true;
       }
     } else {
-      Cookies.set("accessToken", access_token ?? "undefined")
-      Cookies.set("refreshToken", refresh_token ?? "undefined")
-      // localStorage.setItem("accessToken", access_token ?? "null");
-      // localStorage.setItem("refreshToken", refresh_token ?? "null");
+      return true;
     }
   };
 
+  const setAuthorizationTokens = (
+    access_token: string | undefined,
+    refresh_token: string | undefined
+  ) => {
+    console.log("authSet1");
+    if (access_token === undefined && refresh_token === undefined) {
+      console.log("authSetFalse");
+      setAccessToken(access_token);
+      setRefreshToken(refresh_token);
+      Cookies.remove("refreshToken", { path: "/" });
+      Cookies.remove("accessToken", { path: "/" });
+    } else {
+      console.log("authSet2");
+      setAccessToken(access_token);
+      setRefreshToken(refresh_token);
+      Cookies.set("accessToken", access_token ?? "undefined", { path: "/" });
+      Cookies.set("refreshToken", refresh_token ?? "undefined", { path: "/" });
+    }
+  };
+  const checkAuthentication = async () => {
+    setIsAuthenticated(await fetchUser(accessToken, refreshToken));
+  };
+
   /*Check the token */
-  // useEffect(() => {
-  //   fetchUser(accessToken, refreshToken);
-  // }, [accessToken, refreshToken]);
+  useEffect(() => {
+    console.log("effect");
+    checkAuthentication();
+  }, [accessToken]);
   return (
     <UserContext.Provider
-      value={{ accessToken, setAccessToken, refreshToken, setRefreshToken, fetchUser }}
+      value={{
+        accessToken,
+        refreshToken,
+        setAuthorizationTokens,
+        isAuthenticated,
+      }}
     >
       {props.children}
     </UserContext.Provider>

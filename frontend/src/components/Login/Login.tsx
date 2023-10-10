@@ -15,13 +15,11 @@ const registrationValidationSchema = yup.object().shape({
     .string()
     .matches(/^([^0-9]*)$/, "Username should not contain numbers")
     .required("Username is a required field"),
-  password: yup
-    .string()
-    .required("Password is required"),
+  password: yup.string().required("Password is required"),
 });
 
 const Login = () => {
-    const { accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(UserContext) as UserContextType;
+  const { setAuthorizationTokens } = useContext(UserContext) as UserContextType;
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -44,24 +42,23 @@ const Login = () => {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify(`grant_type=&username=${username}&password=${password}&scope=&client_id=&client_secret=`),
-      // body: JSON.stringify({
-      //   username: username,
-      //   password: password,
-      // })
+      body: JSON.stringify(
+        `grant_type=&username=${username}&password=${password}&scope=&client_id=&client_secret=`
+      ),
     };
     console.log(requestParams);
-    const response = await fetch("http://localhost:8000/api/token", requestParams);
+    const response = await fetch(
+      "http://localhost:8000/api/token",
+      requestParams
+    );
     const data = await response.json();
 
-    if(!response.ok){
-        
-        console.log(response)
-        console.log("DB error");
-    }
-    else{
-        setAccessToken(data.access_token);
-        setRefreshToken(data.refresh_token);
+    if (!response.ok) {
+      console.log(response);
+      console.log("DB error");
+    } else {
+      console.log("sssss");
+      setAuthorizationTokens(data.access_token, data.refresh_token);
     }
     console.table(values);
   };
