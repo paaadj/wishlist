@@ -1,0 +1,54 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 18
+
+    - name: Change directory
+      run: cd frontend
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build frontend
+      run: npm run build
+
+    - name: Start server
+      run: npm start
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Change directory
+      run: cd backend
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run FastAPI server
+      run: uvicorn main:app --host 0.0.0.0 --port 8000
