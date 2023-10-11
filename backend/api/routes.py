@@ -1,24 +1,46 @@
-from fastapi import APIRouter, HTTPException
-from models.item import Item, item_create, item_response
+"""
+Module containing API routes and handlers
+"""
 
+
+from fastapi import APIRouter, HTTPException
+
+from models.item import Item, item_create, item_response
 
 router = APIRouter()
 
 
 @router.post("/create_item", response_model=item_response, tags=["item"])
 async def create_item(item: item_create):
+    """
+    Create an item
+
+    :param item: Item to create
+    :return: Item if valid data or error
+    """
     new_item = await Item.create(**item.dict())
     return new_item
 
 
 @router.get("/get_item", response_model=list[item_response], tags=["item"])
 async def get_item():
+    """
+    Get list of all items
+
+    :return: List of all items
+    """
     items = await Item.all()
     return items
 
 
 @router.get("/get_item/{item_id}", response_model=item_response, tags=["item"])
 async def get_item_via_id(item_id: int):
+    """
+    Get item via id
+
+    :param item_id: id of item to get
+    :return: item if exists  or error
+    """
     item = await Item.get_or_none(id=item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -27,6 +49,13 @@ async def get_item_via_id(item_id: int):
 
 @router.put("/update_item/{item_id}", response_model=item_response, tags=["item"])
 async def update_item(item_id: int, item_update: item_create):
+    """
+    update item with id item_id with item_update info
+
+    :param item_id: id of item to update
+    :param item_update: item info
+    :return: item if updated or error
+    """
     item = await Item.get_or_none(id=item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item doesn't exist")
@@ -40,6 +69,11 @@ async def update_item(item_id: int, item_update: item_create):
 
 @router.delete("/delete/{item_id}", response_model=item_response, tags=["item"])
 async def delete_item(item_id: int):
+    """
+    Delete item with id item_id
+    :param item_id: id of item to delete
+    :return: deleted item if existed or error
+    """
     item = await Item.get_or_none(id=item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")

@@ -1,15 +1,19 @@
+"""
+Main file
+"""
+
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
-from config import settings
-from auth.routes import auth_router
+
 from api.routes import router
+from auth.routes import auth_router
+from config import settings
 
 app = FastAPI()
 
-origins = [
-    "*"
-]
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -21,21 +25,25 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def init():
+    """
+    Initial method
+    """
     await Tortoise.init(
-        db_url=settings.DATABASE_URL,
-        modules={"models": ["models.item", "models.user"]}
+        db_url=settings.DATABASE_URL, modules={"models": ["models.item", "models.user"]}
     )
     await Tortoise.generate_schemas()
 
 
 @app.on_event("shutdown")
 async def shutdown_db():
+    """
+    Shutdown method
+    """
     await Tortoise.close_connections()
+
 
 app.include_router(router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 if __name__ == "__main__":
     import uvicorn
-    print("Docs: http://127.0.0.1:8000/docs")
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
-

@@ -1,23 +1,33 @@
+"""
+Configuration file
+"""
+
+
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
-from pathlib import Path
-env_path = Path('.') / '.env'
+env_path = Path(".") / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
+# pylint: disable=too-few-public-methods
 class Settings:
+    """
+    Settings class
+    """
     PROJECT_NAME: str = "Wishlist"
     PROJECT_VERSION: str = "0.0.1"
 
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER")
-    POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
-    POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", 5432)
-    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "tdd")
-    DATABASE_URL = f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+    USER: str = os.getenv("POSTGRES_USER", default="admin")
+    PASSWORD = os.getenv("POSTGRES_PASSWORD", default="123456")
+    SERVER: str = os.getenv("POSTGRES_SERVER", default="localhost")
+    PORT: str = os.getenv("POSTGRES_PORT", default="3306")
+    DB: str = os.getenv("POSTGRES_DB", default="tdd")
+    DATABASE_URL = f"mysql://{USER}:{PASSWORD}@{SERVER}:{PORT}/{DB}"
 
-    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", default="AWESOME_SECRET_KEY")
 
 
 settings = Settings()

@@ -1,9 +1,17 @@
-from tortoise.models import Model
+"""
+Item model
+"""
+
+
 from tortoise import fields
 from tortoise.contrib.pydantic import pydantic_model_creator
+from tortoise.models import Model
 
 
 class Item(Model):
+    """
+    Item model
+    """
     id = fields.IntField(pk=True)
     title = fields.CharField(max_length=50, null=False)
 
