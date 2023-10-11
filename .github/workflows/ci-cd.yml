@@ -19,19 +19,16 @@ jobs:
       with:
         node-version: 18
 
-    - name: Change directory
-      run: cd frontend
-
-    - name: check files
-      run: ls
-
     - name: Install dependencies
+      working-directory: ./frontend
       run: npm install
 
     - name: Build frontend
+      working-directory: ./frontend
       run: npm run build
 
     - name: Start server
+      working-directory: ./frontend
       run: npm start
 
   backend:
@@ -47,11 +44,10 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Change directory
-      run: cd backend
-
     - name: Install dependencies
+      working-directory: ./backend
       run: pip install -r requirements.txt
 
     - name: Run FastAPI server
+      working-directory: ./backend
       run: uvicorn main:app --host 0.0.0.0 --port 8000
