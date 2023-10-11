@@ -88,8 +88,8 @@ export const UserProvider = (props: any) => {
 
   /*Check the token */
   useEffect(() => {
-    console.log("effect");
     checkAuthentication();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
   return (
     <UserContext.Provider
