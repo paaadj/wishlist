@@ -1,9 +1,7 @@
-import React, { useContext, useState } from "react";
-import { UserContext } from "../../context/UserContext";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { UserContextType } from "../../context/UserContext";
 
 interface IRegistrationInput {
   username: string;
@@ -12,8 +10,8 @@ interface IRegistrationInput {
   confirmPassword: string;
 }
 
-const emailRegex =
-  /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+// const emailRegex =
+//   /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
 
 const registrationValidationSchema = yup.object().shape({
   username: yup
@@ -22,7 +20,7 @@ const registrationValidationSchema = yup.object().shape({
     .required("Username is a required field"),
   email: yup
     .string()
-    // .matches(emailRegex, "Email should have correct format")
+    //.matches(emailRegex, "Email should have correct format")
     ,
   password: yup
     .string()
@@ -37,11 +35,10 @@ const registrationValidationSchema = yup.object().shape({
 });
 
 const Registration = () => {
-  //const { accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(UserContext) as UserContextType;
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [, setConfirmPassword] = useState<string>("");
 
   const defaultValues = {
     username: username,
@@ -71,7 +68,7 @@ const Registration = () => {
     };
     console.log(requestParams);
     const response = await fetch("http://localhost:8000/api/register", requestParams);
-    const data = await response.json();
+    // const data = await response.json();
 
     if(!response.ok){
         console.log("DB error");
