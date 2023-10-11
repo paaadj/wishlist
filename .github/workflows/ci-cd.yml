@@ -22,6 +22,9 @@ jobs:
     - name: Change directory
       run: cd frontend
 
+    - name: check files
+      run: ls
+
     - name: Install dependencies
       run: npm install
 
