@@ -20,7 +20,7 @@ jobs:
         node-version: 18
 
     - name: Change directory
-      run: cd .\frontend
+      run: cd frontend
 
     - name: Install dependencies
       run: npm install
@@ -45,7 +45,7 @@ jobs:
         python-version: 3.11
 
     - name: Change directory
-      run: cd .\backend
+      run: cd backend
 
     - name: Install dependencies
       run: pip install -r requirements.txt
