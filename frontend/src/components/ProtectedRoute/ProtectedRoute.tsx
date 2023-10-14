@@ -1,9 +1,10 @@
 import { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
+import { userAuth } from "../../context/UserContext";
 
 interface IProtectedRoute {
   component: ReactElement;
-  isAuthenticated: boolean;
+  isAuthenticated: boolean | userAuth;
   rest_props?: object;
 }
 

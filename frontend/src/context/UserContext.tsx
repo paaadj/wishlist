@@ -1,6 +1,11 @@
 import { createContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
+export type userAuth = {
+  username: string;
+  email: string;
+};
+
 export type UserContextType = {
   accessToken: string | undefined;
   refreshToken: string | undefined;
@@ -8,7 +13,7 @@ export type UserContextType = {
     access_token: string | undefined,
     refresh_token: string | undefined
   ) => void;
-  isAuthenticated: boolean;
+  isAuthenticated: false | userAuth;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -16,7 +21,9 @@ export const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider = (props: any) => {
   const [refreshToken, setRefreshToken] = useState(Cookies.get("refreshToken"));
   const [accessToken, setAccessToken] = useState(Cookies.get("accessToken"));
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<false | userAuth>(
+    false
+  );
   const fetchUser = async (
     access_token: string | undefined,
     refresh_token: string | undefined
@@ -56,10 +63,19 @@ export const UserProvider = (props: any) => {
           refreshData.access_token ?? undefined,
           refreshData.refresh_token ?? undefined
         );
-        return true;
+        const repeatResponse = await fetch(
+          "http://localhost:8000/api/users/me",
+          requestParams
+        );
+        const repeatAuthData = await repeatResponse.json();
+        return {
+          username: repeatAuthData.username,
+          email: repeatAuthData.email,
+        };
       }
     } else {
-      return true;
+      const authData = await response.json();
+      return { username: authData.username, email: authData.email };
     }
   };
 
@@ -89,7 +105,7 @@ export const UserProvider = (props: any) => {
   /*Check the token */
   useEffect(() => {
     checkAuthentication();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
   return (
     <UserContext.Provider

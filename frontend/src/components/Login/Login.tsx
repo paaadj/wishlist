@@ -1,9 +1,10 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../../context/UserContext";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { UserContextType } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 interface ILoginInput {
   username: string;
@@ -22,6 +23,7 @@ const Login = () => {
   const { setAuthorizationTokens } = useContext(UserContext) as UserContextType;
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const navigate = useNavigate();
 
   const defaultValues = {
     username: username,
@@ -61,6 +63,7 @@ const Login = () => {
       setAuthorizationTokens(data.access_token, data.refresh_token);
     }
     console.table(values);
+    navigate("/");
   };
 
   return (
