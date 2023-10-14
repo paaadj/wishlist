@@ -46,12 +46,12 @@ export const UserProvider = (props: any) => {
       body: JSON.stringify({ token: refresh_token }),
     };
     const response = await fetch(
-      "http://localhost:8000/api/users/me",
+      "/api/users/me",
       requestParams
     );
     if (!response.ok) {
       const refreshResponse = await fetch(
-        "http://localhost:8000/api/refresh_token",
+        "/api/refresh_token",
         requestRefreshParams
       );
       if (!refreshResponse.ok) {
@@ -64,7 +64,7 @@ export const UserProvider = (props: any) => {
           refreshData.refresh_token ?? undefined
         );
         const repeatResponse = await fetch(
-          "http://localhost:8000/api/users/me",
+          "/api/users/me",
           requestParams
         );
         const repeatAuthData = await repeatResponse.json();

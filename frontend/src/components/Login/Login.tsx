@@ -50,7 +50,7 @@ const Login = () => {
     };
     console.log(requestParams);
     const response = await fetch(
-      "http://localhost:8000/api/token",
+      "/api/token",
       requestParams
     );
     const data = await response.json();

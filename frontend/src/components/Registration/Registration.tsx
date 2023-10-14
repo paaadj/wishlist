@@ -67,7 +67,7 @@ const Registration = () => {
       }),
     };
     console.log(requestParams);
-    const response = await fetch("http://localhost:8000/api/register", requestParams);
+    const response = await fetch("/api/register", requestParams);
     // const data = await response.json();
 
     if(!response.ok){
