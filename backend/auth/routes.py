@@ -6,6 +6,7 @@ Module containing routes and handlers for auth
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.hash import bcrypt
+from tortoise.exceptions import ValidationError
 from tortoise.expressions import Q
 
 from config import settings
@@ -57,17 +58,24 @@ async def create_user(user: UserCreate):
     :param user: user info for create
     :return: new user if created or error
     """
-    existing_user = await User.filter((Q(username=user.username) | Q(email=user.email))).first()
+    try:
+        if user.email:
+            q = Q(username=user.username) | Q(email=user.email)
+        else:
+            q = Q(username=user.username)
+        existing_user = await User.filter(q).first()
 
-    if existing_user:
+        if existing_user:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User with this username or email already exists")
+        user_obj = User(
+            username=user.username, password=bcrypt.hash(user.password), email=user.email
+        )
+        await user_obj.save()
+        return user_obj
+    except ValidationError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="User with this username of email already exists")
-
-    user_obj = User(
-        username=user.username, password=bcrypt.hash(user.password), email=user.email
-    )
-    await user_obj.save()
-    return user_obj
+                            detail="Invalid format")
 
 
 @auth_router.get("/users/me", response_model=User_Pydantic, tags=["auth"])
@@ -78,3 +86,25 @@ async def get_user(user: User_Pydantic = Depends(get_current_user)):
     :return: user
     """
     return user
+
+
+@auth_router.get("/users/username/{username}", response_model=bool)
+async def check_username(username: str):
+    """
+    Check availability of username
+    :param username: username to check
+    :return: True if username is available else False
+    """
+    user = await User.filter(username=username).first()
+    return not bool(user)
+
+
+@auth_router.get("/users/email/{email}", response_model=bool)
+async def check_email(email:str):
+    """
+    Check availability of email
+    :param email: email to check
+    :return: True if email is available else False
+    """
+    user = await User.filter(email=email).first()
+    return not bool(user)

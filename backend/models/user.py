@@ -1,14 +1,14 @@
 """
 Models which needs for user
 """
-
-
+import re
 from typing import Optional
 
 from passlib.hash import bcrypt
 from pydantic import BaseModel
 from tortoise import fields
 from tortoise.contrib.pydantic import pydantic_model_creator
+from tortoise.validators import RegexValidator
 from tortoise.models import Model
 
 
@@ -18,7 +18,12 @@ class User(Model):
     """
     id = fields.IntField(pk=True)
     username = fields.CharField(max_length=255, unique=True)
-    email = fields.CharField(max_length=255, unique=True, null=True)
+    email = fields.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        validators=[RegexValidator(r"^\S+@\S+\.\S+$", re.I)]
+        )
     password = fields.CharField(max_length=255)
 
     def __str__(self):
