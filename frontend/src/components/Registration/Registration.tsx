@@ -5,23 +5,54 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 interface IRegistrationInput {
   username: string;
-  email?: string;
+  email: string;
   password: string;
   confirmPassword: string;
 }
 
-// const emailRegex =
-//   /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+const emailRegex =
+  // eslint-disable-next-line no-control-regex
+  /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
 
 const registrationValidationSchema = yup.object().shape({
   username: yup
     .string()
     .matches(/^([^0-9]*)$/, "Username should not contain numbers")
-    .required("Username is a required field"),
+    .required("Username is a required field")
+    .test(
+      "checkUsernameAvailability",
+      "This username is already registered",
+      async (username) => {
+        try {
+          console.log(username);
+          const response = await fetch(`/api/users/username/${username}`);
+          const isUsernameAvalible = await response.json();
+          console.log(isUsernameAvalible);
+          return isUsernameAvalible;
+        } catch (e) {
+          return false;
+        }
+      }
+    ),
   email: yup
     .string()
-    //.matches(emailRegex, "Email should have correct format")
-    ,
+    .required("Email is a required field")
+    .matches(emailRegex, "Email should have correct format")
+    .test(
+      "checkEmailAvailability",
+      "This email is already registered",
+      async (email) => {
+        try {
+          console.log(email);
+          const response = await fetch(`/api/users/email/${email}`);
+          const isEmailAvalible = await response.json();
+          console.log(isEmailAvalible);
+          return isEmailAvalible;
+        } catch (e) {
+          return false;
+        }
+      }
+    ),
   password: yup
     .string()
     .test("length", "More than or exactly 7 symbols", (value) =>
@@ -70,12 +101,11 @@ const Registration = () => {
     const response = await fetch("/api/register", requestParams);
     // const data = await response.json();
 
-    if(!response.ok){
-        console.log("DB error");
-    }
-    else{
-        // setToken(data.access_token);
-        console.log("Registration successful");
+    if (!response.ok) {
+      console.log("DB error");
+    } else {
+      // setToken(data.access_token);
+      console.log("Registration successful");
     }
     console.table(values);
   };
@@ -94,7 +124,7 @@ const Registration = () => {
             }}
           />
         </div>
-        
+
         <div>
           <input
             {...register("email")}
