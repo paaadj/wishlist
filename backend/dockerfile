@@ -1,0 +1,21 @@
+FROM python:3.11
+
+COPY requirements.txt ./
+COPY api ./api
+COPY auth ./auth
+COPY models ./models
+COPY config.py ./
+COPY main.py ./
+
+RUN pip install -r requirements.txt
+
+ENV DB="ba7ctmcvl7pqhdbd8gwm"
+ENV KEY="(3WkG9*9Mtr0*+7IaeentAYhULJ9+B\v4)cJ\((ByIkAlVHpUqav5iO:ffvW=Mq8S8JS6I+XM\cucN3r8-)_RX\v@0M=vr!.u"
+ENV PASSWORD="OJVtSirvAi4aBioq6Imc"
+ENV PORT="3306"
+ENV SERVER="ba7ctmcvl7pqhdbd8gwm-mysql.services.clever-cloud.com"
+ENV USER="uzki99b1zraf5hmi"
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

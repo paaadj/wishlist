@@ -31,6 +31,7 @@ async def init():
     await Tortoise.init(
         db_url=settings.DATABASE_URL, modules={"models": ["models.item", "models.user"]}
     )
+    print(settings.DATABASE_URL)
 
 
 @app.on_event("shutdown")
