@@ -22,8 +22,8 @@ async def authenticate_user(username: str, password: str):
     :param password: user's password
     :return: user if exists
     """
-    user = await User.get(username=username)
-    if not User:
+    user = await User.get_or_none(username=username)
+    if user is None:
         return False
     if not user.verify_password(password):
         return False

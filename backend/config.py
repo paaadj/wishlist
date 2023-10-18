@@ -11,6 +11,7 @@ class Settings:
     """
     Settings class
     """
+
     PROJECT_NAME: str = "Wishlist"
     PROJECT_VERSION: str = "0.0.1"
 
@@ -25,14 +26,3 @@ class Settings:
 
 
 settings = Settings()
-
-
-TORTOISE_ORM = {
-    "connections": {"default": f"{settings.DATABASE_URL}"},
-    "apps": {
-        "models": {
-            "models": ["models.item", "models.user", "aerich.models"],
-            "default_connection": "default",
-        },
-    },
-}

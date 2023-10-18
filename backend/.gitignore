@@ -30,3 +30,8 @@ pyvenv.cfg
 
 # macOS
 .DS_Store
+
+# additional
+/aerich_config.py
+/migrations/
+/pyproject.toml

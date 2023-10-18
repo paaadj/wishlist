@@ -12,6 +12,7 @@ class Item(Model):
     """
     Item model
     """
+
     id = fields.IntField(pk=True)
     title = fields.CharField(max_length=50, null=False)
 

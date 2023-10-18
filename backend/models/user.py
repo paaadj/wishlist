@@ -16,14 +16,15 @@ class User(Model):
     """
     User model
     """
+
     id = fields.IntField(pk=True)
     username = fields.CharField(max_length=255, unique=True)
     email = fields.CharField(
         max_length=255,
         unique=True,
         null=True,
-        validators=[RegexValidator(r"^\S+@\S+\.\S+$", re.I)]
-        )
+        validators=[RegexValidator(r"^\S+@\S+\.\S+$", re.I)],
+    )
     password = fields.CharField(max_length=255)
 
     def __str__(self):
@@ -40,8 +41,9 @@ class User(Model):
 
 class RefreshToken(Model):
     """
-    User's refresh token model
+    User refresh token model
     """
+
     id = fields.IntField(pk=True)
     token = fields.CharField(max_length=255, unique=True)
     user = fields.OneToOneField("models.User", on_delete=fields.CASCADE)
@@ -51,6 +53,7 @@ class UserCreate(BaseModel):
     """
     User creation model
     """
+
     username: str
     email: Optional[str] = None
     password: str

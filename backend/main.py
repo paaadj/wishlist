@@ -31,7 +31,6 @@ async def init():
     await Tortoise.init(
         db_url=settings.DATABASE_URL, modules={"models": ["models.item", "models.user"]}
     )
-    print(settings.DATABASE_URL)
 
 
 @app.on_event("shutdown")
@@ -46,4 +45,5 @@ app.include_router(router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("main:app", host="0.0.0.0", port=8000)

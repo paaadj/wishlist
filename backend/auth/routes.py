@@ -27,7 +27,7 @@ JWT_SECRET = settings.SECRET_KEY
 async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     """
     Authenticate user
-    :param form_data: username and login
+    :param form_data: username and password
     :return: access and refresh tokens and token type
     """
     user = await authenticate_user(form_data.username, form_data.password)
@@ -66,16 +66,21 @@ async def create_user(user: UserCreate):
         existing_user = await User.filter(q).first()
 
         if existing_user:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail="User with this username or email already exists")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User with this username or email already exists",
+            )
         user_obj = User(
-            username=user.username, password=bcrypt.hash(user.password), email=user.email
+            username=user.username,
+            password=bcrypt.hash(user.password),
+            email=user.email,
         )
         await user_obj.save()
         return user_obj
     except ValidationError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f"Invalid format: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
+        ) from exc
 
 
 @auth_router.get("/users/me", response_model=User_Pydantic, tags=["auth"])
@@ -100,7 +105,7 @@ async def check_username(username: str):
 
 
 @auth_router.get("/users/email/{email}", response_model=bool)
-async def check_email(email:str):
+async def check_email(email: str):
     """
     Check availability of email
     :param email: email to check
