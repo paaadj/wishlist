@@ -48,6 +48,10 @@ jobs:
       working-directory: ./backend
       run: pytest
       continue-on-error: true
+
+    - name: Make directory for artifact
+      working-directory: ./backend
+      run: mkdir -p test-results
     
     - name: Upload artifact
       uses: actions/upload-artifact@v3
