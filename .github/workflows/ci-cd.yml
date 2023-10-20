@@ -46,7 +46,7 @@ jobs:
 
     - name: Run tests
       working-directory: ./backend
-      run: pytest
+      run: pytest --junitxml=test-results/results.xml
       continue-on-error: true
 
     - name: Make directory for artifact
