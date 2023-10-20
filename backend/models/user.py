@@ -62,8 +62,8 @@ class UserCreate(BaseModel):
 User_Pydantic = pydantic_model_creator(
     User,
     name="User",
-    include=(
-        "username",
-        "email",
+    exclude=(
+        "id",
+        "password",
     ),
 )
