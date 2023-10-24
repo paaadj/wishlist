@@ -1,0 +1,106 @@
+@media (max-width: 809px) or (device-type: phone) {
+  .footer {
+    /* The `footer` class is used to style the footer. */
+    padding: 100px 0;
+    min-width: 100%;
+  }
+
+  .footer-wrap {
+    /* The `footer-wrap` class is used to wrap the footer content. */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 1000px;
+    row-gap: 100px;
+  }
+
+  .footer-links {
+    /* The `footer-links` class is used to style the footer links. */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    row-gap: 40px;
+
+    margin-bottom: 100px;
+  }
+
+  .footer-links-column {
+    /* The `footer-links-column` class is used to style the footer link columns. */
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .footer-link-column-title {
+    /* The `footer-link-column-title` class is used to style the footer link column titles. */
+    white-space: pre;
+    font-family: "Figtree", "Figtree Placeholder", sans-serif;
+    color: #153243;
+    font-size: 16px;
+    letter-spacing: -0.025em;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    margin-top: 0;
+  }
+
+  .footer-link-column-link {
+    /* The `footer-link-column-link` class is used to style the footer link column links. */
+    white-space: pre;
+    font-family: "Figtree", "Figtree Placeholder", sans-serif;
+    color: #000;
+    font-size: 16px;
+    letter-spacing: 0em;
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  .footer-media {
+    /*The `footer-media` class is used to style the footer media section.*/
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+  }
+
+  .footer-media-icons {
+    /*The `footer-media-icons` class is used to style the footer media icons.*/
+    display: flex;
+    justify-content: space-between;
+    column-gap: 20px;
+  }
+
+  .footer__icon-wrapper {
+    /*The `footer__icon-wrapper` class is used to wrap each footer media icon.*/
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    font: inherit;
+    background-color: transparent;
+    cursor: pointer;
+  }
+
+  .footer__icon {
+    /*The `footer__icon` class is used to style each footer media icon.*/
+    width: 100%;
+    height: 100%;
+    object-fit: scale-down;
+  }
+
+  .footer-rights {
+    /*The `footer-rights` class is used to style the footer rights text.*/
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    font-family: "Figtree", "Figtree Placeholder", sans-serif;
+    color: #000;
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+  }
+}

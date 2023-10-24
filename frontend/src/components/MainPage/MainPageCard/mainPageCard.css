@@ -1,0 +1,25 @@
+@media (min-width: 1920px) {
+  .card-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: 60px;
+  }
+}
+@media ((min-width: 810px) and (max-width: 1919px)) or (device-type: tablet) {
+  .card-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: 60px;
+  }
+}
+@media (max-width: 809px) or (device-type: phone) {
+  .card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 40px;
+  }
+}

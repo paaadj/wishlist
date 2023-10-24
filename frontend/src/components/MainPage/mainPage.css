@@ -1,0 +1,28 @@
+/* General classes */
+.main-container {
+  /* Style the main container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.white-button-text {
+  color: #153243;
+}
+.grey-button-text {
+  color: #000;
+}
+.black-button-text {
+  color: #fff;
+}
+
+.content-block {
+  /* Style the content block */
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

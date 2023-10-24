@@ -24,11 +24,15 @@ const registrationValidationSchema = yup.object().shape({
       "This username is already registered",
       async (username) => {
         try {
-          console.log(username);
-          const response = await fetch(`/api/users/username/${username}`);
-          const isUsernameAvalible = await response.json();
-          console.log(isUsernameAvalible);
-          return isUsernameAvalible;
+          if (username) {
+            console.log(username);
+            const response = await fetch(`/api/users/username/${username}`);
+            const isUsernameAvalible = await response.json();
+            console.log(isUsernameAvalible);
+            return isUsernameAvalible;
+          } else {
+            return false;
+          }
         } catch (e) {
           return false;
         }
@@ -37,17 +41,21 @@ const registrationValidationSchema = yup.object().shape({
   email: yup
     .string()
     .required("Email is a required field")
-    .matches(emailRegex, "Email should have correct format")
+    //.matches(emailRegex, "Email should have correct format")
     .test(
       "checkEmailAvailability",
-      "This email is already registered",
+      "This email is incorrect or already registered",
       async (email) => {
         try {
-          console.log(email);
-          const response = await fetch(`/api/users/email/${email}`);
-          const isEmailAvalible = await response.json();
-          console.log(isEmailAvalible);
-          return isEmailAvalible;
+          if (email && emailRegex.test(email)) {
+            console.log(email);
+            const response = await fetch(`/api/users/email/${email}`);
+            const isEmailAvalible = await response.json();
+            console.log(isEmailAvalible);
+            return isEmailAvalible;
+          } else {
+            return false;
+          }
         } catch (e) {
           return false;
         }

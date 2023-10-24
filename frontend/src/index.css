@@ -1,13 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Bowlby+One&family=Figtree:wght@300;400&display=swap");
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+html {
+  width: 100%;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.black-color {
+  /* Style black color */
+  background-color: #000;
+}
+
+.blue-color {
+  /* Style blue color */
+  background-color: #284b63;
+}
+
+.white-color {
+  /* Style white color */
+  background-color: #fff;
+}
+
+.grey-color {
+  /* Style grey color */
+  background-color: #b4b8ab;
 }
