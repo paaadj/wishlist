@@ -37,7 +37,7 @@ def anyio_backend():
 # pylint: disable=missing-function-docstring
 @pytest.fixture(scope="session")
 async def client():
-    async with AsyncClient(app=app, base_url="http://127.0.0.1:8000/api") as client_inside:
+    async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as client_inside:
         print("Client is ready")
         yield client_inside
 
