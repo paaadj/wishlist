@@ -6,7 +6,7 @@ import Login from "./components/Login/Login";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import User from "./components/User/User";
-import MainPage from "./components/MainPage/MainPage";
+import MainPage from "./pages/MainPage/MainPage";
 import Layout from "./components/Layout/Layout";
 
 function App() {

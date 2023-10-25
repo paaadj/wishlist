@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import "./registration.css";
 
 interface IRegistrationInput {
   username: string;
@@ -119,66 +120,68 @@ const Registration = () => {
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <div>
-          <input
-            {...register("username")}
-            type="text"
-            id="username"
-            placeholder="Username"
-            onChange={(e) => {
-              setUsername(e.target.value);
-            }}
-          />
-        </div>
-
-        <div>
-          <input
-            {...register("email")}
-            type="email"
-            id="email"
-            placeholder="Email"
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-          />
-        </div>
-        <div>
-          <input
-            {...register("password")}
-            type="password"
-            id="password"
-            placeholder="Password"
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-          />
-        </div>
-        <div>
-          <input
-            {...register("confirmPassword")}
-            type="password"
-            id="confirm-Password"
-            placeholder="Confirm Password"
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-            }}
-          />
-        </div>
-        {errors && (
+    <div className="registration-wrapper">
+      <div className="registration-window">
+        <form onSubmit={handleSubmit(onSubmitHandler)}>
           <div>
-            <p>{errors.username?.message}</p>
-            <p>{errors.email?.message}</p>
-            <p>{errors.password?.message}</p>
-            <p>{errors.confirmPassword?.message}</p>
+            <input
+              {...register("username")}
+              type="text"
+              id="username"
+              placeholder="Username"
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
+            />
           </div>
-        )}
-        <div>
-          <button type="submit">Submit</button>
-        </div>
-      </form>
-    </>
+
+          <div>
+            <input
+              {...register("email")}
+              type="email"
+              id="email"
+              placeholder="Email"
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+            />
+          </div>
+          <div>
+            <input
+              {...register("password")}
+              type="password"
+              id="password"
+              placeholder="Password"
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+            />
+          </div>
+          <div>
+            <input
+              {...register("confirmPassword")}
+              type="password"
+              id="confirm-Password"
+              placeholder="Confirm Password"
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+              }}
+            />
+          </div>
+          {errors && (
+            <div>
+              <p>{errors.username?.message}</p>
+              <p>{errors.email?.message}</p>
+              <p>{errors.password?.message}</p>
+              <p>{errors.confirmPassword?.message}</p>
+            </div>
+          )}
+          <div>
+            <button type="submit">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
