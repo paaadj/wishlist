@@ -25,7 +25,7 @@ class User(Model):
         null=True,
         validators=[RegexValidator(r"^\S+@\S+\.\S+$", re.I)],
     )
-    password = fields.CharField(max_length=255, validators=[MinLengthValidator(8)])
+    password = fields.CharField(max_length=255)
 
     def __str__(self):
         return self.username
