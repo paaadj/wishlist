@@ -26,13 +26,7 @@
   .title__text {
     /* Style the header text */
     color: #eef0eb;
-    font-family: "Bowlby One", sans-serif;
-    font-size: 64px;
-    letter-spacing: 0.05em;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
-    line-height: 1.1;
+    font-size: 32px;
     text-align: center;
     /* font-family: 'Figtree', sans-serif; */
   }
@@ -40,15 +34,10 @@
   .title__button {
     /* Style the header buttons */
     width: 100%;
-    padding: 10px 100%;
+    padding: 10px 80%;
     border-radius: 30px;
     margin-right: 10px;
-    text-decoration: none;
-    font-family: "Figtree", "Figtree Placeholder", sans-serif;
     text-align: center;
-    font-size: 16px;
-    letter-spacing: 0em;
-    line-height: 1.5;
   }
 
   .title-imgs {
@@ -62,51 +51,6 @@
     grid-row-gap: 10px;
   }
 
-  .m1-img {
-    grid-column: 1;
-    grid-row: 1;
-    border-top-right-radius: 50%;
-    width: 100%;
-    height: 100%;
-    -webkit-filter: grayscale(1);
-    filter: grayscale(1);
-    mix-blend-mode: luminosity;
-    background-image: url("../../../public/img/bag.jpeg");
-    object-fit: contain;
-  }
-
-  .m2-img {
-    grid-column: 1;
-    grid-row: 2;
-    width: 100%;
-    height: 100%;
-
-    border-top-right-radius: 50%;
-    border-top-left-radius: 50%;
-    border-bottom-left-radius: 50%;
-    background-color: #fff;
-    object-fit: cover;
-  }
-
-  .l1-img {
-    grid-column: 2;
-    grid-row-start: 1;
-    grid-row-end: 3;
-    -webkit-filter: grayscale(1);
-    filter: grayscale(1);
-
-    mix-blend-mode: luminosity;
-    width: 100%;
-    height: 100%;
-    background-image: url("../../../public/img/suvenir.jpg");
-    object-fit: contain;
-  }
-  .title__img {
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-  }
-
   /* Classes for the content block */
 
   .paragraph {
@@ -116,35 +60,9 @@
     padding: 0 20px;
   }
 
-  .paragraph__title {
-    /* Style the paragraph title */
-    display: inline-block;
-    margin: 0;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
-    font-family: "Bowlby One", sans-serif;
-    color: #284b63;
-    font-size: 48px;
-    letter-spacing: 0.05em;
-    line-height: 1.2;
-  }
-
   .paragraph__desc {
     /* Style the paragraph description */
     width: 100%;
-  }
-
-  .paragraph-text-block {
-    /* Style the paragraph text block */
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
-    font-family: "Figtree", "Figtree Placeholder", sans-serif;
-    color: #153243;
-    font-size: 20px;
-    letter-spacing: 0.05em;
-    line-height: 1.5;
   }
 
   /* Classes for the cards container */
@@ -162,14 +80,7 @@
     height: 357px;
     flex-grow: 1;
   }
-  .card-img {
-    /* Style the card image */
-    width: 100%;
-    height: 100%;
-    -webkit-filter: grayscale(1);
-    filter: grayscale(1);
-    mix-blend-mode: luminosity;
-  }
+
   .first-card-img {
     border-radius: 20px;
   }
@@ -183,87 +94,13 @@
     width: 357px;
   }
 
-  .card-title {
-    /* Style the card title */
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
-    font-family: "Bowlby One", sans-serif;
-    color: #000;
-    font-size: 32px;
-    letter-spacing: 0.05em;
-    line-height: 1.2;
-  }
-
-  .card-desc {
-    /* Style the card description */
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
-    font-family: "Figtree", "Figtree Placeholder", sans-serif;
-    color: #000;
-    font-size: 16px;
-    letter-spacing: 0.05em;
-    line-height: 1.5;
-    margin: 0;
-  }
-
   /* Classes for the get started block */
-  .get-started {
-    /* Style the get started block */
-    max-width: 100%;
-    margin: 100px 0;
-    padding: 0 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  .get-started__title {
-    /* Style the get started title */
-    margin: 0;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
-    max-width: 800px;
-    font-family: "Bowlby One", sans-serif;
-    color: #153243;
-    font-size: 48px;
-    letter-spacing: 0.05em;
-    line-height: 1.2;
-    text-align: center;
-  }
 
   .get_started__desc {
     /* Style the get started description */
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
     max-width: 70%;
-    font-family: "Figtree", "Figtree Placeholder", sans-serif;
     color: #153243;
-    font-size: 16px;
-    letter-spacing: 0.05em;
-    line-height: 1.5;
     text-align: center;
     margin: 20px 0;
-  }
-
-  .get_started__controlls {
-    /* Style the get started controls */
-    margin-top: 30px;
-  }
-
-  .get-started__button {
-    /* Style the get started buttons */
-    padding: 10px 20px;
-    border-radius: 20px;
-    margin-right: 10px;
-    text-decoration: none;
-    font-family: "Figtree", "Figtree Placeholder", sans-serif;
-
-    font-size: 16px;
-    letter-spacing: 0em;
-    line-height: 1.5;
   }
 }

@@ -18,6 +18,22 @@
   color: #fff;
 }
 
+.main-page-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+  letter-spacing: 0.05em;
+}
+.main-page-title-text {
+  font-family: "Bowlby One", sans-serif;
+  line-height: 1.1;
+}
+.main-page-reg-text {
+  text-decoration: none;
+  font-family: "Figtree", "Figtree Placeholder", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
 .content-block {
   /* Style the content block */
   min-width: 100%;
@@ -25,4 +41,117 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.m1-img {
+  grid-column: 1;
+  grid-row: 1;
+  border-top-right-radius: 50%;
+  width: 100%;
+  height: 100%;
+  -webkit-filter: grayscale(1);
+  filter: grayscale(1);
+  mix-blend-mode: luminosity;
+  background-image: url("../../../public/img/bag.jpeg");
+  object-fit: contain;
+}
+
+.m2-img {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  height: 100%;
+  border-top-right-radius: 50%;
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%;
+  background-color: #fff;
+  object-fit: cover;
+}
+
+.l1-img {
+  grid-column: 2;
+  grid-row-start: 1;
+  grid-row-end: 3;
+  -webkit-filter: grayscale(1);
+  filter: grayscale(1);
+  mix-blend-mode: luminosity;
+  width: 100%;
+  height: 100%;
+  background-image: url("../../../public/img/suvenir.jpg");
+  object-fit: contain;
+}
+
+.paragraph__title {
+  /* Style the paragraph title */
+  display: inline-block;
+  margin: 0;
+  color: #284b63;
+  font-size: 48px;
+  line-height: 1.2;
+}
+
+.paragraph-text-block {
+  /* Style the paragraph text block */
+  color: #153243;
+  font-size: 20px;
+}
+
+.card-img {
+  /* Style the card image */
+  width: 100%;
+  height: 100%;
+  -webkit-filter: grayscale(1);
+  filter: grayscale(1);
+  mix-blend-mode: luminosity;
+}
+
+.card-title {
+  /* Style the card title */
+  color: #000;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.card-desc {
+  /* Style the card description */
+  color: #000;
+  margin: 0;
+}
+
+.get-started {
+  /* Style the get started block */
+  max-width: 100%;
+  margin: 100px 0;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.get-started__title {
+  /* Style the get started title */
+  margin: 0;
+  max-width: 800px;
+  color: #153243;
+  font-size: 48px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.get_started__controlls {
+  /* Style the get started controls */
+  margin-top: 30px;
+}
+
+.get-started__button {
+  /* Style the get started buttons */
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-right: 10px;
+  text-decoration: none;
+  font-family: "Figtree", "Figtree Placeholder", sans-serif;
+  font-size: 16px;
+  letter-spacing: 0em;
+  line-height: 1.5;
 }

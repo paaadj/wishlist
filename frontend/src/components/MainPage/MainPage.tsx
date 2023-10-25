@@ -19,58 +19,56 @@ function MainPage() {
       <main className="main-container">
         <div className="title-content blue-color">
           <div className="title-text-controlls">
-            <h1 className="title__text">Unleash Your Wishlist</h1>
+            <h1 className="main-page-text main-page-title-text title__text">
+              Unleash Your Wishlist
+            </h1>
             <div className="title-controlls">
               <Link
                 to="/login"
-                className="title__button white-color white-button-text"
+                className="title__button main-page-text main-page-reg-text white-color white-button-text"
               >
                 Login
               </Link>
               <Link
                 to="#"
-                className="title__button white-color white-button-text"
+                className="title__button main-page-text main-page-reg-text white-color white-button-text"
               >
                 Create Wishlist
               </Link>
               <Link
                 to="#"
-                className="title__button grey-color grey-button-text"
+                className="title__button main-page-text main-page-reg-text grey-color grey-button-text"
               >
                 Browse Items
               </Link>
             </div>
           </div>
           <div className="title-imgs">
-            <div className="title-img-wrapper m1-img">
-              {/* <img src="/img/bag.jpeg" alt="temp" className="title__img" /> */}
-            </div>
-            <div className="title-img-wrapper m2-img">
-              {/* <img src="/img/" alt="temp" className="title__img" /> */}
-            </div>
-            <div className="title-img-wrapper l1-img">
-              {/* <img src="/img/suvenir.jpg    " alt="temp" className="title__img" /> */}
-            </div>
+            <div className="title-img-wrapper m1-img"></div>
+            <div className="title-img-wrapper m2-img"></div>
+            <div className="title-img-wrapper l1-img"></div>
           </div>
         </div>
 
         <div className="content-block white-color">
           <div className="paragraph">
-            <h2 className="paragraph__title">The Ultimate Wish Machine</h2>
+            <h2 className="paragraph__title main-page-text main-page-title-text">
+              The Ultimate Wish Machine
+            </h2>
             <div className="paragraph__desc">
-              <p className="paragraph-text-block">
+              <p className="paragraph-text-block main-page-text main-page-reg-text">
                 Welcome to the future of gift-giving, where creating, managing,
                 and sharing wishlists is just a few clicks away. Our
                 user-friendly platform helps you effectively communicate your
                 desires to those who matter the most.
               </p>
-              <p className="paragraph-text-block">
+              <p className="paragraph-text-block main-page-text main-page-reg-text">
                 No more hint-dropping or passive-aggressive suggestions; just
                 simple, seamless, and efficient wishlist management for every
                 occasion.
               </p>
-              <p className="paragraph-text-block">
-                Whether it’s your birthday, anniversary or just because, you can
+              <p className="paragraph-text-block main-page-text main-page-reg-text">
+                Whether it`s your birthday, anniversary or just because, you can
                 count on our Wishlist feature to make every celebration
                 unforgettable.
               </p>
@@ -93,10 +91,10 @@ function MainPage() {
                 <></>
               )}
               <div className="card-content">
-                <h3 className="card-title">
+                <h3 className="card-title main-page-text main-page-title-text">
                   Add, Manage, and Share Your Desired Items with Ease
                 </h3>
-                <p className="card-desc">
+                <p className="card-desc main-page-text main-page-reg-text">
                   Our platform offers easy addition and management of your
                   wishlist items. Just click on 'add item' and you're set!
                 </p>
@@ -122,10 +120,10 @@ function MainPage() {
                 />
               </div>
               <div className="card-content">
-                <h3 className="card-title">
+                <h3 className="card-title main-page-text main-page-title-text">
                   One Wishlist, Endless Possibilities
                 </h3>
-                <p className="card-desc">
+                <p className="card-desc main-page-text main-page-reg-text">
                   Invite your friends and family to view your wishlist, ensuring
                   everyone is always up to date with your latest desires.
                 </p>
@@ -136,8 +134,10 @@ function MainPage() {
 
         <div className="content-block grey-color">
           <div className="get-started">
-            <h2 className="get-started__title">Get Started</h2>
-            <p className="get_started__desc">
+            <h2 className="get-started__title main-page-text main-page-title-text">
+              Get Started
+            </h2>
+            <p className="get_started__desc main-page-text main-page-reg-text">
               Ready to create your masterpiece of wishes? Sign up today and
               transform the way you receive gifts, forever.
             </p>
