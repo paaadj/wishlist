@@ -35,5 +35,4 @@ pyvenv.cfg
 /aerich_config.py
 /migrations/
 /pyproject.toml
-/assets/
-/report.html
+/test-results/
