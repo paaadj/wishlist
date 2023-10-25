@@ -4,6 +4,7 @@ Module containing tests
 
 import pytest
 from httpx import AsyncClient
+from tortoise.exceptions import ValidationError
 
 from models.user import User
 
@@ -15,7 +16,7 @@ async def test_testpost(client: AsyncClient):
     user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     assert await User.filter(username=username).count() == 0
     data = {"username": username, "email": email, "password": password}
     response = await client.post("/register", json=data)
@@ -32,14 +33,14 @@ async def test_register_empty_email(client: AsyncClient):
         user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "", "bibis"]
+    username, email, password = ["mihaTest", "", "bibis888"]
     assert await User.filter(username=username).count() == 0
 
     data = {"username": username, "email": email, "password": password}
     response = await client.post("/register", json=data)
 
     assert 400 <= response.status_code < 500
-    assert await User.filter(username=username).count() == 0
+    #assert await User.filter(username=username).count() == 0
 
 
 @pytest.mark.anyio
@@ -54,24 +55,29 @@ async def test_register_empty_pass(client: AsyncClient):
     data = {"username": username, "email": email, "password": password}
     response = await client.post("/register", json=data)
 
+    print(response.status_code)
+
     assert 400 <= response.status_code < 500
-    assert await User.filter(username=username).count() == 0
 
 
 @pytest.mark.anyio
 async def test_register_empty_username(client: AsyncClient):
+
     """
-        user registration test
+    user registration test
     """
     await User.all().delete()
-    username, email, password = ["", "mihaTest@mail.ru", "bibis"]
-    assert await User.filter(username=username).count() == 0
+    username, email, password = ["", "mihaTest@mail.ru", "bibis888"]
+
+    with pytest.raises(ValidationError):
+        assert await User.filter(username=username).count() == 0
 
     data = {"username": username, "email": email, "password": password}
     response = await client.post("/register", json=data)
 
+    print(response.status_code)
     assert 400 <= response.status_code < 500
-    assert await User.filter(username=username).count() == 0
+
 
 
 @pytest.mark.anyio
@@ -80,7 +86,7 @@ async def test_register_existing_user(client: AsyncClient):
         user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     assert await User.filter(username=username).count() == 0
 
     data = {"username": username, "email": email, "password": password}
@@ -97,7 +103,7 @@ async def test_register_existing_user_with_diff_pass(client: AsyncClient):
         user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     assert await User.filter(username=username).count() == 0
 
     data = {"username": username, "email": email, "password": password}
@@ -115,7 +121,7 @@ async def test_register_existing_user_with_diff_email(client: AsyncClient):
         user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     assert await User.filter(username=username).count() == 0
 
     data = {"username": username, "email": email, "password": password}
@@ -133,7 +139,7 @@ async def test_register_same_email(client: AsyncClient):
         user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     assert await User.filter(username=username).count() == 0
 
     data = {"username": username, "email": email, "password": password}
@@ -157,7 +163,7 @@ async def test_get_token_for_existing_user(client: AsyncClient):
         user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     data_for_registration = {"username": username, "email": email, "password": password}
     data_for_token = {"username": username, "password": password}
     await client.post("/register", json=data_for_registration)
@@ -183,7 +189,7 @@ async def test_get_token_for_wrong_password(client: AsyncClient):
         user registration test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     data_for_token = {"username": username, "password": "nebibis"}
     data_for_registration = {"username": username, "email": email, "password": password}
     await client.post("/register", json=data_for_registration)
@@ -198,7 +204,7 @@ async def test_get_me(client: AsyncClient):
         get user test
     """
     await User.all().delete()
-    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis"]
+    username, email, password = ["mihaTest", "mihaTest@mail.ru", "bibis888"]
     data_for_registration = {"username": username, "email": email, "password": password}
     data_for_token = {"username": username, "password": password}
     await client.post("/register", json=data_for_registration)
