@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import "./registration.css";
+import UserInput from "../UserInput/UserInput";
 
 interface IRegistrationInput {
   username: string;
@@ -64,8 +65,8 @@ const registrationValidationSchema = yup.object().shape({
     ),
   password: yup
     .string()
-    .test("length", "More than or exactly 7 symbols", (value) =>
-      value ? value.toString().length >= 7 : false
+    .test("length", "More than or exactly 8 symbols", (value) =>
+      value ? value.toString().length >= 8 : false
     )
     .required("Password is required"),
   confirmPassword: yup
@@ -93,8 +94,8 @@ const Registration = () => {
     resolver: yupResolver(registrationValidationSchema),
     mode: "onBlur",
   });
-
   const onSubmitHandler = async (values: IRegistrationInput) => {
+    console.log(values);
     const requestParams = {
       method: "POST",
       headers: {
@@ -122,62 +123,61 @@ const Registration = () => {
   return (
     <div className="registration-wrapper">
       <div className="registration-window">
-        <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <div>
-            <input
-              {...register("username")}
-              type="text"
-              id="username"
-              placeholder="Username"
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-            />
-          </div>
+        <h3 className="registration__title page-text page-title-text">
+          Sign Up
+        </h3>
+        <form
+          onSubmit={handleSubmit(onSubmitHandler)}
+          className="registration-form"
+        >
+          <UserInput
+            type="text"
+            id="username"
+            placeholder="Username"
+            className="user-input"
+            imgSource="/img/username.png"
+            error={!!errors.username}
+            helperText={errors.username?.message}
+            {...register("username")}
+          />
 
-          <div>
-            <input
-              {...register("email")}
-              type="email"
-              id="email"
-              placeholder="Email"
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-            />
-          </div>
-          <div>
-            <input
-              {...register("password")}
-              type="password"
-              id="password"
-              placeholder="Password"
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-            />
-          </div>
-          <div>
-            <input
-              {...register("confirmPassword")}
-              type="password"
-              id="confirm-Password"
-              placeholder="Confirm Password"
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-              }}
-            />
-          </div>
-          {errors && (
-            <div>
-              <p>{errors.username?.message}</p>
-              <p>{errors.email?.message}</p>
-              <p>{errors.password?.message}</p>
-              <p>{errors.confirmPassword?.message}</p>
-            </div>
-          )}
-          <div>
-            <button type="submit">Submit</button>
+          <UserInput
+            type="email"
+            id="email"
+            placeholder="Email"
+            className="user-input"
+            imgSource="/img/email.png"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            {...register("email")}
+          />
+
+          <UserInput
+            type="password"
+            id="password"
+            placeholder="Password"
+            className="user-input"
+            imgSource="/img/password.png"
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            {...register("password")}
+          />
+
+          <UserInput
+            type="password"
+            id="confirm-Password"
+            placeholder="Confirm password"
+            className="user-input"
+            imgSource="/img/password.png"
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword?.message}
+            {...register("confirmPassword")}
+          />
+
+          <div className="submit-wrapper">
+            <button className="submit-button" type="submit">
+              <span>Sign Up</span>
+            </button>
           </div>
         </form>
       </div>
