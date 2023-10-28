@@ -1,4 +1,4 @@
-.registration-wrapper {
+.authentication-wrapper {
   width: 50%;
   height: 100%;
   padding-top: 5%;
@@ -8,10 +8,10 @@
   align-items: flex-start;
   justify-content: center;
 }
-.registration-window{
+.authentication-window{
     width: 90%;
 }
-.registration__title {
+.authentication {
   color: #fff;
   font-size: 64px;
   letter-spacing: 0.1em;
@@ -19,7 +19,7 @@
   margin-bottom: 10%;
 }
 
-.registration-form {
+.authentication-form {
     display: flex;
     flex-direction: column;
     align-items: center;

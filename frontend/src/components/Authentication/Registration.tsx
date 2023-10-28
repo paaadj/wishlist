@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import "./registration.css";
+import "./authentication.css";
 import UserInput from "../UserInput/UserInput";
 
 interface IRegistrationInput {
@@ -121,14 +121,14 @@ const Registration = () => {
   };
 
   return (
-    <div className="registration-wrapper">
-      <div className="registration-window">
-        <h3 className="registration__title page-text page-title-text">
+    <div className="authentication-wrapper">
+      <div className="authentication-window">
+        <h3 className="authentication__title page-text page-title-text">
           Sign Up
         </h3>
         <form
           onSubmit={handleSubmit(onSubmitHandler)}
-          className="registration-form"
+          className="authentication-form"
         >
           <UserInput
             type="text"
