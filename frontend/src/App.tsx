@@ -1,14 +1,14 @@
 import { useContext } from "react";
 import "./App.css";
-import Registration from "./components/Registration/Registration";
 import { UserContext, UserContextType } from "./context/UserContext";
-import Login from "./components/Login/Login";
+import Login from "./components/Authentication/Login";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import User from "./components/User/User";
 import MainPage from "./pages/MainPage/MainPage";
 import Layout from "./components/Layout/Layout";
 import AuthenticationPage from "./pages/AuthenticationPage/AuthenticationPage";
+import Registration from "./components/Authentication/Registration";
 
 function App() {
   const { isAuthenticated } = useContext(UserContext) as UserContextType;
