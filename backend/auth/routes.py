@@ -10,7 +10,8 @@ from tortoise.exceptions import ValidationError
 from tortoise.expressions import Q
 
 from config import settings
-from models.user import User, User_Pydantic, UserCreate
+from models.user import User, UserPydantic, UserCreate
+from models.wishlist import Wishlist
 
 from .services import authenticate_user, get_current_user
 from .token import (
@@ -50,7 +51,7 @@ async def get_new_tokens(token: str = Header(...)):
     return await refresh_tokens(token)
 
 
-@auth_router.post("/register", response_model=User_Pydantic, tags=["auth"])
+@auth_router.post("/register", response_model=UserPydantic, tags=["auth"])
 async def create_user(user: UserCreate):
     """
     Create new user
@@ -72,12 +73,9 @@ async def create_user(user: UserCreate):
             )
         if len(user.password) < 8:
             raise ValidationError(f"password: Length of '{user.password}' {len(user.password)} < 8")
-        user_obj = User(
-            username=user.username,
-            password=bcrypt.hash(user.password),
-            email=user.email,
-        )
-        await user_obj.save()
+        user_obj = await User.create(**user.model_dump())
+        print(user_obj)
+        await Wishlist.create(user=user_obj)
         return user_obj
     except ValidationError as exc:
         raise HTTPException(
@@ -85,8 +83,8 @@ async def create_user(user: UserCreate):
         ) from exc
 
 
-@auth_router.get("/users/me", response_model=User_Pydantic, tags=["auth"])
-async def get_user(user: User_Pydantic = Depends(get_current_user)):
+@auth_router.get("/users/me", response_model=UserPydantic, tags=["auth"])
+async def get_user(user: UserPydantic = Depends(get_current_user)):
     """
     get user
     :param user: user

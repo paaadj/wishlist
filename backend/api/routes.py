@@ -18,7 +18,7 @@ async def create_item(item: item_create):
     :param item: Item to create
     :return: Item if valid data or error
     """
-    new_item = await Item.create(**item.dict())
+    new_item = await Item.create(**item.model_dump())
     return new_item
 
 

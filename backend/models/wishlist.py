@@ -15,7 +15,7 @@ class Wishlist(Model):
 
 class WishlistItem(Model):
     id = fields.IntField(pk=True)
-    wishlist = fields.ForeignKeyField("models.Wishlists", related_name='items', on_delete=fields.CASCADE)
+    wishlist = fields.ForeignKeyField("models.Wishlist", related_name='items', on_delete=fields.CASCADE)
     title = fields.CharField(max_length=255)
     description = fields.CharField(max_length=255)
     link = fields.CharField(
@@ -39,7 +39,7 @@ class Chat(Model):
 
 class ChatMessage(Model):
     id = fields.IntField(pk=True)
-    user = fields.ForeignKeyField("models.User", related_name='messages', on_delete=fields.SET_NULL)
+    user = fields.ForeignKeyField("models.User", related_name='messages', on_delete=fields.SET_NULL, null=True)
     chat = fields.ForeignKeyField("models.Chat", related_name='messages', on_delete=fields.CASCADE)
     text = fields.CharField(max_length=255)
     timestamp = fields.DatetimeField(auto_now=True)

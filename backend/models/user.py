@@ -5,9 +5,8 @@ import re
 from typing import Optional
 
 from passlib.hash import bcrypt
-from pydantic import BaseModel, constr, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field
 from tortoise import fields
-from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.validators import RegexValidator, MinLengthValidator
 from tortoise.models import Model
 
@@ -63,11 +62,11 @@ class UserCreate(BaseModel):
     last_name: Optional[str] = Field("Doe", description="This field is optional.")
 
 
-User_Pydantic = pydantic_model_creator(
-    User,
-    name="User",
-    exclude=(
-        "id",
-        "password",
-    ),
-)
+class UserPydantic(BaseModel):
+    """
+    User response model
+    """
+    username: str = "username"
+    email: EmailStr
+    first_name: str = "John"
+    last_name: str = "Doe"

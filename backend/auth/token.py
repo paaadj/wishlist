@@ -10,7 +10,7 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel
 
 from config import settings
-from models.user import RefreshToken, User, User_Pydantic
+from models.user import RefreshToken, User, UserPydantic
 
 JWT_SECRET = settings.SECRET_KEY
 ALGORITHM = "HS256"
@@ -37,7 +37,7 @@ async def create_access_token(user: User):
     :param user: user
     :return: access token
     """
-    user_obj = await User_Pydantic.from_tortoise_orm(user)
+    user_obj = await UserPydantic.from_tortoise_orm(user)
     sub = user_obj.dict()
     sub["scope"] = "access"
     token_expiry_minutes = 30
@@ -52,7 +52,7 @@ async def create_refresh_token(user: User):
     :param user: user
     :return: refresh token
     """
-    user_obj = await User_Pydantic.from_tortoise_orm(user)
+    user_obj = await UserPydantic.from_tortoise_orm(user)
     sub = user_obj.dict()
     sub["scope"] = "refresh"
     token_expiry_days = 30
@@ -105,6 +105,6 @@ class TokenResponse(BaseModel):
     Token response model
     """
 
-    access_token: str
-    refresh_token: str
-    token_type: str
+    access_token: str = "access_token"
+    refresh_token: str = "refresh_token"
+    token_type: str = "bearer"
