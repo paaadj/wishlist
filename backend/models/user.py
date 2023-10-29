@@ -46,7 +46,7 @@ class RefreshToken(Model):
     """
 
     id = fields.IntField(pk=True)
-    token = fields.CharField(max_length=255, unique=True)
+    token = fields.TextField()
     user = fields.OneToOneField("models.User", on_delete=fields.CASCADE)
 
 

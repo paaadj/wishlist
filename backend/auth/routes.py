@@ -73,8 +73,9 @@ async def create_user(user: UserCreate):
             )
         if len(user.password) < 8:
             raise ValidationError(f"password: Length of '{user.password}' {len(user.password)} < 8")
-        user_obj = await User.create(**user.model_dump())
-        print(user_obj)
+        user_obj = User(**user.model_dump())
+        user_obj.password = bcrypt.hash(user.password)
+        await user_obj.save()
         await Wishlist.create(user=user_obj)
         return user_obj
     except ValidationError as exc:

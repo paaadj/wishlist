@@ -37,8 +37,8 @@ async def create_access_token(user: User):
     :param user: user
     :return: access token
     """
-    user_obj = await UserPydantic.from_tortoise_orm(user)
-    sub = user_obj.dict()
+    user_obj = UserPydantic(**user.__dict__)
+    sub = user_obj.model_dump()
     sub["scope"] = "access"
     token_expiry_minutes = 30
     sub["exp"] = time.time() + 60 * token_expiry_minutes
@@ -52,8 +52,8 @@ async def create_refresh_token(user: User):
     :param user: user
     :return: refresh token
     """
-    user_obj = await UserPydantic.from_tortoise_orm(user)
-    sub = user_obj.dict()
+    user_obj = UserPydantic(**user.__dict__)
+    sub = user_obj.model_dump()
     sub["scope"] = "refresh"
     token_expiry_days = 30
     sub["exp"] = time.time() + 86400 * token_expiry_days
