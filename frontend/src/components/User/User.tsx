@@ -1,14 +1,20 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { UserContext, UserContextType } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 function User() {
-  const {setAuthorizationTokens, isAuthenticated} = useContext(UserContext) as UserContextType;
   const navigate = useNavigate();
+
+  const {getAccessCookie, setAuthorizationTokens, isAuthenticated} = useContext(UserContext) as UserContextType;
+
+  useEffect(()=> {
+    
+    console.log(getAccessCookie());
+  },[])
 
   return (
           <>
-            <h1>Nice auth, {isAuthenticated ? isAuthenticated.username : "bro"}</h1>
+            <h1>Nice auth, {isAuthenticated ? "Auth" : "NoAuth"}</h1>
             <button
               onClick={() => {
                 console.log(isAuthenticated);

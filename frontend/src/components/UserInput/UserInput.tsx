@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import "../Registration/registration.css";
+import "../Authentication/authentication.css";
 
 interface IUserInput {
   type: string;

@@ -21,14 +21,17 @@ const registrationValidationSchema = yup.object().shape({
     .string()
     .matches(/^([^0-9]*)$/, "Username should not contain numbers")
     .required("Username is a required field")
+    .test("length", "More than or exactly 8 symbols", (username) =>
+      username ? username.length >= 8 : false
+    )
     .test(
       "checkUsernameAvailability",
       "This username is already registered",
       async (username) => {
         try {
-          if (username) {
+          if (username && username.length >= 8) {
             console.log(username);
-            const response = await fetch(`/api/users/username/${username}`);
+            const response = await fetch(`/backend/users/username/${username}`);
             const isUsernameAvalible = await response.json();
             console.log(isUsernameAvalible);
             return isUsernameAvalible;
@@ -51,7 +54,7 @@ const registrationValidationSchema = yup.object().shape({
         try {
           if (email && emailRegex.test(email)) {
             console.log(email);
-            const response = await fetch(`/api/users/email/${email}`);
+            const response = await fetch(`/backend/users/email/${email}`);
             const isEmailAvalible = await response.json();
             console.log(isEmailAvalible);
             return isEmailAvalible;
@@ -108,7 +111,7 @@ const Registration = () => {
       }),
     };
     console.log(requestParams);
-    const response = await fetch("/api/register", requestParams);
+    const response = await fetch("/backend/register", requestParams);
     // const data = await response.json();
 
     if (!response.ok) {
@@ -138,7 +141,11 @@ const Registration = () => {
             imgSource="/img/username.png"
             error={!!errors.username}
             helperText={errors.username?.message}
-            {...register("username")}
+            {...register("username", {
+              onChange: (e) => {
+                setUsername(e.target.value);
+              },
+            })}
           />
 
           <UserInput
@@ -149,7 +156,11 @@ const Registration = () => {
             imgSource="/img/email.png"
             error={!!errors.email}
             helperText={errors.email?.message}
-            {...register("email")}
+            {...register("email", {
+              onChange: (e) => {
+                setEmail(e.target.value);
+              },
+            })}
           />
 
           <UserInput
@@ -160,7 +171,11 @@ const Registration = () => {
             imgSource="/img/password.png"
             error={!!errors.password}
             helperText={errors.password?.message}
-            {...register("password")}
+            {...register("password", {
+              onChange: (e) => {
+                setPassword(e.target.value);
+              },
+            })}
           />
 
           <UserInput
@@ -171,7 +186,11 @@ const Registration = () => {
             imgSource="/img/password.png"
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword?.message}
-            {...register("confirmPassword")}
+            {...register("confirmPassword", {
+              onChange: (e) => {
+                setConfirmPassword(e.target.value);
+              },
+            })}
           />
 
           <div className="submit-wrapper">

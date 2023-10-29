@@ -1,6 +1,4 @@
-import { useContext } from "react";
 import "./App.css";
-import { UserContext, UserContextType } from "./context/UserContext";
 import Login from "./components/Authentication/Login";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
@@ -11,8 +9,6 @@ import AuthenticationPage from "./pages/AuthenticationPage/AuthenticationPage";
 import Registration from "./components/Authentication/Registration";
 
 function App() {
-  const { isAuthenticated } = useContext(UserContext) as UserContextType;
-
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -21,15 +17,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="registration" element={<Registration />} />
         </Route>
-        <Route
-          path="user"
-          element={
-            <ProtectedRoute
-              component={<User />}
-              isAuthenticated={isAuthenticated}
-            />
-          }
-        />
+        <Route path="user" element={<ProtectedRoute component={<User />} />} />
       </Route>
     </Routes>
   );

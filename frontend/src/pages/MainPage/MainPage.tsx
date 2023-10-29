@@ -4,14 +4,15 @@ import "./mainPage.css";
 import "./mainPage-1920.css";
 import "./mainPage-810-1919.css";
 import "./mainPage-phone.css";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { UserContext, UserContextType } from "../../context/UserContext";
 
 function MainPage() {
-  const [userScreenWidth, setГserScreenWidth] = useState(0);
-
+  const [userScreenWidth, setUserScreenWidth] = useState(0);
+  const {isAuthenticated ,setAuthorizationTokens} = useContext(UserContext)  as UserContextType;
   useEffect(() => {
     window.addEventListener("resize", () => {
-      setГserScreenWidth(window.innerWidth);
+      setUserScreenWidth(window.innerWidth);
     });
   }, []);
   return (
@@ -29,6 +30,18 @@ function MainPage() {
               >
                 Login
               </Link>
+              <button
+                onClick={()=>{setAuthorizationTokens(undefined, undefined)}}
+                className="title__button page-text page-reg-text white-color white-button-text"
+              >
+                exit
+              </button>
+              <button
+                onClick={()=>{console.log(isAuthenticated);}}
+                className="title__button page-text page-reg-text white-color white-button-text"
+              >
+                aut
+              </button>
               <Link
                 to="#"
                 className="title__button page-text page-reg-text white-color white-button-text"

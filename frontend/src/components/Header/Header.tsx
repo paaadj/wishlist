@@ -17,7 +17,7 @@ function Header() {
           </div>
           {isAuthenticated ? (
             <div className="profile">
-              <Link to="/user">{isAuthenticated.username}</Link>
+              <Link to="/user">{isAuthenticated.toString()}</Link>
             </div>
           ) : (
             <div className="login-button"></div>
