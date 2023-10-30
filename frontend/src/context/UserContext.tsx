@@ -64,7 +64,6 @@ export const UserProvider = (props: any) => {
   };
 
   const fetchUser = async()=> {
-    console.log("object");
     const requestParams = {
       method: "GET",
       headers: {

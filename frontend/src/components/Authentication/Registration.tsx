@@ -104,7 +104,6 @@ const Registration = () => {
     mode: "onBlur",
   });
   const onSubmitHandler = async (values: IRegistrationInput) => {
-    console.log(values);
     const requestParams = {
       method: "POST",
       headers: {
@@ -112,12 +111,12 @@ const Registration = () => {
       },
       body: JSON.stringify({
         first_name: firstName,
+        last_Name: lastName,
         username: username,
         email: email,
         password: password,
       }),
     };
-    console.log(requestParams);
     const response = await fetch("/backend/register", requestParams);
     // const data = await response.json();
 
