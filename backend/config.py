@@ -12,6 +12,12 @@ class Settings:
     Settings class
     """
 
+    MODULE_LIST: list = [
+        'models.item',
+        'models.user',
+        'models.wishlist',
+    ]
+
     PROJECT_NAME: str = "Wishlist"
     PROJECT_VERSION: str = "0.0.1"
 

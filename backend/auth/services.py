@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 from config import settings
 from models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 JWT_SECRET = settings.SECRET_KEY
 ALGORITHM = "HS256"
 
