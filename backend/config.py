@@ -4,8 +4,6 @@ Configuration file
 
 
 import os
-import pyrebase
-import json
 
 
 # pylint: disable=too-few-public-methods
@@ -27,6 +25,8 @@ class Settings:
         'image/webp',
     ]
     IMAGE_MAX_SIZE = 1.5 * 1024 * 1024
+    DEFAULT_IMAGE_URL = ("https://firebasestorage.googleapis.com/v0/b/"
+                         "wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media")
 
     PROJECT_NAME: str = "Wishlist"
     PROJECT_VERSION: str = "0.0.1"
@@ -43,19 +43,4 @@ class Settings:
     JWT_REFRESH_TOKEN_EXPIRATION = 2592000
 
 
-firebaseConfig = {
-  "apiKey": os.getenv("apiKey"),
-  "authDomain": os.getenv("authDomain"),
-  "projectId": os.getenv("projectId"),
-  "storageBucket": os.getenv("storageBucket"),
-  "messagingSenderId": os.getenv("messagingSenderId"),
-  "appId": os.getenv("appId"),
-  "measurementId": os.getenv("measurementId"),
-  "serviceAccount": json.loads(os.environ["serviceAccount"]),
-  "databaseURL": os.getenv("databaseURL"),
-}
-
-
-firebase = pyrebase.initialize_app(firebaseConfig)
-storage = firebase.storage()
 settings = Settings()

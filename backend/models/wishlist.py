@@ -4,9 +4,9 @@ from fastapi import UploadFile, File, Form
 from tortoise.models import Model
 from tortoise.validators import RegexValidator
 from tortoise import fields
-from pydantic import BaseModel, constr, AnyHttpUrl
+from pydantic import BaseModel, constr, AnyHttpUrl, field_validator, ValidationInfo
 from models.user import User
-from typing import Annotated
+from typing import List
 
 
 class Wishlist(Model):
@@ -33,7 +33,21 @@ class WishlistItem(Model):
             )
         ],
     )
-    image_filename = fields.CharField(max_length=2048, null=True)
+    image_filename = fields.CharField(max_length=50, null=True)
+    image_url = fields.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(
+                r"^https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,63}\."
+                r"[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&/=/]*)$",
+                re.I
+            )
+        ],
+        null=True,
+    )
+
+    def __str__(self):
+        print(self.title, self.image_url)
 
 
 class WishlistItemResponse(BaseModel):
@@ -44,6 +58,14 @@ class WishlistItemResponse(BaseModel):
     description: str = "Description example"
     link: AnyHttpUrl
     image_url: AnyHttpUrl
+
+
+class WishlistResponse(BaseModel):
+    items: list[WishlistItemResponse]
+    page: int
+    per_page: int
+    total_items: int
+    total_pages: int
 
 
 class Chat(Model):
