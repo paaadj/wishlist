@@ -3,7 +3,9 @@ Module containing API routes and handlers
 """
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from models.user import UserPydantic
+from auth.services import get_current_user
 
 from models.item import Item, item_create, item_response
 
@@ -11,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/create_item", response_model=item_response, tags=["item"])
-async def create_item(item: item_create):
+async def create_item(item: item_create, user: UserPydantic = Depends(get_current_user),):
     """
     Create an item
 

@@ -6,9 +6,12 @@ Module containing handlers for retrieving a user using an access token.
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-
+from tortoise.exceptions import ValidationError
+from tortoise.expressions import Q
 from config import settings
-from models.user import User
+from models.user import User, UserCreate
+from passlib.hash import bcrypt
+from models.wishlist import Wishlist
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 JWT_SECRET = settings.SECRET_KEY
@@ -57,3 +60,29 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         ) from exc
 
     return user
+
+
+async def create_user(user: UserCreate):
+    try:
+        if user.email:
+            q = Q(username=user.username) | Q(email=user.email)
+        else:
+            q = Q(username=user.username)
+        existing_user = await User.filter(q).first()
+
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User with this username or email already exists",
+            )
+        if len(user.password) < 8:
+            raise ValidationError(f"password: Length of '{user.password}' {len(user.password)} < 8")
+        user_obj = User(**user.model_dump())
+        user_obj.password = bcrypt.hash(user.password)
+        await user_obj.save()
+        await Wishlist.create(user=user_obj)
+        return user_obj
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
+        ) from exc

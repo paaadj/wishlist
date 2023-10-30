@@ -40,8 +40,7 @@ async def create_access_token(user: User):
     user_obj = UserPydantic(**user.__dict__)
     sub = user_obj.model_dump()
     sub["scope"] = "access"
-    token_expiry_minutes = 30
-    sub["exp"] = time.time() + 60 * token_expiry_minutes
+    sub["exp"] = time.time() + settings.JWT_ACCESS_TOKEN_EXPIRATION
     access_token = jwt.encode(sub, JWT_SECRET, algorithm=ALGORITHM)
     return access_token
 
@@ -55,8 +54,7 @@ async def create_refresh_token(user: User):
     user_obj = UserPydantic(**user.__dict__)
     sub = user_obj.model_dump()
     sub["scope"] = "refresh"
-    token_expiry_days = 30
-    sub["exp"] = time.time() + 86400 * token_expiry_days
+    sub["exp"] = time.time() + settings.JWT_REFRESH_TOKEN_EXPIRATION
     refresh_token = jwt.encode(sub, JWT_SECRET, algorithm=ALGORITHM)
     refresh_token_db = await RefreshToken.get_or_none(user=user)
     if refresh_token_db is None:

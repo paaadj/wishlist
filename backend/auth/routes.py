@@ -5,15 +5,11 @@ Module containing routes and handlers for auth
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from passlib.hash import bcrypt
-from tortoise.exceptions import ValidationError
-from tortoise.expressions import Q
 
 from config import settings
 from models.user import User, UserPydantic, UserCreate
-from models.wishlist import Wishlist
 
-from .services import authenticate_user, get_current_user
+from .services import authenticate_user, get_current_user, create_user
 from .token import (
     TokenResponse,
     refresh_tokens,
@@ -52,36 +48,14 @@ async def get_new_tokens(token: str = Header(...)):
 
 
 @auth_router.post("/register", response_model=UserPydantic, tags=["auth"])
-async def create_user(user: UserCreate):
+async def register_user(user: UserCreate):
     """
     Create new user
 
     :param user: user info for create
     :return: new user if created or error
     """
-    try:
-        if user.email:
-            q = Q(username=user.username) | Q(email=user.email)
-        else:
-            q = Q(username=user.username)
-        existing_user = await User.filter(q).first()
-
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User with this username or email already exists",
-            )
-        if len(user.password) < 8:
-            raise ValidationError(f"password: Length of '{user.password}' {len(user.password)} < 8")
-        user_obj = User(**user.model_dump())
-        user_obj.password = bcrypt.hash(user.password)
-        await user_obj.save()
-        await Wishlist.create(user=user_obj)
-        return user_obj
-    except ValidationError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        ) from exc
+    return await create_user(user)
 
 
 @auth_router.get("/users/me", response_model=UserPydantic, tags=["auth"])
@@ -94,22 +68,22 @@ async def get_user(user: UserPydantic = Depends(get_current_user)):
     return user
 
 
-@auth_router.get("/users/username/{username}", response_model=bool)
+@auth_router.get("/users/username/{username}", response_model=bool, tags=["auth"])
 async def check_username(username: str):
     """
     Check availability of username
-    :param username: username to check
+    :param username: to check
     :return: True if username is available else False
     """
     user = await User.filter(username=username).first()
     return not bool(user)
 
 
-@auth_router.get("/users/email/{email}", response_model=bool)
+@auth_router.get("/users/email/{email}", response_model=bool, tags=["auth"])
 async def check_email(email: str):
     """
     Check availability of email
-    :param email: email to check
+    :param email: to check
     :return: True if email is available else False
     """
     user = await User.filter(email=email).first()
