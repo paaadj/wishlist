@@ -3,7 +3,7 @@ Module containing API routes and handlers
 """
 
 
-from fastapi import APIRouter, Depends, UploadFile, Form, File
+from fastapi import APIRouter, Depends, UploadFile, Form, File, HTTPException, status
 
 from models.wishlist import WishlistItemResponse, WishlistResponse
 from auth.services import get_current_user
@@ -36,9 +36,23 @@ async def add_item(
 
 @api_router.get("/get_wishlist", response_model=WishlistResponse, tags=["wishlist"])
 async def get_item(
-        user: UserPydantic = Depends(get_current_user)
+        page: int = 1,
+        per_page: int = 3,
+        user: UserPydantic = Depends(get_current_user),
 ):
-    return await fetch_wishlist(user)
+    """
+    Get wishlist item on page
+    :param page: starts with 1
+    :param per_page: count of items per page
+    :param user:
+    :return: list of items on page, current page, per_page value, total_items, total_pages
+    """
+    if page < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Page out of range")
+    if per_page < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="per_page must be > 0")
+    return await fetch_wishlist(page=page-1, per_page=per_page, user=user)
+
 
 
 # @router.get("/get_item/{item_id}", response_model=item_response, tags=["item"])

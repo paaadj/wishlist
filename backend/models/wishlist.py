@@ -62,6 +62,10 @@ class WishlistItemResponse(BaseModel):
 
 class WishlistResponse(BaseModel):
     items: list[WishlistItemResponse]
+    page: int
+    per_page: int
+    total_items: int
+    total_pages: int
 
 
 class Chat(Model):

@@ -1,3 +1,4 @@
+import math
 
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, Form, File, status
 
@@ -45,13 +46,23 @@ async def create_item(
 
 
 async def fetch_wishlist(
-    user: UserPydantic
+        page: int,
+        per_page: int,
+        user: UserPydantic
 ):
     wishlist = await user.wishlist
-    items = await wishlist.items
+    items = await wishlist.items.limit(per_page).offset(page*per_page)
+    total_items = await wishlist.items.all().count()
+    total_pages = math.ceil(total_items / per_page)
     wishlist_items_response = []
     for item in items:
         if item.image_url is None:
             item.image_url = settings.DEFAULT_IMAGE_URL
         wishlist_items_response.append(WishlistItemResponse(**item.__dict__))
-    return {"items": wishlist_items_response}
+    return {
+        "items": wishlist_items_response,
+        "page": page + 1,
+        "per_page": per_page,
+        "total_items": total_items,
+        "total_pages": total_pages
+    }
