@@ -26,6 +26,7 @@ class Settings:
         'image/jpg',
         'image/webp',
     ]
+    IMAGE_MAX_SIZE = 1.5 * 1024 * 1024
 
     PROJECT_NAME: str = "Wishlist"
     PROJECT_VERSION: str = "0.0.1"
@@ -38,6 +39,8 @@ class Settings:
     DATABASE_URL = f"mysql://{USER}:{PASSWORD}@{SERVER}:{PORT}/{DB}"
 
     SECRET_KEY: str = os.getenv("SECRET_KEY", default="AWESOME_SECRET_KEY")
+    JWT_ACCESS_TOKEN_EXPIRATION = 1800
+    JWT_REFRESH_TOKEN_EXPIRATION = 2592000
 
 
 firebaseConfig = {

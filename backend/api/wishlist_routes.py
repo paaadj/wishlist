@@ -37,8 +37,9 @@ async def create_item(
         if image:
             if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type")
-
             content = await image.read()
+            if len(content) > settings.IMAGE_MAX_SIZE:
+                raise HTTPException(status_code=413, detail="File too large")
             new_filename = str(uuid.uuid4())
             storage.child(new_filename).put(content, content_type=f"{image.content_type}")
         new_item.image_filename = new_filename
