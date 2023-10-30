@@ -43,6 +43,10 @@ jobs:
     - name: Install dependencies
       working-directory: ./backend
       run: pip install -r requirements.txt
+      
+    - name: Make directory for artifact
+      working-directory: ./backend
+      run: mkdir -p test-results
 
     - name: Run tests
       env:
@@ -64,10 +68,6 @@ jobs:
         working-directory: ./backend
       run: pytest --html=test-results/results.html
       continue-on-error: true
-
-    - name: Make directory for artifact
-      working-directory: ./backend
-      run: mkdir -p test-results
     
     - name: Upload artifact
       uses: actions/upload-artifact@v3
