@@ -4,6 +4,8 @@ Configuration file
 
 
 import os
+import pyrebase
+import json
 
 
 # pylint: disable=too-few-public-methods
@@ -16,6 +18,13 @@ class Settings:
         'models.item',
         'models.user',
         'models.wishlist',
+    ]
+
+    ALLOWED_CONTENT_TYPES: list = [
+        'image/png',
+        'image/jpeg',
+        'image/jpg',
+        'image/webp',
     ]
 
     PROJECT_NAME: str = "Wishlist"
@@ -31,4 +40,19 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_KEY", default="AWESOME_SECRET_KEY")
 
 
+firebaseConfig = {
+  "apiKey": os.getenv("apiKey"),
+  "authDomain": os.getenv("authDomain"),
+  "projectId": os.getenv("projectId"),
+  "storageBucket": os.getenv("storageBucket"),
+  "messagingSenderId": os.getenv("messagingSenderId"),
+  "appId": os.getenv("appId"),
+  "measurementId": os.getenv("measurementId"),
+  "serviceAccount": json.loads(os.environ["serviceAccount"]),
+  "databaseURL": os.getenv("databaseURL"),
+}
+
+
+firebase = pyrebase.initialize_app(firebaseConfig)
+storage = firebase.storage()
 settings = Settings()

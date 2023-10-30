@@ -36,3 +36,4 @@ pyvenv.cfg
 /migrations/
 /pyproject.toml
 /test-results/
+/serviceAccount.json
