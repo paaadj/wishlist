@@ -45,7 +45,23 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Run tests
-      working-directory: ./backend
+      env:
+        DB: ${{ secrets.DB }}
+        KEY: ${{ secrets.KEY }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        PORT: ${{ secrets.PORT }}
+        SERVER: ${{ secrets.SERVER }}
+        USER: ${{ secrets.USER }}
+        APIKEY: ${{ secrets.APIKEY }}
+        AUTHDOMAIN: ${{ secrets.AUTHDOMAIN }}
+        PROJECTID: ${{ secrets.PROJECTID }}
+        STORAGEBUCKET: ${{ secrets.STORAGEBUCKET }}
+        MESSAGINGSENDERID: ${{ secrets.MESSAGINGSENDERID }}
+        APPID: ${{ secrets.APPID }}
+        MEASUREMENTID: ${{ secrets.MEASUREMENTID }}
+        SERVICEACCOUNT: ${{ secrets.SERVICEACCOUNT }}
+        DATABASEURL: ${{ secrets.DATABASEURL }}
+        working-directory: ./backend
       run: pytest --html=test-results/results.html
       continue-on-error: true
 

@@ -4,15 +4,15 @@ import pyrebase
 import json
 
 firebaseConfig = {
-  "apiKey": os.getenv("apiKey"),
-  "authDomain": os.getenv("authDomain"),
-  "projectId": os.getenv("projectId"),
-  "storageBucket": os.getenv("storageBucket"),
-  "messagingSenderId": os.getenv("messagingSenderId"),
-  "appId": os.getenv("appId"),
-  "measurementId": os.getenv("measurementId"),
-  "serviceAccount": json.loads(os.environ["serviceAccount"]),
-  "databaseURL": os.getenv("databaseURL"),
+  "apiKey": os.getenv("APIKEY"),
+  "authDomain": os.getenv("AUTHDOMAIN"),
+  "projectId": os.getenv("PROJECTID"),
+  "storageBucket": os.getenv("STORAGEBUCKET"),
+  "messagingSenderId": os.getenv("MESSAGINGSENDERID"),
+  "appId": os.getenv("APPID"),
+  "measurementId": os.getenv("MEASUREMENTID"),
+  "serviceAccount": json.loads(os.environ["SERVICEACCOUNT"]),
+  "databaseURL": os.getenv("DATABASEURL"),
 }
 
 
