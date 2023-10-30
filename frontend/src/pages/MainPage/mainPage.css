@@ -18,22 +18,7 @@
   color: #fff;
 }
 
-.main-page-text {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  word-break: break-word;
-  letter-spacing: 0.05em;
-}
-.main-page-title-text {
-  font-family: "Bowlby One", sans-serif;
-  line-height: 1.1;
-}
-.main-page-reg-text {
-  text-decoration: none;
-  font-family: "Figtree", "Figtree Placeholder", sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-}
+
 .content-block {
   /* Style the content block */
   min-width: 100%;

@@ -1,0 +1,188 @@
+.authentication-wrapper {
+  width: 50%;
+  height: 100%;
+  padding-top: 5%;
+  background-color: transparent;
+  backdrop-filter: blur(50px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  align-self: flex-start;
+}
+.authentication-window{
+    width: 90%;
+}
+.authentication {
+  color: #fff;
+  font-size: 64px;
+  letter-spacing: 0.1em;
+  text-align: center;
+  margin-bottom: 10%;
+}
+.authentication__title{
+  color: #fff;
+  font-size: 3rem;
+  margin: 2% 0;
+  text-align: center;
+}
+
+.authentication-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    row-gap: 20px;
+    overflow-y: scroll;
+    min-height: 50vh;
+    max-height: 50vh;
+    padding-right: 5px;
+}
+
+.user-input-wrapper {
+    width: 100%;
+}
+
+.user-input-field {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    height: 40px;
+    width: 100%;
+    padding-top: 5px;
+    
+    border-radius: 2px;
+    border-bottom: 3px solid #fff;
+    
+}
+
+.user-input {
+    border: none;
+    flex-grow: 2;
+    text-decoration: none;
+  font-family: "Figtree", "Figtree Placeholder", sans-serif;
+  font-size: 20px;
+  line-height: 1.5;
+    background-color: transparent;
+    color: #fff;
+}
+.user-input-required{
+  min-width: 20px;
+  align-self: flex-start;
+  color: #ff2323;
+  font-size: 1.5rem;
+}
+.user-input::placeholder{
+    color: #d3d2d2;
+}
+.user-input:focus{
+    outline: none;
+}
+.user-input-img{
+    height: 20px;
+    width: 20px;
+    margin-right: 10px;
+    margin-left: 5px;
+    filter: invert();
+}
+.input-error {
+    border-color: red;
+}
+
+
+.inputErrorHelperText {
+    text-decoration: none;
+  font-family: "Figtree", "Figtree Placeholder", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+    color: red;
+    margin-bottom: 0;
+}
+
+
+.submit-wrapper{
+    width: 100%;
+}
+
+.submit-button,
+.submit-button *,
+.submit-button :after,
+.submit-button :before,
+.submit-button:after,
+.submit-button:before {
+  border: 0 solid;
+  box-sizing: border-box;
+}
+.submit-button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: button;
+  background-color: #9a0202;
+  background-image: none;
+  width: 100%;
+  color: #fff;
+  cursor: pointer;
+  font-family: "Figtree", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.3em;
+  margin: 3% 0;
+  
+  -webkit-mask-image: -webkit-radial-gradient(#000, #fff);
+  padding: 0;
+ 
+}
+.submit-button:disabled {
+  cursor: default;
+}
+.submit-button:-moz-focusring {
+  outline: auto;
+}
+.submit-button svg {
+  display: block;
+  vertical-align: middle;
+}
+.submit-button [hidden] {
+  display: none;
+}
+.submit-button {
+  border-radius: 5px;
+  
+  overflow: hidden;
+  padding: 0.3rem 3rem;
+  position: relative;
+}
+.submit-button span {
+    color: #ffffff;
+  mix-blend-mode:lighten;
+    
+}
+.submit-button:before {
+  --tilt: 1.2rem;
+  background: #000000;
+  -webkit-clip-path: polygon(
+    0 0,
+    calc(100% - var(--tilt)) 0,
+    100% 50%,
+    calc(100% - var(--tilt)) 100%,
+    0 100%
+  );
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--tilt)) 0,
+    100% 50%,
+    calc(100% - var(--tilt)) 100%,
+    0 100%
+  );
+  content: "";
+  display: block;
+  height: 100%;
+  left: calc(-100% - var(--tilt));
+  position: absolute;
+  top: 0;
+  transform: translateX(var(--progress, 0));
+  transition: transform 0.5s ease;
+  width: calc(100% + var(--tilt));
+}
+.submit-button:hover:before {
+  --progress: 100%;
+}
