@@ -36,7 +36,6 @@ export const UserProvider = (props: any) => {
     if (refreshToken === undefined) {
       return false;
     }
-    console.log(refreshToken);
     const requestRefreshParams = {
       method: "POST",
       headers: {
