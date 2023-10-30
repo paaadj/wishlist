@@ -37,3 +37,4 @@ pyvenv.cfg
 /pyproject.toml
 /test-results/
 /serviceAccount.json
+/dockerfile
