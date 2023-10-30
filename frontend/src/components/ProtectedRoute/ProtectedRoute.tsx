@@ -17,7 +17,7 @@ function ProtectedRoute(props: IProtectedRoute) {
     setAuthentication,
   } = useContext(UserContext) as UserContextType;
   useEffect(() => {
-    setAuthentication(getAccessCookie());
+    setAuthentication(!!getAccessCookie());
     if (!getAccessCookie()) {
       tryRefreshToken()
         .then((res) => {

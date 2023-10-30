@@ -7,6 +7,8 @@ import UserInput from "../UserInput/UserInput";
 
 interface IRegistrationInput {
   username: string;
+  firstName: string;
+  lastName?: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -17,6 +19,8 @@ const emailRegex =
   /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
 
 const registrationValidationSchema = yup.object().shape({
+  firstName: yup.string().required("First name is required"),
+  lastName: yup.string(),
   username: yup
     .string()
     .matches(/^([^0-9]*)$/, "Username should not contain numbers")
@@ -79,6 +83,8 @@ const registrationValidationSchema = yup.object().shape({
 });
 
 const Registration = () => {
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -105,6 +111,7 @@ const Registration = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        first_name: firstName,
         username: username,
         email: email,
         password: password,
@@ -133,12 +140,44 @@ const Registration = () => {
           onSubmit={handleSubmit(onSubmitHandler)}
           className="authentication-form"
         >
+          
+          <UserInput
+            type="text"
+            id="firstName"
+            placeholder="First name"
+            className="user-input"
+            imgSource="/img/username.png"
+            required={true}
+            error={!!errors.firstName}
+            helperText={errors.firstName?.message}
+            {...register("firstName", {
+              onChange: (e) => {
+                setFirstName(e.target.value);
+              },
+            })}
+          />
+          <UserInput
+            type="text"
+            id="lastName"
+            placeholder="Last name"
+            className="user-input"
+            imgSource="/img/username.png"
+            required={false}
+            error={!!errors.lastName}
+            helperText={errors.lastName?.message}
+            {...register("lastName", {
+              onChange: (e) => {
+                setLastName(e.target.value);
+              },
+            })}
+          />
           <UserInput
             type="text"
             id="username"
             placeholder="Username"
             className="user-input"
             imgSource="/img/username.png"
+            required={true}
             error={!!errors.username}
             helperText={errors.username?.message}
             {...register("username", {
@@ -154,6 +193,7 @@ const Registration = () => {
             placeholder="Email"
             className="user-input"
             imgSource="/img/email.png"
+            required={true}
             error={!!errors.email}
             helperText={errors.email?.message}
             {...register("email", {
@@ -169,6 +209,7 @@ const Registration = () => {
             placeholder="Password"
             className="user-input"
             imgSource="/img/password.png"
+            required={true}
             error={!!errors.password}
             helperText={errors.password?.message}
             {...register("password", {
@@ -184,6 +225,7 @@ const Registration = () => {
             placeholder="Confirm password"
             className="user-input"
             imgSource="/img/password.png"
+            required={true}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword?.message}
             {...register("confirmPassword", {
@@ -192,7 +234,7 @@ const Registration = () => {
               },
             })}
           />
-
+          
           <div className="submit-wrapper">
             <button className="submit-button" type="submit">
               <span>Sign Up</span>

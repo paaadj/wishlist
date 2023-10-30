@@ -55,8 +55,6 @@ const Login = () => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.log(response);
-      console.log("DB error");
     } else {
       setAuthorizationTokens(data.access_token, data.refresh_token);
     }

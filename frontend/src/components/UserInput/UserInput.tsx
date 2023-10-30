@@ -12,6 +12,7 @@ interface IUserInput {
   error?: boolean;
   helperText?: string;
   imgSource?: string;
+  required?: boolean;
 }
 
 const UserInput = forwardRef<HTMLInputElement, IUserInput>(
@@ -27,6 +28,7 @@ const UserInput = forwardRef<HTMLInputElement, IUserInput>(
       error,
       helperText,
       imgSource,
+      required
     } = props;
     return (
       <div className="user-input-wrapper">
@@ -48,7 +50,10 @@ const UserInput = forwardRef<HTMLInputElement, IUserInput>(
           {imgSource && (
             <img src={imgSource} alt="none" className="user-input-img" />
           )}
+          <span className="user-input-required">{required ? "*" : ""}</span>
+          
         </div>
+          
         {error && (
           <label htmlFor={id} className="inputErrorHelperText">
             {helperText ?? "Error"}

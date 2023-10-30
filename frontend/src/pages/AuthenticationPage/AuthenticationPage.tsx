@@ -1,14 +1,24 @@
-import { Navigate, Outlet, useOutlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate, useOutlet } from "react-router-dom";
 import "./authenticationPage.css";
 function AuthenticationPage() {
   const outlet = useOutlet();
+  const navigate = useNavigate();
   return (
     <div className="auth-wrapper">
       <img src="/img/auth_bg.jpg" alt="BG" className="auth-background" />
       <div className="auth-window">
         <div className="welcome-side">
-          <div className="welcome-side__logo page-text page-title-text">
-            WISHLIST
+          <div className="logo-wrapper">
+            <button type="button" onClick={() => navigate("/")} className="welcome-side__media-wrapper">
+              <img
+                src="/img/go-back-arrow.png"
+                alt="media"
+                className="welcome-side__media"
+              />
+            </button>
+            <div className="welcome-side__logo page-text page-title-text">
+              WISHLIST
+            </div>
           </div>
           <h2 className="welcome-side__title page-text page-title-text">
             Welcome to our Wishlist
@@ -21,16 +31,32 @@ function AuthenticationPage() {
           </p>
           <nav className="welcome-side__media-container">
             <button type="button" className="welcome-side__media-wrapper">
-              <img src="/img/github.png" alt="media" className="welcome-side__media" />
+              <img
+                src="/img/github.png"
+                alt="media"
+                className="welcome-side__media"
+              />
             </button>
             <button type="button" className="welcome-side__media-wrapper">
-              <img src="/img/vk.png" alt="media" className="welcome-side__media" />
+              <img
+                src="/img/vk.png"
+                alt="media"
+                className="welcome-side__media"
+              />
             </button>
             <button type="button" className="welcome-side__media-wrapper">
-              <img src="/img/ok.png" alt="media" className="welcome-side__media" />
+              <img
+                src="/img/ok.png"
+                alt="media"
+                className="welcome-side__media"
+              />
             </button>
             <button type="button" className="welcome-side__media-wrapper">
-              <img src="/img/telegram.png" alt="media" className="welcome-side__media" />
+              <img
+                src="/img/telegram.png"
+                alt="media"
+                className="welcome-side__media"
+              />
             </button>
           </nav>
         </div>

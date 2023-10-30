@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 // export type userAuth = {
@@ -6,24 +6,32 @@ import Cookies from "js-cookie";
 //   email: string;
 // };
 
+export type userData = {
+  firstName: string,
+  lastName?: string,
+  username: string,
+  email: string
+};
+
 export type UserContextType = {
   setAuthorizationTokens: (
     access_token: string | undefined,
     refresh_token: string | undefined
   ) => void;
   isAuthenticated: boolean;
-  getAccessCookie: () => boolean;
+  getAccessCookie: () => string | undefined;
   tryRefreshToken: () => Promise<boolean>
   setAuthentication: (value: boolean) => void
+  user: userData | undefined;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = (props: any) => {
   const [refreshToken, setRefreshToken] = useState(Cookies.get("refreshToken"));
-  const [, setAccessToken] = useState(Cookies.get("accessToken"));
+  const [accessToken, setAccessToken] = useState(Cookies.get("accessToken"));
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
+  const [user, setUser] = useState<userData | undefined>(undefined);
   const tryRefreshToken = async () => {
     if (refreshToken === undefined) {
       return false;
@@ -54,6 +62,25 @@ export const UserProvider = (props: any) => {
       return true;
     }
   };
+
+  const fetchUser = async()=> {
+    console.log("object");
+    const requestParams = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + getAccessCookie(),
+      },
+    };
+    const response = await fetch("/backend/users/me", requestParams);
+    const data = await response.json()
+    setUser( {
+      firstName: data.first_name,
+      lastName: data?.first_name ?? "",
+      username: data.username,
+      email: data.email,
+    });
+  }
 
   // const fetchUser = async () => {
   //   if (accessToken === undefined && refreshToken === undefined) {
@@ -93,7 +120,7 @@ export const UserProvider = (props: any) => {
   };
 
   const getAccessCookie = ()=>{
-    return !!Cookies.get('accessToken')
+    return Cookies.get('accessToken')
   }
 
   const setCookies = (access_token: string | undefined,
@@ -112,11 +139,11 @@ export const UserProvider = (props: any) => {
   }
 
 
-  // /*Check the token */
-  // useEffect(() => {
-  //   setIsAuthenticated(!!getAccessCookie());
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [refreshToken]);
+  /*Check the token */
+  useEffect(() => {
+    fetchUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
   return (
     <UserContext.Provider
       value={{
@@ -124,7 +151,8 @@ export const UserProvider = (props: any) => {
         isAuthenticated,
         getAccessCookie,
         tryRefreshToken,
-        setAuthentication
+        setAuthentication,
+        user
       }}
     >
       {props.children}

@@ -30,6 +30,12 @@ function MainPage() {
               >
                 Login
               </Link>
+              <Link
+                to="/user"
+                className="title__button page-text page-reg-text white-color white-button-text"
+              >
+                User
+              </Link>
               <button
                 onClick={()=>{setAuthorizationTokens(undefined, undefined)}}
                 className="title__button page-text page-reg-text white-color white-button-text"

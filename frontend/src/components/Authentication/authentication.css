@@ -7,6 +7,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  align-self: flex-start;
 }
 .authentication-window{
     width: 90%;
@@ -21,13 +22,20 @@
 .authentication__title{
   color: #fff;
   font-size: 3rem;
+  margin: 2% 0;
+  text-align: center;
 }
+
 .authentication-form {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     row-gap: 20px;
+    overflow-y: scroll;
+    min-height: 50vh;
+    max-height: 50vh;
+    padding-right: 5px;
 }
 
 .user-input-wrapper {
@@ -57,7 +65,12 @@
     background-color: transparent;
     color: #fff;
 }
-
+.user-input-required{
+  min-width: 20px;
+  align-self: flex-start;
+  color: #ff2323;
+  font-size: 1.5rem;
+}
 .user-input::placeholder{
     color: #d3d2d2;
 }
@@ -112,8 +125,8 @@
   font-weight: 700;
   line-height: 1.5;
   letter-spacing: 0.3em;
-  margin: 0;
-  margin-top: 10%;
+  margin: 3% 0;
+  
   -webkit-mask-image: -webkit-radial-gradient(#000, #fff);
   padding: 0;
  
