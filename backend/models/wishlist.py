@@ -54,8 +54,8 @@ class WishlistItemResponse(BaseModel):
     """
     Wishlist item response model
     """
-    title: str = "Item"
-    description: str = "Description example"
+    title: str
+    description: str
     link: AnyHttpUrl
     image_url: AnyHttpUrl
 

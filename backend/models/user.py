@@ -55,18 +55,18 @@ class UserCreate(BaseModel):
     User creation model
     """
 
-    username: str = "username"
+    username: str
     email: Optional[EmailStr]
-    password: str = "password"
-    first_name: str = "John"
-    last_name: Optional[str] = Field("Doe", description="This field is optional.")
+    password: str
+    first_name: str
+    last_name: Optional[str] = Field(description="This field is optional.")
 
 
 class UserPydantic(BaseModel):
     """
     User response model
     """
-    username: str = "username"
+    username: str
     email: EmailStr
-    first_name: str = "John"
-    last_name: str = "Doe"
+    first_name: str
+    last_name: str
