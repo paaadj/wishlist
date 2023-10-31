@@ -56,10 +56,10 @@ class UserCreate(BaseModel):
     """
 
     username: str
-    email: Optional[EmailStr]
+    email: Optional[EmailStr] = None
     password: str
     first_name: str
-    last_name: Optional[str] = Field(description="This field is optional.")
+    last_name: Optional[str] = None
 
 
 class UserPydantic(BaseModel):
@@ -67,6 +67,6 @@ class UserPydantic(BaseModel):
     User response model
     """
     username: str
-    email: EmailStr
+    email: Optional[EmailStr] = None
     first_name: str
-    last_name: str
+    last_name: Optional[str] = None
