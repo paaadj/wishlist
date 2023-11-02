@@ -10,7 +10,7 @@ from auth.services import get_current_user
 from models.user import UserPydantic
 from typing import Annotated
 from pydantic import AnyHttpUrl
-from api.wishlist_services import create_item, fetch_wishlist, fetch_item, edit_item
+from api.wishlist_services import create_item, fetch_wishlist, fetch_item, edit_item, remove_item
 from config import settings
 
 
@@ -65,7 +65,7 @@ async def get_item_via_id(item_id: int):
     return await fetch_item(item_id)
 
 
-@api_router.put("/update_item", response_model=WishlistItemResponse, tags=["item"])
+@api_router.put("/update_item", response_model=WishlistItemResponse, tags=["wishlist"])
 async def update_item(
         item_id: int,
         title: Annotated[str, Form()],
@@ -83,18 +83,12 @@ async def update_item(
         image=image,
     )
 
-#
-#
-# @router.delete("/delete/{item_id}", response_model=item_response, tags=["item"])
-# async def delete_item(item_id: int):
-#     """
-#     Delete item with id item_id
-#     :param item_id: id of item to delete
-#     :return: deleted item if existed or error
-#     """
-#     item = await Item.get_or_none(id=item_id)
-#     if item is None:
-#         raise HTTPException(status_code=404, detail="Item not found")
-#
-#     await Item.delete(item)
-#     return item
+
+@api_router.delete("/delete/{item_id}", response_model=WishlistItemResponse, tags=["wishlist"])
+async def delete_item(item_id: int):
+    """
+    Delete item with id item_id
+    :param item_id: id of item to delete
+    :return: deleted item if existed or error
+    """
+    return await remove_item(item_id)

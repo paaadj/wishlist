@@ -6,7 +6,7 @@ from tortoise.validators import RegexValidator
 from tortoise import fields
 from pydantic import BaseModel, constr, AnyHttpUrl, field_validator, ValidationInfo
 from models.user import User
-from typing import List
+from typing import List, Optional
 
 
 class Wishlist(Model):
@@ -58,7 +58,7 @@ class WishlistItemResponse(BaseModel):
     title: str = "Item"
     description: str = "Description example"
     link: AnyHttpUrl
-    image_url: AnyHttpUrl
+    image_url: Optional[AnyHttpUrl]
 
 
 class WishlistResponse(BaseModel):

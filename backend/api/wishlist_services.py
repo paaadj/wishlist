@@ -42,6 +42,12 @@ async def update_image(
     return item
 
 
+async def remove_image(
+        filename: str
+):
+    storage.delete(filename, token=None)
+
+
 async def create_item(
         title: Annotated[str, Form()],
         description: Annotated[str, Form()],
@@ -59,8 +65,6 @@ async def create_item(
         if image:
             new_item = await upload_image(item=new_item, image=image)
         await new_item.save()
-        if new_item.image_url is None:
-            new_item.image_url = settings.DEFAULT_IMAGE_URL
         return new_item.__dict__
     except Exception as exc:
         print(exc)
@@ -76,13 +80,8 @@ async def fetch_wishlist(
     items = await wishlist.items.limit(per_page).offset(page*per_page)
     total_items = await wishlist.items.all().count()
     total_pages = math.ceil(total_items / per_page)
-    wishlist_items_response = []
-    for item in items:
-        if item.image_url is None:
-            item.image_url = settings.DEFAULT_IMAGE_URL
-        wishlist_items_response.append(WishlistItemResponse(**item.__dict__))
     return {
-        "items": wishlist_items_response,
+        "items": items,
         "page": page + 1,
         "per_page": per_page,
         "total_items": total_items,
@@ -124,7 +123,26 @@ async def edit_item(
             item = await update_image(item=item, image=image)
         else:
             item = await upload_image(item=item, image=image)
+    elif item.image_filename:
+        await remove_image(item.image_filename)
+        item.image_filename = None
+        item.image_url = None
 
     await item.save()
 
     return item
+
+
+async def remove_item(
+        item_id: int
+):
+    item = await WishlistItem.get_or_none(id=item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if item.image_filename:
+        await remove_image(item.image_filename)
+    await WishlistItem.delete(item)
+
+    return item
+
