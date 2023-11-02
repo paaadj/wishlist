@@ -46,7 +46,7 @@ function MainPage() {
                 onClick={()=>{console.log(isAuthenticated);}}
                 className="title__button page-text page-reg-text white-color white-button-text"
               >
-                aut
+                auth
               </button>
               <Link
                 to="#"

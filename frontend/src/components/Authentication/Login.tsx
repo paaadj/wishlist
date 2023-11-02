@@ -50,7 +50,6 @@ const Login = () => {
         `grant_type=&username=${username}&password=${password}&scope=&client_id=&client_secret=`
       ),
     };
-    console.log(requestParams);
     const response = await fetch("/backend/token", requestParams);
     const data = await response.json();
 
