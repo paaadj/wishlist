@@ -6,6 +6,7 @@ import pytest
 from httpx import AsyncClient
 from tortoise import Tortoise
 from main import app
+from config import settings
 
 
 DB_URL = "sqlite://:memory:"
@@ -14,7 +15,7 @@ DB_URL = "sqlite://:memory:"
 async def init_db(db_url, create_db: bool = False, schemas: bool = False) -> None:
     """Initial database connection"""
     await Tortoise.init(
-        db_url=db_url, modules={"models": ["models.item", "models.user"]}
+        db_url=db_url, modules={"models": settings.MODULE_LIST}
     )
     if create_db:
         print(f"Database created! {db_url = }")
