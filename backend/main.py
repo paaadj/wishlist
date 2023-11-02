@@ -42,7 +42,7 @@ async def shutdown_db():
 
 
 app.include_router(auth_router)
-app.include_router(api_router, prefix='/api')
+app.include_router(api_router, prefix="/api")
 if __name__ == "__main__":
     import uvicorn
 

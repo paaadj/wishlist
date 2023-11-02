@@ -76,7 +76,9 @@ async def create_user(user: UserCreate):
                 detail="User with this username or email already exists",
             )
         if len(user.password) < 8:
-            raise ValidationError(f"password: Length of '{user.password}' {len(user.password)} < 8")
+            raise ValidationError(
+                f"password: Length of '{user.password}' {len(user.password)} < 8"
+            )
         user_obj = User(**user.model_dump())
         user_obj.password = bcrypt.hash(user.password)
         await user_obj.save()

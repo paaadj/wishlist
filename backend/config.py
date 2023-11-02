@@ -13,20 +13,22 @@ class Settings:
     """
 
     MODULE_LIST: list = [
-        'models.item',
-        'models.user',
-        'models.wishlist',
+        "models.item",
+        "models.user",
+        "models.wishlist",
     ]
 
     ALLOWED_CONTENT_TYPES: list = [
-        'image/png',
-        'image/jpeg',
-        'image/jpg',
-        'image/webp',
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/webp",
     ]
     IMAGE_MAX_SIZE = 1.5 * 1024 * 1024
-    DEFAULT_IMAGE_URL = ("https://firebasestorage.googleapis.com/v0/b/"
-                         "wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media")
+    DEFAULT_IMAGE_URL = (
+        "https://firebasestorage.googleapis.com/v0/b/"
+        "wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media"
+    )
 
     PROJECT_NAME: str = "Wishlist"
     PROJECT_VERSION: str = "0.0.1"

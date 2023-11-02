@@ -17,16 +17,25 @@ class User(Model):
     """
 
     id = fields.IntField(pk=True)
-    username = fields.CharField(max_length=255, unique=True, validators=[MinLengthValidator(8)])
+    username = fields.CharField(
+        max_length=255, unique=True, validators=[MinLengthValidator(8)]
+    )
     email = fields.CharField(
         max_length=255,
         unique=True,
         null=True,
-        validators=[RegexValidator(r'^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+$', re.I)],
+        validators=[
+            RegexValidator(
+                r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+$",
+                re.I,
+            )
+        ],
     )
     password = fields.CharField(max_length=255)
     first_name = fields.CharField(max_length=30, validators=[MinLengthValidator(2)])
-    last_name = fields.CharField(max_length=30, null=True, validators=[MinLengthValidator(2)])
+    last_name = fields.CharField(
+        max_length=30, null=True, validators=[MinLengthValidator(2)]
+    )
 
     def __str__(self):
         return self.username
@@ -66,6 +75,7 @@ class UserPydantic(BaseModel):
     """
     User response model
     """
+
     username: str
     email: Optional[EmailStr] = None
     first_name: str
