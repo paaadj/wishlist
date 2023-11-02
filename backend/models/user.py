@@ -25,8 +25,8 @@ class User(Model):
         validators=[RegexValidator(r'^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+$', re.I)],
     )
     password = fields.CharField(max_length=255)
-    first_name = fields.CharField(max_length=30)
-    last_name = fields.CharField(max_length=30, null=True)
+    first_name = fields.CharField(max_length=30, validators=[MinLengthValidator(2)])
+    last_name = fields.CharField(max_length=30, null=True, validators=[MinLengthValidator(2)])
 
     def __str__(self):
         return self.username
