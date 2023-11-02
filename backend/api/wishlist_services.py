@@ -23,9 +23,22 @@ async def upload_image(
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
     new_filename = str(uuid.uuid4())
-    storage.child(new_filename).put(content)
+    storage.child(new_filename).put(content, content_type=image.content_type)
     item.image_filename = new_filename
     item.image_url = storage.child(new_filename).get_url(None)
+    return item
+
+
+async def update_image(
+        item: WishlistItem,
+        image: UploadFile,
+):
+    if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type")
+    content = await image.read()
+    if len(content) > settings.IMAGE_MAX_SIZE:
+        raise HTTPException(status_code=413, detail="File too large")
+    storage.child(item.image_filename).put(content, content_type=image.content_type)
     return item
 
 
@@ -44,15 +57,7 @@ async def create_item(
         )
         new_item.wishlist = await user.wishlist
         if image:
-            if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type")
-            content = await image.read()
-            if len(content) > settings.IMAGE_MAX_SIZE:
-                raise HTTPException(status_code=413, detail="File too large")
-            new_filename = str(uuid.uuid4())
-            storage.child(new_filename).put(content)
-            new_item.image_filename = new_filename
-            new_item.image_url = storage.child(new_filename).get_url(None)
+            new_item = await upload_image(item=new_item, image=image)
         await new_item.save()
         if new_item.image_url is None:
             new_item.image_url = settings.DEFAULT_IMAGE_URL
@@ -109,14 +114,14 @@ async def edit_item(
     item = await WishlistItem.get_or_none(id=item_id)
     if item is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Item doesn't exist")
-    if item.wishlist != await user.wishlist:
+    if await item.wishlist != await user.wishlist:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     setattr(item, "title", title)
     setattr(item, "description", description)
     setattr(item, "link", link)
     if image:
         if item.image_filename:
-            storage.child(item.image_filename).put(image)
+            item = await update_image(item=item, image=image)
         else:
             item = await upload_image(item=item, image=image)
 
