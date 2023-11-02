@@ -24,9 +24,9 @@ async def upload_image(
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
     new_filename = str(uuid.uuid4())
-    storage.child("items/" + new_filename).put(content, content_type=image.content_type)
+    storage.child("item_images/" + new_filename).put(content, content_type=image.content_type)
     item.image_filename = new_filename
-    item.image_url = storage.child("items/" + new_filename).get_url(None)
+    item.image_url = storage.child("item_images/" + new_filename).get_url(None)
     return item
 
 
@@ -41,12 +41,12 @@ async def update_image(
     content = await image.read()
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
-    storage.child("items/" + item.image_filename).put(content, content_type=image.content_type)
+    storage.child("item_images/" + item.image_filename).put(content, content_type=image.content_type)
     return item
 
 
 async def remove_image(filename: str):
-    storage.delete("items/" + filename, token=None)
+    storage.delete("item_images/" + filename, token=None)
 
 
 async def create_item(
