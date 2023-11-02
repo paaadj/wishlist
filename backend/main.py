@@ -7,7 +7,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
 
-from api.routes import router
 from auth.routes import auth_router
 from api.wishlist_routes import api_router
 from config import settings
@@ -42,7 +41,6 @@ async def shutdown_db():
     await Tortoise.close_connections()
 
 
-app.include_router(router, prefix="/api")
 app.include_router(auth_router)
 app.include_router(api_router, prefix='/api')
 if __name__ == "__main__":
