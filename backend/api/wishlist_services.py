@@ -52,7 +52,7 @@ async def create_item(
         title: Annotated[str, Form()],
         description: Annotated[str, Form()],
         link: Annotated[AnyHttpUrl, Form()],
-        user: UserPydantic = Depends(get_current_user),
+        user: UserPydantic,
         image: UploadFile = File(None)
 ):
     try:
@@ -107,7 +107,7 @@ async def edit_item(
         title: Annotated[str, Form()],
         description: Annotated[str, Form()],
         link: Annotated[AnyHttpUrl, Form()],
-        user: UserPydantic = Depends(get_current_user),
+        user: UserPydantic,
         image: UploadFile = File(None),
 ):
     item = await WishlistItem.get_or_none(id=item_id)
@@ -134,12 +134,14 @@ async def edit_item(
 
 
 async def remove_item(
-        item_id: int
+        item_id: int,
+        user: User
 ):
     item = await WishlistItem.get_or_none(id=item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
-
+    if await item.wishlist != await user.wishlist:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong user")
     if item.image_filename:
         await remove_image(item.image_filename)
     await WishlistItem.delete(item)

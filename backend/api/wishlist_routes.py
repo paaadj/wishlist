@@ -85,10 +85,10 @@ async def update_item(
 
 
 @api_router.delete("/delete/{item_id}", response_model=WishlistItemResponse, tags=["wishlist"])
-async def delete_item(item_id: int):
+async def delete_item(item_id: int, user = Depends(get_current_user)):
     """
     Delete item with id item_id
     :param item_id: id of item to delete
     :return: deleted item if existed or error
     """
-    return await remove_item(item_id)
+    return await remove_item(item_id, user)
