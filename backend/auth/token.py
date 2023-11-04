@@ -10,7 +10,7 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel
 
 from config import settings
-from models.user import RefreshToken, User, UserPydantic
+from models.user import RefreshToken, User, UserResponse
 
 JWT_SECRET = settings.SECRET_KEY
 ALGORITHM = "HS256"
@@ -37,7 +37,7 @@ async def create_access_token(user: User):
     :param user: user
     :return: access token
     """
-    user_obj = UserPydantic(**user.__dict__)
+    user_obj = UserResponse(**user.__dict__)
     sub = user_obj.model_dump()
     sub["scope"] = "access"
     sub["exp"] = time.time() + settings.JWT_ACCESS_TOKEN_EXPIRATION
@@ -51,7 +51,7 @@ async def create_refresh_token(user: User):
     :param user: user
     :return: refresh token
     """
-    user_obj = UserPydantic(**user.__dict__)
+    user_obj = UserResponse(**user.__dict__)
     sub = user_obj.model_dump()
     sub["scope"] = "refresh"
     sub["exp"] = time.time() + settings.JWT_REFRESH_TOKEN_EXPIRATION

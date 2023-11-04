@@ -7,8 +7,8 @@ from fastapi import APIRouter, Depends, UploadFile, Form, File, HTTPException, s
 from models.wishlist import WishlistItemResponse, WishlistResponse
 from auth.services import get_current_user
 from auth.routes import get_user_by_username
-from models.user import UserPydantic
-from typing import Annotated
+from models.user import UserResponse, User
+from typing import Annotated, Optional
 from pydantic import AnyHttpUrl
 from api.wishlist_services import (
     create_item,
@@ -26,8 +26,8 @@ api_router = APIRouter()
 async def add_item(
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
-    link: Annotated[AnyHttpUrl, Form()],
-    user: UserPydantic = Depends(get_current_user),
+    link: Annotated[AnyHttpUrl, Form()] = None,
+    user: User = Depends(get_current_user),
     image: UploadFile = File(None),
 ):
     return await create_item(
@@ -43,7 +43,7 @@ async def add_item(
 async def get_wishlist(
     page: int = 1,
     per_page: int = 3,
-    user: UserPydantic = Depends(get_user_by_username),
+    user: UserResponse = Depends(get_user_by_username),
 ):
     """
     Get wishlist item on page
@@ -80,7 +80,7 @@ async def update_item(
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
     link: Annotated[AnyHttpUrl, Form()],
-    user: UserPydantic = Depends(get_current_user),
+    user: UserResponse = Depends(get_current_user),
     image: UploadFile = File(None),
 ):
     return await edit_item(

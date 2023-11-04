@@ -5,7 +5,7 @@ import re
 from typing import Optional
 
 from passlib.hash import bcrypt
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, AnyHttpUrl
 from tortoise import fields
 from tortoise.validators import RegexValidator, MinLengthValidator
 from tortoise.models import Model
@@ -36,6 +36,18 @@ class User(Model):
     last_name = fields.CharField(
         max_length=30, null=True, validators=[MinLengthValidator(2)]
     )
+    image_filename = fields.CharField(max_length=50, null=True)
+    image_url = fields.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(
+                r"^https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,63}\."
+                r"[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&/=/]*)$",
+                re.I,
+            )
+        ],
+        null=True,
+    ),
 
     def __str__(self):
         return self.username
@@ -71,7 +83,7 @@ class UserCreate(BaseModel):
     last_name: Optional[str] = None
 
 
-class UserPydantic(BaseModel):
+class UserResponse(BaseModel):
     """
     User response model
     """
@@ -80,3 +92,4 @@ class UserPydantic(BaseModel):
     email: Optional[EmailStr] = None
     first_name: str
     last_name: Optional[str] = None
+    image_url: Optional[AnyHttpUrl] = None

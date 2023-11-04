@@ -62,7 +62,7 @@ class WishlistItemResponse(BaseModel):
     id: int
     title: str
     description: str
-    link: AnyHttpUrl
+    link: Optional[AnyHttpUrl] = None
     image_url: Optional[AnyHttpUrl]
 
 

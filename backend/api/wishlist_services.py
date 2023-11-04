@@ -4,8 +4,8 @@ from fastapi import HTTPException, UploadFile, Form, File, status
 
 from models.wishlist import WishlistItem
 from models.user import User
-from models.user import UserPydantic
-from typing import Annotated
+from models.user import UserResponse
+from typing import Annotated, Optional
 from pydantic import AnyHttpUrl
 from config import settings
 from firebase_config import storage
@@ -52,8 +52,8 @@ async def remove_image(filename: str):
 async def create_item(
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
-    link: Annotated[AnyHttpUrl, Form()],
-    user: UserPydantic,
+    user: User,
+    link: Annotated[AnyHttpUrl, Form()] = None,
     image: UploadFile = File(None),
 ):
     try:
@@ -72,7 +72,7 @@ async def create_item(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST) from exc
 
 
-async def fetch_wishlist(page: int, per_page: int, user: UserPydantic):
+async def fetch_wishlist(page: int, per_page: int, user: UserResponse):
     wishlist = await user.wishlist
     items = await wishlist.items.limit(per_page).offset(page * per_page)
     total_items = await wishlist.items.all().count()
@@ -100,7 +100,7 @@ async def edit_item(
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
     link: Annotated[AnyHttpUrl, Form()],
-    user: UserPydantic,
+    user: UserResponse,
     image: UploadFile = File(None),
 ):
     item = await WishlistItem.get_or_none(id=item_id)

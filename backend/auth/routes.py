@@ -3,14 +3,15 @@ Module containing routes and handlers for auth
 """
 
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
-from models.user import User, UserPydantic, UserCreate
+from models.user import User, UserResponse, UserCreate
 from tortoise.exceptions import ValidationError
 from tortoise.expressions import Q
-from typing import List
+from typing import List, Optional
+from pydantic import EmailStr
 
 from .services import authenticate_user, get_current_user, create_user
 from .token import (
@@ -50,7 +51,7 @@ async def get_new_tokens(token: str = Header(...)):
     return await refresh_tokens(token)
 
 
-@auth_router.post("/register", response_model=UserPydantic, tags=["auth"])
+@auth_router.post("/register", response_model=UserResponse, tags=["auth"])
 async def register_user(user: UserCreate):
     """
     Create new user
@@ -61,8 +62,20 @@ async def register_user(user: UserCreate):
     return await create_user(user)
 
 
-@auth_router.get("/users/me", response_model=UserPydantic, tags=["auth"])
-async def get_user(user: UserPydantic = Depends(get_current_user)):
+@auth_router.post("/edit_info", tags=["auth"])
+async def edit_info(
+        email: Optional[EmailStr],
+        password: Optional[str],
+        first_name: Optional[str],
+        last_name: Optional[str],
+        user: User = Depends(get_current_user),
+        image: UploadFile = File(...)
+):
+    pass
+
+
+@auth_router.get("/users/me", response_model=UserResponse, tags=["auth"])
+async def get_user(user: UserResponse = Depends(get_current_user)):
     """
     get user
     :param user: user
@@ -93,7 +106,7 @@ async def check_email(email: str):
     return not bool(user)
 
 
-@auth_router.get("/users", response_model=UserPydantic, tags=["users"])
+@auth_router.get("/users", response_model=UserResponse, tags=["users"])
 async def get_user_by_username(username: str):
     try:
         user = await User.get_or_none(username=username)
@@ -104,7 +117,7 @@ async def get_user_by_username(username: str):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}") from exc
 
 
-@auth_router.get("/users/like", response_model=list[UserPydantic], tags=["users"])
+@auth_router.get("/users/like", response_model=list[UserResponse], tags=["users"])
 async def get_user_with_username_like(username: str):
     try:
         users = await User.filter(username__contains=username)
