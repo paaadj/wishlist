@@ -84,25 +84,6 @@ export const UserProvider = (props: any) => {
     });
   }
 
-  // const fetchUser = async () => {
-  //   if (accessToken === undefined && refreshToken === undefined) {
-  //     return false;
-  //   }
-  //   const requestParams = {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + accessToken,
-  //     },
-  //   };
-
-  //   const response = await fetch("/backend/users/me", requestParams);
-  //   if (response.ok) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
 
   const setAuthorizationTokens = async(
     access_token: string | undefined,
