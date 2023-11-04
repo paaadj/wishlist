@@ -110,9 +110,12 @@ async def edit_item(
         )
     if await item.wishlist != await user.wishlist:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    setattr(item, "title", title)
-    setattr(item, "description", description)
-    setattr(item, "link", link)
+    if title:
+        item.title = title
+    if description:
+        item.description = description
+    if link:
+        item.link = link
     if image:
         if item.image_filename:
             item = await update_image(item=item, image=image)

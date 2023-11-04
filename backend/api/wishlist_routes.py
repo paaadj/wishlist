@@ -77,9 +77,9 @@ async def get_item_via_id(item_id: int):
 @api_router.put("/update_item", response_model=WishlistItemResponse, tags=["wishlist"])
 async def update_item(
     item_id: int,
-    title: Annotated[str, Form()],
-    description: Annotated[str, Form()],
-    link: Annotated[AnyHttpUrl, Form()],
+    title: Annotated[str, Form()] = None,
+    description: Annotated[str, Form()] = None,
+    link: Annotated[AnyHttpUrl, Form()] = None,
     user: UserResponse = Depends(get_current_user),
     image: UploadFile = File(None),
 ):
