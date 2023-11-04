@@ -75,7 +75,7 @@ class UserPydantic(BaseModel):
     """
     User response model
     """
-
+    id: int
     username: str
     email: Optional[EmailStr] = None
     first_name: str

@@ -8,6 +8,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
 from models.user import User, UserPydantic, UserCreate
+from tortoise.exceptions import ValidationError
+from tortoise.expressions import Q
+from typing import List
 
 from .services import authenticate_user, get_current_user, create_user
 from .token import (
@@ -88,3 +91,25 @@ async def check_email(email: str):
     """
     user = await User.filter(email=email).first()
     return not bool(user)
+
+
+@auth_router.get("/users", response_model=UserPydantic, tags=["users"])
+async def get_user_by_username(username: str):
+    try:
+        user = await User.get_or_none(username=username)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exists")
+        return user
+    except ValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}") from exc
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail=f":) {exc}") from exc
+
+
+@auth_router.get("/users/like", response_model=list[UserPydantic], tags=["users"])
+async def get_user_with_username_like(username: str):
+    try:
+        users = await User.filter(username__contains=username)
+        return users
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail=f":) {exc}") from exc
