@@ -140,6 +140,7 @@ async def get_user_by_username(username: str):
 async def get_user_with_username_like(username: str):
     try:
         users = await User.filter(username__contains=username)
+        users = [UserResponse(**user.__dict__) for user in users]
         return users
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail=f":) {exc}") from exc
