@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
 from models.user import User, UserResponse, UserCreate
+from auth.services import authenticate_user, upload_image
 from tortoise.exceptions import ValidationError
 from tortoise.expressions import Q
 from typing import List, Optional
@@ -59,19 +60,37 @@ async def register_user(user: UserCreate):
     :param user: user info for create
     :return: new user if created or error
     """
-    return await create_user(user)
+    user = await create_user(user)
+    return user.__dict__
 
 
-@auth_router.post("/edit_info", tags=["auth"])
+@auth_router.post("/edit_info", response_model=UserResponse, tags=["auth"])
 async def edit_info(
         email: Optional[EmailStr],
-        password: Optional[str],
+        current_password: Optional[str],
+        new_password: Optional[str],
         first_name: Optional[str],
         last_name: Optional[str],
         user: User = Depends(get_current_user),
         image: UploadFile = File(...)
 ):
-    pass
+    try:
+        if email:
+            user.email = email
+        if new_password:
+            if not current_password or not authenticate_user(user.username, current_password):
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong password")
+            user.password = new_password
+        if first_name:
+            user.first_name = first_name
+        if last_name:
+            user.last_name = last_name
+        if image:
+            user.image_filename, user.image_url = upload_image(image)
+        await user.save()
+        return user.__dict__
+    except ValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/users/me", response_model=UserResponse, tags=["auth"])
@@ -81,7 +100,7 @@ async def get_user(user: UserResponse = Depends(get_current_user)):
     :param user: user
     :return: user
     """
-    return user
+    return user.__dict__
 
 
 @auth_router.get("/users/username/{username}", response_model=bool, tags=["auth"])
@@ -112,7 +131,7 @@ async def get_user_by_username(username: str):
         user = await User.get_or_none(username=username)
         if user is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exists")
-        return user
+        return user.__dict__
     except ValidationError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}") from exc
 

@@ -1,14 +1,15 @@
 """
 Module containing handlers for retrieving a user using an access token.
 """
-
+import uuid
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, UploadFile
 from fastapi.security import OAuth2PasswordBearer
 from tortoise.exceptions import ValidationError
 from tortoise.expressions import Q
 from config import settings
+from firebase_config import storage
 from models.user import User, UserCreate
 from passlib.hash import bcrypt
 from models.wishlist import Wishlist
@@ -42,7 +43,7 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(access_token, JWT_SECRET, algorithms=[ALGORITHM])
         if payload.get("scope") != "access":
-            raise jwt.exceptions.DecodeError
+            raise jwt.exceptions.InvalidSignatureError
         user = await User.get(username=payload.get("username"))
     except jwt.exceptions.DecodeError as exc:
         raise HTTPException(
@@ -52,11 +53,6 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
     except jwt.exceptions.ExpiredSignatureError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
-        ) from exc
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password",
         ) from exc
 
     return user
@@ -88,3 +84,17 @@ async def create_user(user: UserCreate):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
         ) from exc
+
+
+async def upload_image(image: UploadFile):
+    if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type"
+        )
+    content = await image.read()
+    if len(content) > settings.IMAGE_MAX_SIZE:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File too large")
+    filename = str(uuid.uuid4())
+    storage.child("user_images/" + filename).put(content, content_type=image.content_type)
+    image_url = storage.child("item_images/" + filename).get_url(None)
+    return filename, image_url
