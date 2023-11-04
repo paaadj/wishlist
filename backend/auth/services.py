@@ -98,3 +98,7 @@ async def upload_image(image: UploadFile):
     storage.child("user_images/" + filename).put(content, content_type=image.content_type)
     image_url = storage.child("item_images/" + filename).get_url(None)
     return filename, image_url
+
+
+async def delete_image(filename):
+    storage.delete("user_images/" + filename, token=None)

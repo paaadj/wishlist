@@ -8,8 +8,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
 from models.user import User, UserResponse, UserCreate
-from auth.services import authenticate_user, upload_image
+from auth.services import authenticate_user, upload_image, delete_image
 from tortoise.exceptions import ValidationError
+from passlib.hash import bcrypt
 from tortoise.expressions import Q
 from typing import List, Optional
 from pydantic import EmailStr
@@ -66,27 +67,27 @@ async def register_user(user: UserCreate):
 
 @auth_router.post("/edit_info", response_model=UserResponse, tags=["auth"])
 async def edit_info(
-        email: Optional[EmailStr],
-        current_password: Optional[str],
-        new_password: Optional[str],
-        first_name: Optional[str],
-        last_name: Optional[str],
+        email: Optional[EmailStr] = None,
+        current_password: Optional[str] = None,
+        new_password: Optional[str] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
         user: User = Depends(get_current_user),
-        image: UploadFile = File(...)
+        image: UploadFile = File(None)
 ):
     try:
         if email:
             user.email = email
         if new_password:
-            if not current_password or not authenticate_user(user.username, current_password):
+            if not current_password or not await authenticate_user(user.username, current_password):
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong password")
-            user.password = new_password
+            user.password = bcrypt.hash(user.password)
         if first_name:
             user.first_name = first_name
         if last_name:
             user.last_name = last_name
         if image:
-            user.image_filename, user.image_url = upload_image(image)
+            user.image_filename, user.image_url = await upload_image(image)
         await user.save()
         return user.__dict__
     except ValidationError as exc:
@@ -110,8 +111,11 @@ async def check_username(username: str):
     :param username: to check
     :return: True if username is available else False
     """
-    user = await User.filter(username=username).first()
-    return not bool(user)
+    try:
+        user = await User.filter(username=username).first()
+        return not bool(user)
+    except ValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/users/email/{email}", response_model=bool, tags=["auth"])
@@ -121,8 +125,11 @@ async def check_email(email: str):
     :param email: to check
     :return: True if email is available else False
     """
-    user = await User.filter(email=email).first()
-    return not bool(user)
+    try:
+        user = await User.filter(email=email).first()
+        return not bool(user)
+    except ValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/users", response_model=UserResponse, tags=["users"])
