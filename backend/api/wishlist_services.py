@@ -72,7 +72,7 @@ async def create_item(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST) from exc
 
 
-async def fetch_wishlist(page: int, per_page: int, user: UserResponse):
+async def fetch_wishlist(page: int, per_page: int, user: User):
     wishlist = await user.wishlist
     items = await wishlist.items.limit(per_page).offset(page * per_page)
     total_items = await wishlist.items.all().count()

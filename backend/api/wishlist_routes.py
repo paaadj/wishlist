@@ -6,7 +6,7 @@ Module containing API routes and handlers
 from fastapi import APIRouter, Depends, UploadFile, Form, File, HTTPException, status
 from models.wishlist import WishlistItemResponse, WishlistResponse
 from auth.services import get_current_user
-from auth.routes import get_user_by_username
+from auth.services import get_user_by_username
 from models.user import UserResponse, User
 from typing import Annotated, Optional
 from pydantic import AnyHttpUrl
@@ -43,7 +43,7 @@ async def add_item(
 async def get_wishlist(
     page: int = 1,
     per_page: int = 3,
-    user: UserResponse = Depends(get_user_by_username),
+    user: User = Depends(get_user_by_username),
 ):
     """
     Get wishlist item on page

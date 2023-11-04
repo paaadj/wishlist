@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
 from models.user import User, UserResponse, UserCreate
-from auth.services import authenticate_user, upload_image, delete_image
+from auth.services import authenticate_user, upload_image, delete_image, get_user_by_username
 from tortoise.exceptions import ValidationError
 from passlib.hash import bcrypt
 from tortoise.expressions import Q
@@ -133,14 +133,9 @@ async def check_email(email: str):
 
 
 @auth_router.get("/users", response_model=UserResponse, tags=["users"])
-async def get_user_by_username(username: str):
-    try:
-        user = await User.get_or_none(username=username)
-        if user is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exists")
-        return user.__dict__
-    except ValidationError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}") from exc
+async def get_user(username: str):
+    user = await get_user_by_username(username)
+    return user.__dict__
 
 
 @auth_router.get("/users/like", response_model=list[UserResponse], tags=["users"])

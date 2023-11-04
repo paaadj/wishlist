@@ -102,3 +102,13 @@ async def upload_image(image: UploadFile):
 
 async def delete_image(filename):
     storage.delete("user_images/" + filename, token=None)
+
+
+async def get_user_by_username(username: str):
+    try:
+        user = await User.get_or_none(username=username)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exists")
+        return user
+    except ValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}") from exc
