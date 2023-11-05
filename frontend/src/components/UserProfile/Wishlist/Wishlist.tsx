@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import "./wishlist.css";
 import WishlistCard from "./WishlistCard";
 import { UserContext, UserContextType, userData } from "../../../context/UserContext";
+import ModalWindow from "../../ModalWindow/ModalWindow";
 
 interface IWishlist{
   user: userData;
@@ -69,6 +70,8 @@ const mocklist = [
 function Wishlist(props: IWishlist) {
   const {user} = props;
   const [wishlist, setWishlist] = useState([]);
+  const [activeModalAdd, setActiveModalAdd] = useState(false);
+
   const { getAccessCookie } = useContext(
     UserContext
   ) as UserContextType;
@@ -123,7 +126,10 @@ function Wishlist(props: IWishlist) {
       <div className="wishlist-wrapper">
         <h3 className="page-text page-title-text wishlist-title">Wishlist</h3>
         <button type="button" onClick={addItemToWishlist}>Add Item</button>
-
+        <button type="button" onClick={()=> {setActiveModalAdd(true)}}>modal</button>
+        <ModalWindow active={activeModalAdd} setActive={setActiveModalAdd}>
+          <p>Some text</p>
+        </ModalWindow>
         <section className="wishlist">
           {mocklist.map((item) => {
             return (
