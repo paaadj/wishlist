@@ -83,6 +83,9 @@ async def update_item(
     user: UserResponse = Depends(get_current_user),
     image: UploadFile = File(None),
 ):
+    """
+    Update user info
+    """
     return await edit_item(
         item_id=item_id,
         title=title,
@@ -97,4 +100,9 @@ async def update_item(
     "/delete/{item_id}", response_model=WishlistItemResponse, tags=["wishlist"]
 )
 async def delete_item(item_id: int, user=Depends(get_current_user)):
+    """
+    Delete item with item_id
+    require access token in header
+    return item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized
+    """
     return await remove_item(item_id, user)

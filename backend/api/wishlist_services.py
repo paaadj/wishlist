@@ -2,7 +2,7 @@ import math
 
 from fastapi import HTTPException, UploadFile, Form, File, status
 
-from models.wishlist import WishlistItem
+from models.wishlist import WishlistItem, Wishlist
 from models.user import User
 from models.user import UserResponse
 from typing import Annotated, Optional
@@ -56,6 +56,10 @@ async def create_item(
     link: Annotated[AnyHttpUrl, Form()] = None,
     image: UploadFile = File(None),
 ):
+    """
+    create item in user's wishlist
+    require access token
+    """
     try:
         new_item = WishlistItem(
             title=title,
@@ -68,11 +72,13 @@ async def create_item(
         await new_item.save()
         return new_item.__dict__
     except Exception as exc:
-        print(exc)
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}") from exc
 
 
 async def fetch_wishlist(page: int, per_page: int, user: User):
+    """
+    fetch user's wishlist
+    """
     wishlist = await user.wishlist
     items = await wishlist.items.limit(per_page).offset(page * per_page)
     total_items = await wishlist.items.all().count()
@@ -87,11 +93,24 @@ async def fetch_wishlist(page: int, per_page: int, user: User):
 
 
 async def fetch_item(item_id: int):
+    """
+    Fetch item by id
+    """
     if item_id is None or item_id < 1:
-        raise HTTPException(status_code=400, detail="item_id must be > 0")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="item_id must be > 0")
     item = await WishlistItem.get_or_none(id=item_id)
     if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+    return item
+
+
+async def fetch_item_in_wishlist(item_id: int, wishlist: Wishlist):
+    """
+    Fetch item by id and wishlist
+    """
+    item = await WishlistItem.get_or_none(item_id=item_id, wishlist=wishlist)
+    if item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
     return item
 
 
@@ -103,13 +122,14 @@ async def edit_item(
     user: UserResponse,
     image: UploadFile = File(None),
 ):
-    item = await WishlistItem.get_or_none(id=item_id)
-    if item is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Item doesn't exist"
-        )
-    if await item.wishlist != await user.wishlist:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    """
+    Update item info by item_id
+    Return item if updated, HTTP 404 if item doesn't exists, 400 if wrong item_id
+    """
+    if item_id < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid format item_id must be > 0")
+    wishlist = await user.wishlist
+    item = await fetch_item_in_wishlist(item_id, wishlist)
     if title:
         item.title = title
     if description:
@@ -132,13 +152,15 @@ async def edit_item(
 
 
 async def remove_item(item_id: int, user: User):
-    item = await WishlistItem.get_or_none(id=item_id)
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    if await item.wishlist != await user.wishlist:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong user"
-        )
+    """
+    Remove item by item_id
+    require access token in header
+    return item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized
+    """
+    if item_id < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: item_id must be > 0")
+    wishlist = await user.wishlist
+    item = await fetch_item_in_wishlist(item_id, wishlist)
     if item.image_filename:
         await remove_image(item.image_filename)
     await WishlistItem.delete(item)

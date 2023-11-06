@@ -75,12 +75,15 @@ async def edit_info(
         user: User = Depends(get_current_user),
         image: UploadFile = File(None)
 ):
+    """
+    Edit user info
+    """
     try:
         if email:
             user.email = email
         if new_password:
             if not current_password or not await authenticate_user(user.username, current_password):
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong password")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong password")
             user.password = bcrypt.hash(user.password)
         if first_name:
             user.first_name = first_name
@@ -134,12 +137,18 @@ async def check_email(email: str):
 
 @auth_router.get("/users", response_model=UserResponse, tags=["users"])
 async def get_user(username: str):
+    """
+    Get user with username
+    """
     user = await get_user_by_username(username)
     return user.__dict__
 
 
 @auth_router.get("/users/like", response_model=list[UserResponse], tags=["users"])
 async def get_user_with_username_like(username: str):
+    """
+    Get list of users with username like
+    """
     try:
         users = await User.filter(username__contains=username)
         users = [UserResponse(**user.__dict__) for user in users]

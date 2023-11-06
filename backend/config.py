@@ -13,7 +13,6 @@ class Settings:
     """
 
     MODULE_LIST: list = [
-        "models.item",
         "models.user",
         "models.wishlist",
     ]
