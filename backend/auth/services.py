@@ -6,7 +6,7 @@ import uuid
 import jwt
 from fastapi import Depends, HTTPException, status, UploadFile
 from fastapi.security import OAuth2PasswordBearer
-from tortoise.exceptions import ValidationError
+from tortoise.exceptions import ValidationError, DoesNotExist
 from tortoise.expressions import Q
 from config import settings
 from firebase_config import storage
@@ -54,7 +54,8 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
         ) from exc
-
+    except DoesNotExist as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{exc}")
     return user
 
 
@@ -104,7 +105,9 @@ async def delete_image(filename):
     storage.delete("user_images/" + filename, token=None)
 
 
-async def get_user_by_username(username: str):
+async def get_user_by_username(
+        username: str
+):
     try:
         user = await User.get_or_none(username=username)
         if user is None:

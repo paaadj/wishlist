@@ -145,13 +145,18 @@ async def get_user(username: str):
 
 
 @auth_router.get("/users/like", response_model=list[UserResponse], tags=["users"])
-async def get_user_with_username_like(username: str):
+async def get_users_with_username_like(username: str, per_page: int = 10, page: int = 1):
     """
     Get list of users with username like
     """
-    try:
-        users = await User.filter(username__contains=username)
-        users = [UserResponse(**user.__dict__) for user in users]
-        return users
-    except Exception as exc:
-        raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail=f":) {exc}") from exc
+    if page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Page out of range"
+        )
+    if per_page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="limit must be > 0"
+        )
+    users = await User.filter(username__contains=username).limit(per_page).offset((page - 1) * per_page)
+    users = [UserResponse(**user.__dict__) for user in users]
+    return users

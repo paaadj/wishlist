@@ -16,6 +16,8 @@ from api.wishlist_services import (
     fetch_item,
     edit_item,
     remove_item,
+    reserve,
+    cancel_reservation,
 )
 
 
@@ -106,3 +108,19 @@ async def delete_item(item_id: int, user=Depends(get_current_user)):
     return item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized
     """
     return await remove_item(item_id, user)
+
+
+@api_router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
+async def reserve_item(
+        item_id: int,
+        user=Depends(get_current_user)
+):
+    return await reserve(item_id, user)
+
+
+@api_router.post("/unreserve", response_model=WishlistItemResponse, tags=["wishlist"])
+async def cancel_reservation_item(
+        item_id: int,
+        user=Depends(get_current_user)
+):
+    return await cancel_reservation(item_id, user)
