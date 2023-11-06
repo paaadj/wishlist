@@ -15,6 +15,7 @@ import uuid
 async def upload_image(
     item: WishlistItem,
     image: UploadFile,
+    filename: str,
 ):
     if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
         raise HTTPException(
@@ -23,25 +24,11 @@ async def upload_image(
     content = await image.read()
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
-    new_filename = str(uuid.uuid4())
-    storage.child("item_images/" + new_filename).put(content, content_type=image.content_type)
-    item.image_filename = new_filename
-    item.image_url = storage.child("item_images/" + new_filename).get_url(None)
-    return item
-
-
-async def update_image(
-    item: WishlistItem,
-    image: UploadFile,
-):
-    if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type"
-        )
-    content = await image.read()
-    if len(content) > settings.IMAGE_MAX_SIZE:
-        raise HTTPException(status_code=413, detail="File too large")
-    storage.child("item_images/" + item.image_filename).put(content, content_type=image.content_type)
+    if not filename:
+        filename = str(uuid.uuid4())
+    storage.child("item_images/" + filename).put(content, content_type=image.content_type)
+    item.image_filename = filename
+    item.image_url = storage.child("item_images/" + filename).get_url(None)
     return item
 
 
@@ -142,10 +129,7 @@ async def edit_item(
     if link:
         item.link = link
     if image:
-        if item.image_filename:
-            item = await update_image(item=item, image=image)
-        else:
-            item = await upload_image(item=item, image=image)
+        item = await upload_image(item=item, image=image, filename=item.image_filename)
     elif item.image_filename:
         await remove_image(item.image_filename)
         item.image_filename = None
