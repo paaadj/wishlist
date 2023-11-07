@@ -93,3 +93,10 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: Optional[str] = None
     image_url: Optional[AnyHttpUrl] = None
+
+
+class UserJWT(BaseModel):
+    """
+    user's data for jwt token
+    """
+    username: str
