@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import "./authentication.css";
 import UserInput from "../UserInput/UserInput";
+import { useNavigate } from "react-router-dom";
 
 interface IRegistrationInput {
   username: string;
@@ -34,10 +35,8 @@ const registrationValidationSchema = yup.object().shape({
       async (username) => {
         try {
           if (username && username.length >= 8) {
-            console.log(username);
             const response = await fetch(`/backend/users/username/${username}`);
             const isUsernameAvalible = await response.json();
-            console.log(isUsernameAvalible);
             return isUsernameAvalible;
           } else {
             return false;
@@ -57,10 +56,8 @@ const registrationValidationSchema = yup.object().shape({
       async (email) => {
         try {
           if (email && emailRegex.test(email)) {
-            console.log(email);
             const response = await fetch(`/backend/users/email/${email}`);
             const isEmailAvalible = await response.json();
-            console.log(isEmailAvalible);
             return isEmailAvalible;
           } else {
             return false;
@@ -89,6 +86,8 @@ const Registration = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [, setConfirmPassword] = useState<string>("");
+
+  const navigate = useNavigate();
 
   const defaultValues = {
     username: username,
@@ -124,7 +123,9 @@ const Registration = () => {
       console.log("DB error");
     } else {
       // setToken(data.access_token);
+    
       console.log("Registration successful");
+      navigate("/");
     }
     console.table(values);
   };

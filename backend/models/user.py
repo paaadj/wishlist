@@ -5,7 +5,7 @@ import re
 from typing import Optional
 
 from passlib.hash import bcrypt
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, AnyHttpUrl
 from tortoise import fields
 from tortoise.validators import RegexValidator, MinLengthValidator
 from tortoise.models import Model
@@ -17,16 +17,37 @@ class User(Model):
     """
 
     id = fields.IntField(pk=True)
-    username = fields.CharField(max_length=255, unique=True, validators=[MinLengthValidator(8)])
+    username = fields.CharField(
+        max_length=255, unique=True, validators=[MinLengthValidator(8)]
+    )
     email = fields.CharField(
         max_length=255,
         unique=True,
         null=True,
-        validators=[RegexValidator(r'^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+$', re.I)],
+        validators=[
+            RegexValidator(
+                r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+$",
+                re.I,
+            )
+        ],
     )
     password = fields.CharField(max_length=255)
-    first_name = fields.CharField(max_length=30)
-    last_name = fields.CharField(max_length=30, null=True)
+    first_name = fields.CharField(max_length=30, validators=[MinLengthValidator(2)])
+    last_name = fields.CharField(
+        max_length=30, null=True, validators=[MinLengthValidator(2)]
+    )
+    image_filename = fields.CharField(max_length=50, null=True)
+    image_url = fields.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(
+                r"^https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,63}\."
+                r"[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&/=/]*)$",
+                re.I,
+            )
+        ],
+        null=True,
+    )
 
     def __str__(self):
         return self.username
@@ -62,11 +83,20 @@ class UserCreate(BaseModel):
     last_name: Optional[str] = None
 
 
-class UserPydantic(BaseModel):
+class UserResponse(BaseModel):
     """
     User response model
     """
+    id: int
     username: str
     email: Optional[EmailStr] = None
     first_name: str
     last_name: Optional[str] = None
+    image_url: Optional[AnyHttpUrl] = None
+
+
+class UserJWT(BaseModel):
+    """
+    user's data for jwt token
+    """
+    username: str

@@ -36,7 +36,6 @@ export const UserProvider = (props: any) => {
     if (refreshToken === undefined) {
       return false;
     }
-    console.log(refreshToken);
     const requestRefreshParams = {
       method: "POST",
       headers: {
@@ -64,6 +63,10 @@ export const UserProvider = (props: any) => {
   };
 
   const fetchUser = async()=> {
+    if(!getAccessCookie()){
+      setUser(undefined);
+      return;
+    }
     const requestParams = {
       method: "GET",
       headers: {

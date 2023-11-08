@@ -1,14 +1,15 @@
 """
 Module containing handlers for retrieving a user using an access token.
 """
-
+import uuid
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, UploadFile
 from fastapi.security import OAuth2PasswordBearer
-from tortoise.exceptions import ValidationError
+from tortoise.exceptions import ValidationError, DoesNotExist
 from tortoise.expressions import Q
 from config import settings
+from firebase_config import storage
 from models.user import User, UserCreate
 from passlib.hash import bcrypt
 from models.wishlist import Wishlist
@@ -42,7 +43,7 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(access_token, JWT_SECRET, algorithms=[ALGORITHM])
         if payload.get("scope") != "access":
-            raise jwt.exceptions.DecodeError
+            raise jwt.exceptions.InvalidSignatureError
         user = await User.get(username=payload.get("username"))
     except jwt.exceptions.DecodeError as exc:
         raise HTTPException(
@@ -53,12 +54,8 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
         ) from exc
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password",
-        ) from exc
-
+    except DoesNotExist as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{exc}")
     return user
 
 
@@ -76,7 +73,9 @@ async def create_user(user: UserCreate):
                 detail="User with this username or email already exists",
             )
         if len(user.password) < 8:
-            raise ValidationError(f"password: Length of '{user.password}' {len(user.password)} < 8")
+            raise ValidationError(
+                f"password: Length of '{user.password}' {len(user.password)} < 8"
+            )
         user_obj = User(**user.model_dump())
         user_obj.password = bcrypt.hash(user.password)
         await user_obj.save()
@@ -86,3 +85,34 @@ async def create_user(user: UserCreate):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
         ) from exc
+
+
+async def upload_image(image: UploadFile, filename: str = None):
+    if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type"
+        )
+    content = await image.read()
+    if len(content) > settings.IMAGE_MAX_SIZE:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File too large")
+    if not filename:
+        filename = str(uuid.uuid4())
+    storage.child("user_images/" + filename).put(content, content_type=image.content_type)
+    image_url = storage.child("user_images/" + filename).get_url(None)
+    return filename, image_url
+
+
+async def delete_image(filename):
+    storage.delete("user_images/" + filename, token=None)
+
+
+async def get_user_by_username(
+        username: str
+):
+    try:
+        user = await User.get_or_none(username=username)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exists")
+        return user
+    except ValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}") from exc
