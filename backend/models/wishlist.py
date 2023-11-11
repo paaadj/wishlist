@@ -5,7 +5,7 @@ from tortoise.models import Model
 from tortoise.validators import RegexValidator
 from tortoise import fields
 from pydantic import BaseModel, constr, AnyHttpUrl, field_validator, ValidationInfo
-from models.user import User
+from models.user import User, UserResponse
 from typing import List, Optional
 
 
@@ -49,6 +49,12 @@ class WishlistItem(Model):
         ],
         null=True,
     )
+    reserved_user = fields.ForeignKeyField(
+        "models.User",
+        related_name="reserved_user",
+        on_delete=fields.SET_NULL,
+        null=True,
+    )
 
     def __str__(self):
         print(self.title, self.image_url)
@@ -63,7 +69,8 @@ class WishlistItemResponse(BaseModel):
     title: str
     description: str
     link: Optional[AnyHttpUrl] = None
-    image_url: Optional[AnyHttpUrl]
+    image_url: Optional[AnyHttpUrl] = None
+    reserved_user: Optional[UserResponse] = None
 
 
 class WishlistResponse(BaseModel):

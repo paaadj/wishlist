@@ -6,7 +6,7 @@ import uuid
 import jwt
 from fastapi import Depends, HTTPException, status, UploadFile
 from fastapi.security import OAuth2PasswordBearer
-from tortoise.exceptions import ValidationError
+from tortoise.exceptions import ValidationError, DoesNotExist
 from tortoise.expressions import Q
 from config import settings
 from firebase_config import storage
@@ -54,7 +54,8 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
         ) from exc
-
+    except DoesNotExist as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{exc}")
     return user
 
 
@@ -86,7 +87,7 @@ async def create_user(user: UserCreate):
         ) from exc
 
 
-async def upload_image(image: UploadFile):
+async def upload_image(image: UploadFile, filename: str = None):
     if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type"
@@ -94,9 +95,10 @@ async def upload_image(image: UploadFile):
     content = await image.read()
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File too large")
-    filename = str(uuid.uuid4())
+    if not filename:
+        filename = str(uuid.uuid4())
     storage.child("user_images/" + filename).put(content, content_type=image.content_type)
-    image_url = storage.child("item_images/" + filename).get_url(None)
+    image_url = storage.child("user_images/" + filename).get_url(None)
     return filename, image_url
 
 
@@ -104,7 +106,9 @@ async def delete_image(filename):
     storage.delete("user_images/" + filename, token=None)
 
 
-async def get_user_by_username(username: str):
+async def get_user_by_username(
+        username: str
+):
     try:
         user = await User.get_or_none(username=username)
         if user is None:

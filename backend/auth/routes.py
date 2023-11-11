@@ -75,19 +75,26 @@ async def edit_info(
         user: User = Depends(get_current_user),
         image: UploadFile = File(None)
 ):
+    """
+    Edit user info
+    """
     try:
         if email:
             user.email = email
         if new_password:
             if not current_password or not await authenticate_user(user.username, current_password):
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong password")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong password")
             user.password = bcrypt.hash(user.password)
         if first_name:
             user.first_name = first_name
         if last_name:
             user.last_name = last_name
         if image:
-            user.image_filename, user.image_url = await upload_image(image)
+            user.image_filename, user.image_url = await upload_image(image, user.image_filename)
+        elif user.image_filename:
+            await delete_image(user.image_filename)
+            user.image_filename = None
+            user.image_url = None
         await user.save()
         return user.__dict__
     except ValidationError as exc:
@@ -134,15 +141,26 @@ async def check_email(email: str):
 
 @auth_router.get("/users", response_model=UserResponse, tags=["users"])
 async def get_user(username: str):
+    """
+    Get user with username
+    """
     user = await get_user_by_username(username)
     return user.__dict__
 
 
 @auth_router.get("/users/like", response_model=list[UserResponse], tags=["users"])
-async def get_user_with_username_like(username: str):
-    try:
-        users = await User.filter(username__contains=username)
-        users = [UserResponse(**user.__dict__) for user in users]
-        return users
-    except Exception as exc:
-        raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail=f":) {exc}") from exc
+async def get_users_with_username_like(username: str, per_page: int = 10, page: int = 1):
+    """
+    Get list of users with username like
+    """
+    if page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Page out of range"
+        )
+    if per_page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="limit must be > 0"
+        )
+    users = await User.filter(username__contains=username).limit(per_page).offset((page - 1) * per_page)
+    users = [UserResponse(**user.__dict__) for user in users]
+    return users
