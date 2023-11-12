@@ -111,16 +111,10 @@ async def delete_item(item_id: int, user=Depends(get_current_user)):
 
 
 @api_router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
-async def reserve_item(
-        item_id: int,
-        user=Depends(get_current_user)
-):
+async def reserve_item(item_id: int, user=Depends(get_current_user)):
     return await reserve(item_id, user)
 
 
 @api_router.post("/unreserve", response_model=WishlistItemResponse, tags=["wishlist"])
-async def cancel_reservation_item(
-        item_id: int,
-        user=Depends(get_current_user)
-):
+async def cancel_reservation_item(item_id: int, user=Depends(get_current_user)):
     return await cancel_reservation(item_id, user)

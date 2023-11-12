@@ -32,7 +32,8 @@ class User(Model):
         ],
     )
     password = fields.CharField(max_length=255)
-    first_name = fields.CharField(max_length=30, validators=[MinLengthValidator(2)])
+    first_name = fields.CharField(
+        max_length=30, validators=[MinLengthValidator(2)])
     last_name = fields.CharField(
         max_length=30, null=True, validators=[MinLengthValidator(2)]
     )
@@ -68,7 +69,7 @@ class RefreshToken(Model):
 
     id = fields.IntField(pk=True)
     token = fields.TextField()
-    user = fields.OneToOneField("models.User", on_delete=fields.CASCADE)
+    user = fields.ForeignKeyField("models.User", on_delete=fields.CASCADE)
 
 
 class UserCreate(BaseModel):
@@ -87,6 +88,7 @@ class UserResponse(BaseModel):
     """
     User response model
     """
+
     id: int
     username: str
     email: Optional[EmailStr] = None
@@ -99,4 +101,5 @@ class UserJWT(BaseModel):
     """
     user's data for jwt token
     """
+
     username: str

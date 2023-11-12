@@ -56,14 +56,21 @@ async def create_refresh_token(user: User):
     sub["scope"] = "refresh"
     sub["exp"] = time.time() + settings.JWT_REFRESH_TOKEN_EXPIRATION
     refresh_token = jwt.encode(sub, JWT_SECRET, algorithm=ALGORITHM)
-    refresh_token_db = await RefreshToken.get_or_none(user=user)
-    if refresh_token_db is None:
-        refresh_token_db = await RefreshToken.create(user=user, token=refresh_token)
-        await refresh_token_db.save()
-    else:
-        refresh_token_db.token = refresh_token
-        await refresh_token_db.save()
+    refresh_token_db = await RefreshToken.create(user=user, token=refresh_token)
+    await refresh_token_db.save()
     return refresh_token
+
+
+async def clear_refresh_tokens(token: str):
+    try:
+        refresh_token = await RefreshToken.get_or_none(token=token)
+        if refresh_token is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token doesn't exist")
+        user = await refresh_token.user
+        await refresh_token.filter(user=user).delete()
+        return True
+    except Exception as exc:
+        return False
 
 
 async def refresh_tokens(token: str):
@@ -77,8 +84,8 @@ async def refresh_tokens(token: str):
         if payload.get("scope") != "refresh":
             raise jwt.exceptions.InvalidTokenError
         user = await User.get(username=payload.get("username"))
-        refresh_token_db = await RefreshToken.get_or_none(user=user)
-        if refresh_token_db is None or refresh_token_db.token != token:
+        refresh_token_db = await RefreshToken.get_or_none(user=user, token=token)
+        if refresh_token_db is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
             )
