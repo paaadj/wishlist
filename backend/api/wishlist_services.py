@@ -15,7 +15,7 @@ import uuid
 async def upload_image(
     item: WishlistItem,
     image: UploadFile,
-    filename: str,
+    filename: str = None,
 ):
     if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
         raise HTTPException(

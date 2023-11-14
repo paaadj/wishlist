@@ -1,6 +1,7 @@
 """
 Models which needs for user
 """
+import datetime
 import re
 from typing import Optional
 
@@ -71,6 +72,11 @@ class RefreshToken(Model):
     token = fields.TextField()
     user = fields.ForeignKeyField("models.User", on_delete=fields.CASCADE)
     expires_at = fields.DatetimeField()
+
+    @classmethod
+    async def clean_expired_tokens(cls):
+        now = datetime.datetime.utcnow()
+        await cls.filter(expires_at__lt=now).delete()
 
 
 class UserCreate(BaseModel):
