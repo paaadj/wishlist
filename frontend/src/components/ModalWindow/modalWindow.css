@@ -18,9 +18,9 @@
 }
 
 .modal-window__content{
-    padding: 20px;
+    padding: 10%;
     border-radius: 12px;
-    background-color: #fff;
+    background-color: #810606;
     transform: scale(0.5);
     transition: 0.4s all;
     width: 50vw;

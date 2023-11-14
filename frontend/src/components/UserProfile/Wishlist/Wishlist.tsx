@@ -1,12 +1,25 @@
 import { useContext, useEffect, useState } from "react";
 import "./wishlist.css";
 import WishlistCard from "./WishlistCard";
-import { UserContext, UserContextType, userData } from "../../../context/UserContext";
+import {
+  UserContext,
+  UserContextType,
+  userData,
+} from "../../../context/UserContext";
 import ModalWindow from "../../ModalWindow/ModalWindow";
+import AddWishItemForm from "./AddWishItemForm";
 
-interface IWishlist{
+interface IWishlist {
   user: userData;
-};
+}
+
+type WishItem = {
+  id: number,
+  title: string,
+  description: string,
+  link: string,
+  image_url: string
+}
 
 const mocklist = [
   {
@@ -68,79 +81,74 @@ const mocklist = [
 ];
 
 function Wishlist(props: IWishlist) {
-  const {user} = props;
-  const [wishlist, setWishlist] = useState([]);
+  const { user } = props;
+  const [wishlist, setWishlist] = useState<WishItem[] | undefined>(undefined);
+  const [updateWishlist, setUpdateWishlist] = useState<boolean>(false);
   const [activeModalAdd, setActiveModalAdd] = useState(false);
+  const [needNotification, setNeedNotification] = useState(false);
 
-  const { getAccessCookie } = useContext(
-    UserContext
-  ) as UserContextType;
-
-
-  const addItemToWishlist = async () => {
-    const formData = new FormData()
-    formData.append("title", "testik")
-    formData.append("description", "testikdesc")
-    const requestParams = {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-      body: formData,
-    };
-    const response = await fetch(`/backend/api/add_item`, requestParams);
-    if(response.ok){
-      console.log("Added item");
-    }
-    else{
-      console.log("Don't added item");
-    }
-  } 
-
-  const test = () => {
-    console.log(wishlist);
-  }
-
-  useEffect(()=> {
-    const fetchWishlist = async()=> {
+  
+  useEffect(() => {
+    const fetchWishlist = async () => {
       const requestParams = {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await fetch(`/backend/api/get_wishlist?page=${1}&per_page=${3}&username=${user.username}`, requestParams);
-      if(response.ok){
+      const response = await fetch(
+        `/backend/api/get_wishlist?page=${1}&per_page=${10}&username=${
+          user.username
+        }`,
+        requestParams
+      );
+      if (response.ok) {
         const data = await response.json();
+        console.log(data.items);
         setWishlist(data.items);
-      }
-      else{
-        setWishlist([]);
+      } else {
+        setWishlist(undefined);
       }
     };
     fetchWishlist();
-  }, [])
+  }, [updateWishlist]);
 
   return (
     <>
       <div className="wishlist-wrapper">
-        <h3 className="page-text page-title-text wishlist-title">Wishlist</h3>
-        <button type="button" onClick={addItemToWishlist}>Add Item</button>
-        <button type="button" onClick={()=> {setActiveModalAdd(true)}}>modal</button>
+        <div className="wishlist-header-wrapper">
+          <h3 className="page-text page-title-text wishlist-title">Wishlist</h3>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveModalAdd(true);
+            }}
+            className="wishlist-add-button"
+          >
+            <img
+              src="/img/plus.png"
+              alt="media"
+              className="wishlist-add-button__media"
+            />
+          </button>
+        </div>
+
         <ModalWindow active={activeModalAdd} setActive={setActiveModalAdd}>
-          <p>Some text</p>
+          <AddWishItemForm updateWishlistFunction={setUpdateWishlist}/>
         </ModalWindow>
         <section className="wishlist">
-          {mocklist.map((item) => {
+          {wishlist ? (wishlist.map((item) => {
             return (
               <WishlistCard
                 key={item.id}
+                wishItemId={item.id}
                 title={item.title}
                 description={item.description}
                 imgUrl={item.image_url}
+                updateWishlistFunction={setUpdateWishlist}
               />
             );
-          })}
+          })) : (<h3>Loading</h3>)}
         </section>
       </div>
     </>

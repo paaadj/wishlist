@@ -2,11 +2,16 @@
     padding: 20px 5%;
     
 }
-
+.wishlist-header-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .wishlist-title{
     font-family: 'Kanit', sans-serif;
     font-size: 3rem;
     text-align: center;
+    display: inline-block;
 }
 .wishlist{
     
@@ -54,4 +59,22 @@
 }
 .wishlist-card-button{
     align-self: flex-end;
+}
+
+.wishlist-add-button{
+    height: 24px;
+    width: 24px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    font: inherit;
+    background-color: transparent;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 2%;
+}
+.wishlist-add-button__media{
+    height: 100%;
+    width: 100%;
+    object-fit: fill;
 }
