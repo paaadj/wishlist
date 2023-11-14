@@ -70,6 +70,7 @@ class RefreshToken(Model):
     id = fields.IntField(pk=True)
     token = fields.TextField()
     user = fields.ForeignKeyField("models.User", on_delete=fields.CASCADE)
+    expires_at = fields.DatetimeField()
 
 
 class UserCreate(BaseModel):
