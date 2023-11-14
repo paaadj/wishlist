@@ -2,7 +2,7 @@ import math
 
 from fastapi import HTTPException, UploadFile, Form, File, status
 
-from models.wishlist import WishlistItem, Wishlist, WishlistItemResponse
+from models.wishlist import WishlistItem, Wishlist, WishlistItemResponse, Chat
 from models.user import User
 from models.user import UserResponse
 from typing import Annotated, Optional
@@ -26,7 +26,9 @@ async def upload_image(
         raise HTTPException(status_code=413, detail="File too large")
     if not filename:
         filename = str(uuid.uuid4())
-    storage.child("item_images/" + filename).put(content, content_type=image.content_type)
+    storage.child("item_images/" + filename).put(
+        content, content_type=image.content_type
+    )
     item.image_filename = filename
     item.image_url = storage.child("item_images/" + filename).get_url(None)
     return item
@@ -57,9 +59,12 @@ async def create_item(
         if image:
             new_item = await upload_image(item=new_item, image=image)
         await new_item.save()
+        await Chat.create(wishlist_item=new_item)
         return new_item.__dict__
     except Exception as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}") from exc
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}"
+        ) from exc
 
 
 async def fetch_wishlist(page: int, per_page: int, user: User):
@@ -67,12 +72,11 @@ async def fetch_wishlist(page: int, per_page: int, user: User):
     fetch user's wishlist
     """
     wishlist = await user.wishlist
-    items: list[WishlistItem] = await (wishlist
-                                       .items
-                                       .limit(per_page)
-                                       .offset(page * per_page)
-                                       .prefetch_related('reserved_user')
-                                       )
+    items: list[WishlistItem] = await (
+        wishlist.items.limit(per_page)
+        .offset(page * per_page)
+        .prefetch_related("reserved_user")
+    )
     total_items = await wishlist.items.all().count()
     total_pages = math.ceil(total_items / per_page)
     return {
@@ -89,10 +93,14 @@ async def fetch_item(item_id: int):
     Fetch item by id
     """
     if item_id is None or item_id < 1:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="item_id must be > 0")
-    item = await WishlistItem.get_or_none(id=item_id).prefetch_related('reserved_user')
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="item_id must be > 0"
+        )
+    item = await WishlistItem.get_or_none(id=item_id).prefetch_related("reserved_user")
     if item is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
+        )
     return item
 
 
@@ -100,9 +108,13 @@ async def fetch_item_in_wishlist(item_id: int, wishlist: Wishlist):
     """
     Fetch item by id and wishlist
     """
-    item = await WishlistItem.get_or_none(id=item_id, wishlist=wishlist).prefetch_related('reserved_user')
+    item = await WishlistItem.get_or_none(
+        id=item_id, wishlist=wishlist
+    ).prefetch_related("reserved_user")
     if item is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
+        )
     return item
 
 
@@ -119,7 +131,10 @@ async def edit_item(
     Return item if updated, HTTP 404 if item doesn't exists, 400 if wrong item_id
     """
     if item_id < 1:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid format item_id must be > 0")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid format item_id must be > 0",
+        )
     wishlist = await user.wishlist
     item = await fetch_item_in_wishlist(item_id, wishlist)
     if title:
@@ -147,7 +162,10 @@ async def remove_item(item_id: int, user: User):
     return item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized
     """
     if item_id < 1:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: item_id must be > 0")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: item_id must be > 0",
+        )
     wishlist = await user.wishlist
     item = await fetch_item_in_wishlist(item_id, wishlist)
     if item.image_filename:
@@ -157,26 +175,32 @@ async def remove_item(item_id: int, user: User):
 
 
 async def reserve(
-        item_id: int,
-        user: User,
+    item_id: int,
+    user: User,
 ):
     item: WishlistItem = await fetch_item(item_id)
     if item.reserved_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Item already reserved")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Item already reserved"
+        )
     if item.wishlist == await user.wishlist:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Can't reserve your own item")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Can't reserve your own item"
+        )
     item.reserved_user = user
     await item.save()
     return item
 
 
 async def cancel_reservation(
-        item_id: int,
-        user: User,
+    item_id: int,
+    user: User,
 ):
     item = await fetch_item(item_id)
     if item.reserved_user != user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You didn't reserve this item")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You didn't reserve this item"
+        )
     item.reserved_user = None
     await item.save()
     return item
