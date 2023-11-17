@@ -1,8 +1,7 @@
 """
 Module for token creation
 """
-
-
+import datetime
 import time
 
 import jwt
@@ -24,9 +23,10 @@ async def create_tokens(user: User):
     """
     access_token = await create_access_token(user)
     refresh_token = await create_refresh_token(user)
+    await refresh_token.save()
     return {
         "access_token": access_token,
-        "refresh_token": refresh_token,
+        "refresh_token": refresh_token.token,
         "token_type": "bearer",
     }
 
@@ -45,7 +45,7 @@ async def create_access_token(user: User):
     return access_token
 
 
-async def create_refresh_token(user: User):
+async def create_refresh_token(user: User) -> RefreshToken:
     """
     create refresh token for user
     :param user: user
@@ -53,17 +53,28 @@ async def create_refresh_token(user: User):
     """
     user_obj = UserJWT(**user.__dict__)
     sub = user_obj.model_dump()
+    expires_at = time.time() + settings.JWT_REFRESH_TOKEN_EXPIRATION
     sub["scope"] = "refresh"
-    sub["exp"] = time.time() + settings.JWT_REFRESH_TOKEN_EXPIRATION
+    sub["exp"] = expires_at
     refresh_token = jwt.encode(sub, JWT_SECRET, algorithm=ALGORITHM)
-    refresh_token_db = await RefreshToken.get_or_none(user=user)
-    if refresh_token_db is None:
-        refresh_token_db = await RefreshToken.create(user=user, token=refresh_token)
-        await refresh_token_db.save()
-    else:
-        refresh_token_db.token = refresh_token
-        await refresh_token_db.save()
+    refresh_token = RefreshToken(
+        user=user,
+        token=refresh_token,
+        expires_at=datetime.datetime.fromtimestamp(expires_at)
+    )
     return refresh_token
+
+
+async def clear_refresh_tokens(token: str):
+    try:
+        refresh_token = await RefreshToken.get_or_none(token=token)
+        if refresh_token is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token doesn't exist")
+        user = await refresh_token.user
+        await refresh_token.filter(user=user).delete()
+        return True
+    except Exception as exc:
+        return False
 
 
 async def refresh_tokens(token: str):
@@ -77,12 +88,21 @@ async def refresh_tokens(token: str):
         if payload.get("scope") != "refresh":
             raise jwt.exceptions.InvalidTokenError
         user = await User.get(username=payload.get("username"))
-        refresh_token_db = await RefreshToken.get_or_none(user=user)
-        if refresh_token_db is None or refresh_token_db.token != token:
+        refresh_token_db = await RefreshToken.get_or_none(user=user, token=token)
+        if refresh_token_db is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
             )
-        return await create_tokens(user)
+        access_token = await create_access_token(user)
+        new_refresh_token = await create_refresh_token(user)
+        refresh_token_db.token = new_refresh_token.token
+        refresh_token_db.expires_at = new_refresh_token.expires_at
+        await refresh_token_db.save()
+        return {
+            "access_token": access_token,
+            "refresh_token": new_refresh_token.token,
+            "token_type": "bearer",
+        }
     except jwt.exceptions.ExpiredSignatureError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
