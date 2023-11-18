@@ -78,6 +78,7 @@ async def register_user(user: UserCreate):
 
 @auth_router.post("/edit_info", response_model=UserResponse, tags=["auth"])
 async def edit_info(
+    username: Annotated[str, Form()] = None,
     email: Annotated[EmailStr, Form()] = None,
     current_password: Annotated[str, Form()] = None,
     new_password: Annotated[str, Form()] = None,
@@ -90,6 +91,8 @@ async def edit_info(
     Edit user info
     """
     try:
+        if username:
+            user.username = username
         if email:
             user.email = email
         if new_password:
