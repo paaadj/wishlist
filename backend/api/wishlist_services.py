@@ -5,10 +5,12 @@ from fastapi import HTTPException, UploadFile, Form, File, status
 from models.wishlist import WishlistItem, Wishlist, WishlistItemResponse, Chat
 from models.user import User
 from models.user import UserResponse
+from models.notification import Notification, DeferredNotifications
 from typing import Annotated, Optional
 from pydantic import AnyHttpUrl
 from config import settings
 from firebase_config import storage
+from datetime import date
 import uuid
 
 
@@ -174,9 +176,26 @@ async def remove_item(item_id: int, user: User):
     return item
 
 
+async def create_reminder(
+        item_id: int,
+        user: User,
+        date_to_remind: date,
+):
+    data = {
+        "item_id": item_id
+    }
+    await DeferredNotifications.create(
+        user=user,
+        type="reserve reminder",
+        data=data,
+        date_to_notify=date_to_remind,
+    )
+
+
 async def reserve(
     item_id: int,
     user: User,
+    date_to_remind: date = None,
 ):
     item: WishlistItem = await fetch_item(item_id)
     if item.reserved_user:
@@ -189,6 +208,8 @@ async def reserve(
         )
     item.reserved_user = user
     await item.save()
+    if date_to_remind:
+        await create_reminder(item_id, user, date_to_remind)
     return item
 
 

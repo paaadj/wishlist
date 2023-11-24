@@ -15,6 +15,7 @@ class Settings:
     MODULE_LIST: list = [
         "models.user",
         "models.wishlist",
+        "models.notification",
     ]
 
     ALLOWED_CONTENT_TYPES: list = [
