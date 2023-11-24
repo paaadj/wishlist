@@ -4,7 +4,7 @@ from tortoise.exceptions import ValidationError
 from fastapi import HTTPException, status
 
 
-async def send_message(text: str, chat_id: int, user: User):
+async def send_message(text: str, chat_id: int, user: User, reply_to=None):
     chat = await Chat.get(id=chat_id)
     message = await ChatMessage.create(
         user=user,
