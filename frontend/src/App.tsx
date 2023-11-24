@@ -9,6 +9,7 @@ import Registration from "./components/Authentication/Registration";
 import UserProfilePage from "./pages/UserProfilePage/UserProfilePage";
 
 function App() {
+  
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -17,7 +18,8 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="registration" element={<Registration />} />
         </Route>
-        <Route path="user" element={<ProtectedRoute component={<UserProfilePage />} />} />
+        <Route path="user/me" element={<ProtectedRoute component={<UserProfilePage self={true}/>} />} />
+        <Route path="user/:username" element={<UserProfilePage self={false}/>}/>
       </Route>
     </Routes>
   );

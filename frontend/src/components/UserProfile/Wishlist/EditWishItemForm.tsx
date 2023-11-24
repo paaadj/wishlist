@@ -10,35 +10,49 @@ import {
 } from "react";
 import { UserContext, UserContextType } from "../../../context/UserContext";
 
-interface IAddWishItemForm {
+interface IEditWishItemForm {
   updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
+  wishId?: number;
+  prevWishName?: string;
+  prevWishDesc?: string;
+  prevWishImg?: string;
 }
 
-interface IAddWishItem {
+interface IEditWishItem {
   wishName: string;
   wishDesc: string;
-  wishImg: File;
+  wishImg: string;
 }
 
-function AddWishItemForm(props: IAddWishItemForm) {
-  const { updateWishlistFunction } = props;
-  const [wishName, setWishName] = useState("");
-  const [wishDesc, setWishDesc] = useState("");
+function EditWishItemForm(props: IEditWishItemForm) {
+  const { updateWishlistFunction,wishId, prevWishName, prevWishDesc, prevWishImg } = props;
+  const [wishName, setWishName] = useState(prevWishName);
+  const [wishDesc, setWishDesc] = useState(prevWishDesc);
   const [wishImgBin, setWishImgBin] = useState<File | undefined>(undefined);
 
-  const { register, handleSubmit, reset } = useForm<IAddWishItem>();
+  const { register, handleSubmit, reset } = useForm<IEditWishItem>({
+    defaultValues: {
+      wishName: prevWishName,
+      wishDesc: prevWishDesc,
+      wishImg: prevWishImg,
+    },
+  });
 
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
 
-  const addItemToWishlist = async (
-    title: string,
-    description: string,
+  const EditItemToWishlist = async (
+    title?: string,
+    description?: string,
     linkToSite?: string,
     imgBinary?: File
   ) => {
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
+    if (title) {
+      formData.append("title", title);
+    }
+    if (description) {
+      formData.append("description", description);
+    }
     if (linkToSite) {
       formData.append("link", linkToSite);
     }
@@ -47,23 +61,23 @@ function AddWishItemForm(props: IAddWishItemForm) {
     }
 
     const requestParams = {
-      method: "POST",
+      method: "PUT",
       headers: {
         Authorization: "Bearer " + getAccessCookie(),
       },
       body: formData,
     };
-    const response = await fetch(`/backend/api/add_item`, requestParams);
+    const response = await fetch(`/backend/api/update_item?item_id=${wishId}`, requestParams);
     if (response.ok) {
-      console.log("Added item");
+      console.log("Edit item");
       updateWishlistFunction((prevState) => !prevState);
     } else {
-      console.log("Don't added item");
+      console.log("Don't edit item");
     }
   };
 
-  const onSubmitHandler = async (values: IAddWishItem) => {
-    addItemToWishlist(wishName, wishDesc, undefined, wishImgBin);
+  const onSubmitHandler = async (values: IEditWishItem) => {
+    EditItemToWishlist(wishName, wishDesc, undefined, wishImgBin);
     setWishName("");
     setWishDesc("");
     setWishImgBin(undefined);
@@ -76,6 +90,7 @@ function AddWishItemForm(props: IAddWishItemForm) {
     }
   };
 
+
   useEffect(() => {
     return () => {
       reset();
@@ -87,7 +102,7 @@ function AddWishItemForm(props: IAddWishItemForm) {
 
   return (
     <>
-      <h3>Add Wish Item</h3>
+      <h3>Edit Wish Item</h3>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <UserInput
           type="text"
@@ -124,4 +139,4 @@ function AddWishItemForm(props: IAddWishItemForm) {
   );
 }
 
-export default AddWishItemForm;
+export default EditWishItemForm;

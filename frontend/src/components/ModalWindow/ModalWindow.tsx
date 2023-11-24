@@ -1,18 +1,22 @@
 import { Dispatch, SetStateAction } from "react";
 import "./modalWindow.css";
 
-interface IModalWindow{
+interface IModalWindow {
   active: boolean;
   setActive: Dispatch<SetStateAction<boolean>>;
+  onLeaving?: () => void;
   children: React.ReactNode;
 }
 
 function ModalWindow(props: IModalWindow) {
-  const {active, setActive, children} = props;
+  const { active, setActive, children, onLeaving } = props;
   return (
     <div
       className={active ? "modal-window active" : "modal-window"}
       onClick={() => {
+        if (onLeaving) {
+          onLeaving();
+        }
         setActive(false);
       }}
     >

@@ -1,30 +1,68 @@
 import User from "../../components/UserProfile/User";
 import Wishlist from "../../components/UserProfile/Wishlist/Wishlist";
-import { useContext } from "react";
-import { UserContext, UserContextType } from "../../context/UserContext";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import {
+  UserContext,
+  UserContextType,
+  userData,
+} from "../../context/UserContext";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/Header/Header";
 
-function UserProfilePage() {
-  const navigate = useNavigate();
+interface IUserProfilePage {
+  self: boolean;
+}
 
-  const { user, setAuthorizationTokens } = useContext(
-    UserContext
-  ) as UserContextType;
+function UserProfilePage(props: IUserProfilePage) {
+  const navigate = useNavigate();
+  const { username } = useParams();
+  const { self } = props;
+  const { user } = useContext(UserContext) as UserContextType;
+  const [currentUser, setCurrentUser] = useState<userData | undefined>(
+    undefined
+  );
+  const fetchAnotherUser = async () => {
+    const requestParams = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await fetch(
+      `/backend/users?username=${username}`,
+      requestParams
+    );
+    if (response.ok) {
+      const data = await response.json();
+      setCurrentUser({
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data?.last_name ?? "",
+        username: data.username,
+        email: data.email,
+        imgUrl: data?.image_url,
+      });
+    } else {
+      setCurrentUser(undefined);
+      navigate("/");
+    }
+  };
+  useEffect(() => {
+    if (self) {
+      setCurrentUser(user);
+    } else {
+      fetchAnotherUser();
+    }
+  }, [self, user]);
   return (
     <>
       <Header />
-      {user ? <User user={user} /> : <h1>Loading</h1>}
-      <button
-        onClick={() => {
-          setAuthorizationTokens(undefined, undefined);
-          navigate("/");
-        }}
-      >
-        Logout
-      </button>
-      {user ? <Wishlist user={user} /> : <h1>Loading</h1>}
-      
+      {currentUser ? <User self={self} user={currentUser} /> : <h1>Loading</h1>}
+      {currentUser ? (
+        <Wishlist self={self} user={currentUser} />
+      ) : (
+        <h1>Loading</h1>
+      )}
     </>
   );
 }

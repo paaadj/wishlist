@@ -1,14 +1,35 @@
 import { userData } from "../../context/UserContext";
+import ModalWindow from "../ModalWindow/ModalWindow";
+import UserEditAvatarForm from "./UserEditAvatarForm";
 import "./user.css";
+import { useState } from "react";
 
-
-
-interface IUser{
-  user: userData ;
+interface IUser {
+  self: boolean;
+  user: userData;
 }
 
 function User(props: IUser) {
-  const {user} = props;
+  const { self, user } = props;
+  // const [userFirstName, setUserFirstName] = useState(user.firstName);
+  // const [userLastName, setUserLastName] = useState(user.lastName);
+  // const [userUsername, setUserUsername] = useState(user.username);
+  // const [userEmail, setUserEmail] = useState(user.email);
+  const [userImgUrl, setUserImgUrl] = useState(
+    user.imgUrl
+      ? user.imgUrl + `&t=${new Date().getTime()}`
+      : "/img/username.png"
+  );
+
+  const [avatarIsEdit, setAvatarIsEdit] = useState<boolean>(false);
+  const [userDataIsEdit, setUserDataIsEdit] = useState<boolean>(false);
+
+  const handleEditAvatar = () => {
+    setAvatarIsEdit(true);
+  };
+  const handleEditProfileData = () => {
+    setUserDataIsEdit(true);
+  };
 
   return (
     <>
@@ -22,14 +43,19 @@ function User(props: IUser) {
         <h6 className="page-text page-reg-text">
           {user ? user.email : "Loading"}
         </h6>
-        <img
-          src="/img/username.png"
-          alt="avarar"
-          className="personal-data-avatar"
-        />
+        {self && <button onClick={handleEditProfileData}>Edit profile</button>}
+        <ModalWindow
+          active={userDataIsEdit}
+          setActive={setUserDataIsEdit}
+        >
+          
+        </ModalWindow>
+        <img src={userImgUrl} alt="avarar" className="personal-data-avatar" />
+        {self && <button onClick={handleEditAvatar}>Edit avatar</button>}
+        <ModalWindow active={avatarIsEdit} setActive={setAvatarIsEdit}>
+          <UserEditAvatarForm updateUserAvatarUrl={setUserImgUrl} />
+        </ModalWindow>
       </section>
-
-      
     </>
   );
 }
