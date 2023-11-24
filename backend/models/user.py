@@ -51,6 +51,7 @@ class User(Model):
         null=True,
     )
     created_at = fields.DatetimeField(auto_now=True, null=True)
+    is_admin = fields.BooleanField(default=False)
 
     def __str__(self):
         return self.username
