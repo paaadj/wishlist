@@ -6,7 +6,7 @@ import re
 from typing import Optional
 
 from passlib.hash import bcrypt
-from pydantic import BaseModel, EmailStr, Field, AnyHttpUrl
+from pydantic import BaseModel, EmailStr, AnyHttpUrl
 from tortoise import fields
 from tortoise.validators import RegexValidator, MinLengthValidator
 from tortoise.models import Model
@@ -50,6 +50,8 @@ class User(Model):
         ],
         null=True,
     )
+    created_at = fields.DatetimeField(auto_now=True, null=True)
+    is_admin = fields.BooleanField(default=False)
 
     def __str__(self):
         return self.username
