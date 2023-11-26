@@ -2,7 +2,7 @@ import { userData } from "../../context/UserContext";
 import ModalWindow from "../ModalWindow/ModalWindow";
 import UserEditAvatarForm from "./UserEditAvatarForm";
 import "./user.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface IUser {
   self: boolean;
@@ -31,6 +31,14 @@ function User(props: IUser) {
     setUserDataIsEdit(true);
   };
 
+  useEffect(() => {
+    setUserImgUrl(
+      user.imgUrl
+        ? user.imgUrl + `&t=${new Date().getTime()}`
+        : "/img/username.png"
+    );
+  }, [user]);
+
   return (
     <>
       <section className="personal-data">
@@ -47,9 +55,7 @@ function User(props: IUser) {
         <ModalWindow
           active={userDataIsEdit}
           setActive={setUserDataIsEdit}
-        >
-          
-        </ModalWindow>
+        >1</ModalWindow>
         <img src={userImgUrl} alt="avarar" className="personal-data-avatar" />
         {self && <button onClick={handleEditAvatar}>Edit avatar</button>}
         <ModalWindow active={avatarIsEdit} setActive={setAvatarIsEdit}>

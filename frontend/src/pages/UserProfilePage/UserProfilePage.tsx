@@ -48,18 +48,22 @@ function UserProfilePage(props: IUserProfilePage) {
     }
   };
   useEffect(() => {
-    if (self) {
-      setCurrentUser(user);
+    if (user && !self && user.username === username) {
+      navigate("/user/me");
     } else {
-      fetchAnotherUser();
+      if (self) {
+        setCurrentUser(user);
+      } else {
+        fetchAnotherUser();
+      }
     }
-  }, [self, user]);
+  }, [self, user, username]);
   return (
     <>
       <Header />
       {currentUser ? <User self={self} user={currentUser} /> : <h1>Loading</h1>}
       {currentUser ? (
-        <Wishlist self={self} user={currentUser} />
+        <Wishlist self={self} curUser={currentUser} />
       ) : (
         <h1>Loading</h1>
       )}

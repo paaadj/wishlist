@@ -37,7 +37,7 @@ function Header() {
               </button>
             </>
           ) : (
-            <div className="login-button"></div>
+            <div className="login-button">Login</div>
           )}
           <input
             type="text"
@@ -59,7 +59,7 @@ function Header() {
           {debounceInput && debounceInput.length > 0 && (
             <div>
               {debounceInput.map((item, index) => {
-                return <div key={index}>{item.username} </div>;
+                return <Link key={index} to={"/user/" + item.username}>{" "+item.username + " "}</Link>;
               })}
             </div>
           )}
