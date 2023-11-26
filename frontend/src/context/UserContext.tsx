@@ -7,10 +7,12 @@ import Cookies from "js-cookie";
 // };
 
 export type userData = {
+  id: number,
   firstName: string,
   lastName?: string,
   username: string,
   email: string
+  imgUrl?: string
 };
 
 export type UserContextType = {
@@ -77,32 +79,15 @@ export const UserProvider = (props: any) => {
     const response = await fetch("/backend/users/me", requestParams);
     const data = await response.json()
     setUser( {
+      id: data.id,
       firstName: data.first_name,
-      lastName: data?.first_name ?? "",
+      lastName: data?.last_name ?? "",
       username: data.username,
       email: data.email,
+      imgUrl: data?.image_url
     });
   }
 
-  // const fetchUser = async () => {
-  //   if (accessToken === undefined && refreshToken === undefined) {
-  //     return false;
-  //   }
-  //   const requestParams = {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + accessToken,
-  //     },
-  //   };
-
-  //   const response = await fetch("/backend/users/me", requestParams);
-  //   if (response.ok) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
 
   const setAuthorizationTokens = async(
     access_token: string | undefined,

@@ -1,0 +1,34 @@
+.personal-data{
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    row-gap: 40px;
+}
+
+.personal-data > h1, .personal-data > h3, .personal-data > h6{
+    display: inline-block;
+    font-family: 'Kanit', sans-serif;
+    text-align: center;
+    margin: 0;
+}
+.personal-data > h1{
+    letter-spacing: 0.3em;
+    font-size: 3rem;
+}
+.personal-data > h3{
+    font-weight: 500;
+    font-size: 2rem;
+}
+.personal-data > h6{
+    font-weight: 300;
+    font-size: 1rem;
+}
+.personal-data-avatar{
+    height: 100px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    margin-top: 5%;
+}
+

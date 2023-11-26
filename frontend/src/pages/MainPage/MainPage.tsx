@@ -31,7 +31,7 @@ function MainPage() {
                 Login
               </Link>
               <Link
-                to="/user"
+                to="/user/me"
                 className="title__button page-text page-reg-text white-color white-button-text"
               >
                 User
