@@ -1,8 +1,6 @@
 import json
 from typing import Dict, Annotated
 from fastapi import APIRouter, WebSocket, HTTPException, status, Depends, Query
-from fastapi.security import OAuth2PasswordBearer
-
 from auth.services import get_current_user
 from models.wishlist import Chat, ChatMessage
 from models.user import User
@@ -24,7 +22,7 @@ async def websocket_endpoint(
     await websocket.accept()
     chat = await Chat.exists(id=chat_id)
     if not chat:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION ,reason=f"Chat with id {chat_id} is not exists")
+        await websocket.close(code=status.WS_1007_INVALID_FRAME_PAYLOAD_DATA, reason=f"Chat with id {chat_id} is not exists")
     if chat_id not in connections:
         connections[chat_id] = set()
     connections[chat_id].add(websocket)
@@ -46,6 +44,7 @@ async def websocket_endpoint(
                 if conn.client_state != 3:
                     await conn.send_text(message.__dict__.__str__())
     except KeyError as exc:
-        await websocket.close(code=status.WS_1003_UNSUPPORTED_DATA, reason=f"required {exc}, but nothing was received")
+        await websocket.send_text(f"Unsupported data. INFO: {exc}")
     except:
-        await websocket.close(code=status.WS_1006_ABNORMAL_CLOSURE, reason="Unknown error")
+        connections[chat_id].remove(websocket)
+        await websocket.close(code=status.WS_1000_NORMAL_CLOSURE, reason="Unknown error")

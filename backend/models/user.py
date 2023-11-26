@@ -77,7 +77,7 @@ class RefreshToken(Model):
 
     @classmethod
     async def clean_expired_tokens(cls):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now()
         await cls.filter(expires_at__lt=now).delete()
 
 

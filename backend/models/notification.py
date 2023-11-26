@@ -1,3 +1,5 @@
+import datetime
+
 from tortoise import Model, fields
 
 
@@ -32,3 +34,11 @@ class DeferredNotifications(Model):
 
     class Meta:
         table = "deferred_notifications"
+
+    @classmethod
+    async def check_notifications(cls):
+        now = datetime.datetime.now()
+        notifications = await cls.filter(date_to_notify__lt=now).prefetch_related("user")
+        for notification in notifications:
+            await Notification.create(user=notification.user, type=notification.type, data=notification.data)
+            await notification.delete()
