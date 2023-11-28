@@ -2,7 +2,8 @@ import math
 
 from fastapi import HTTPException, UploadFile, Form, File, status
 
-from models.wishlist import WishlistItem, Wishlist, WishlistItemResponse, Chat
+from models.wishlist import WishlistItem, Wishlist, WishlistItemResponse
+from models.chat import Chat
 from models.user import User
 from models.user import UserResponse
 from models.notification import Notification, DeferredNotifications

@@ -7,7 +7,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
-from scheduler import scheduler, clear_refresh_tokens
+from scheduler import scheduler, clear_refresh_tokens, check_deferred_notifications
 from models.user import RefreshToken
 from auth.routes import auth_router
 from api.wishlist_routes import api_router
@@ -36,6 +36,8 @@ async def init():
     )
 
     scheduler.start()
+    await check_deferred_notifications()
+    await clear_refresh_tokens()
 
 
 @app.on_event("shutdown")

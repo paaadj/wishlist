@@ -1,9 +1,9 @@
 import json
 from typing import Dict, Annotated
-from fastapi import APIRouter, WebSocket, HTTPException, status, Depends, Query
+from fastapi import APIRouter, WebSocket, HTTPException, status, Depends, Query, WebSocketDisconnect, WebSocketException
 from auth.services import get_current_user
-from models.wishlist import Chat, ChatMessage
-from models.user import User
+from models.chat import Chat, ChatMessage, MessageResponse
+from models.user import User, UserResponse
 from api.chat_services import send_message
 
 
@@ -14,37 +14,53 @@ connections: Dict[int, set] = {}
 
 
 @chat_router.websocket("/chats/{chat_id}/ws")
-async def websocket_endpoint(
+async def chat_endpoint(
         websocket: WebSocket,
         chat_id: int,
         token=Annotated[str | None, Query()],
 ):
     await websocket.accept()
+
     chat = await Chat.exists(id=chat_id)
     if not chat:
-        await websocket.close(code=status.WS_1007_INVALID_FRAME_PAYLOAD_DATA, reason=f"Chat with id {chat_id} is not exists")
-    if chat_id not in connections:
-        connections[chat_id] = set()
-    connections[chat_id].add(websocket)
+        raise WebSocketException(
+            code=status.WS_1007_INVALID_FRAME_PAYLOAD_DATA,
+            reason=f"Chat with id {chat_id} is not exists"
+        )
+
     user: User = None
-    if token:
-        user = await get_current_user(token)
+    if token is not None:
+        try:
+            user = await get_current_user(token)
+        except Exception:
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid token")
+    connections.setdefault(chat_id, set()).add(websocket)
+
     try:
         while True:
             data = await websocket.receive_text()
-            text = json.loads(data)["text"]
-            reply_to = None
-            try:
-                reply_to = json.loads(data)["reply_to"]
-            except KeyError:
-                pass
+            payload = json.loads(data)
+            text = payload["text"]
+            reply_to = payload.get("reply_to", None)
 
-            message = await send_message(text=text, chat_id=chat_id, user=user, reply_to=reply_to)
-            for conn in connections[chat_id]:
-                if conn.client_state != 3:
-                    await conn.send_text(message.__dict__.__str__())
+            message: ChatMessage = await send_message(text=text, chat_id=chat_id, user=user, reply_to=reply_to)
+            await send_message_to_connection(chat_id=chat_id, msg=message, reply_to=reply_to)
     except KeyError as exc:
         await websocket.send_text(f"Unsupported data. INFO: {exc}")
-    except:
+    except WebSocketDisconnect as exc:
         connections[chat_id].remove(websocket)
-        await websocket.close(code=status.WS_1000_NORMAL_CLOSURE, reason="Unknown error")
+        raise WebSocketException(code=status.WS_1000_NORMAL_CLOSURE, reason="Unknown error") from exc
+
+
+async def send_message_to_connection(chat_id: int, msg: ChatMessage, reply_to: int | None):
+    user_response = UserResponse(**msg.user.__dict__)
+    msg_dict = msg.__dict__
+    msg_dict["reply_to"] = reply_to
+    msg_dict["user"] = user_response
+    response = MessageResponse(**msg_dict)
+    for conn in connections[chat_id]:
+        if conn.client_state != 3:
+            await conn.send_text(response.model_dump_json())
+
+
+

@@ -16,6 +16,7 @@ class Settings:
         "models.user",
         "models.wishlist",
         "models.notification",
+        "models.chat",
     ]
 
     ALLOWED_CONTENT_TYPES: list = [
