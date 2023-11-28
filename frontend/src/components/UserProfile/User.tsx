@@ -20,7 +20,6 @@ function User(props: IUser) {
       ? user.imgUrl + `&t=${new Date().getTime()}`
       : "/img/username.png"
   );
-
   const [avatarIsEdit, setAvatarIsEdit] = useState<boolean>(false);
   const [userDataIsEdit, setUserDataIsEdit] = useState<boolean>(false);
 
