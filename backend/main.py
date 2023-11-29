@@ -1,12 +1,14 @@
 """
 Main file
 """
+import datetime
 import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
-
+from scheduler import scheduler, clear_refresh_tokens, check_deferred_notifications
+from models.user import RefreshToken
 from auth.routes import auth_router
 from api.wishlist_routes import api_router
 from api.chat_routes import chat_router
@@ -33,6 +35,10 @@ async def init():
         db_url=settings.DATABASE_URL, modules={"models": settings.MODULE_LIST}
     )
 
+    scheduler.start()
+    await check_deferred_notifications()
+    await clear_refresh_tokens()
+
 
 @app.on_event("shutdown")
 async def shutdown_db():
@@ -40,6 +46,7 @@ async def shutdown_db():
     Shutdown method
     """
     await Tortoise.close_connections()
+    scheduler.shutdown()
 
 
 app.include_router(auth_router)

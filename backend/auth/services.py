@@ -4,7 +4,7 @@ Module containing handlers for retrieving a user using an access token.
 import uuid
 
 import jwt
-from fastapi import Depends, HTTPException, status, UploadFile
+from fastapi import Depends, HTTPException, status, UploadFile, WebSocket
 from fastapi.security import OAuth2PasswordBearer
 from tortoise.exceptions import ValidationError, DoesNotExist
 from tortoise.expressions import Q

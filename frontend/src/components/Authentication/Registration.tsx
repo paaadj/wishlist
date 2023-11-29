@@ -110,12 +110,13 @@ const Registration = () => {
       },
       body: JSON.stringify({
         first_name: firstName,
-        last_Name: lastName,
+        last_name: lastName,
         username: username,
         email: email,
         password: password,
       }),
     };
+    console.log(lastName);
     const response = await fetch("/backend/register", requestParams);
     // const data = await response.json();
 

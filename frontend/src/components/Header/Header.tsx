@@ -1,10 +1,17 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext, UserContextType } from "../../context/UserContext";
 import "./header.css";
+import useDebounce from "../../hooks/useDebounce";
+import useDebounceUserSearch from "../../hooks/useDebounceUserSearch";
 
 function Header() {
-  const { isAuthenticated } = useContext(UserContext) as UserContextType;
+  const navigate = useNavigate();
+  const { user, setAuthorizationTokens } = useContext(
+    UserContext
+  ) as UserContextType;
+  const [searchUserValue, setSearchUserValue] = useState<string>("");
+  const debounceInput = useDebounceUserSearch(searchUserValue, user?.id, 500);
   return (
     <>
       <header>
@@ -15,12 +22,46 @@ function Header() {
             <Link to="/login">Login</Link>
             <Link to="/registration">Registration</Link>
           </div>
-          {isAuthenticated ? (
-            <div className="profile">
-              <Link to="/user">{isAuthenticated.toString()}</Link>
-            </div>
+          {user ? (
+            <>
+              <div className="profile">
+                <Link to="/user/me">{user.username}</Link>
+              </div>
+              <button
+                onClick={() => {
+                  setAuthorizationTokens(undefined, undefined);
+                  navigate("/");
+                }}
+              >
+                Logout
+              </button>
+            </>
           ) : (
-            <div className="login-button"></div>
+            <div className="login-button">Login</div>
+          )}
+          <input
+            type="text"
+            value={searchUserValue}
+            onChange={(e) => {
+              setSearchUserValue(e.target.value);
+            }}
+            placeholder="Search user..."
+          />
+          <button
+            onClick={() => {
+              console.log(user?.id);
+              console.log(debounceInput);
+            }}
+          >
+            dafasd
+          </button>
+
+          {debounceInput && debounceInput.length > 0 && (
+            <div>
+              {debounceInput.map((item, index) => {
+                return <Link key={index} to={"/user/" + item.username}>{" "+item.username + " "}</Link>;
+              })}
+            </div>
           )}
         </div>
       </header>
