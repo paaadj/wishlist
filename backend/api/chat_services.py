@@ -13,6 +13,5 @@ async def send_message(text: str, chat_id: int, user: User, reply_to=None) -> Ch
         text=text,
         reply_to=reply_message,
     )
-    print(message.__dict__)
     return message
 

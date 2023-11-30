@@ -14,7 +14,7 @@ class Chat(Model):
 
 class MessageResponse(BaseModel):
     id: int
-    user: int
+    user: Optional[int] = None
     text: str
     reply_to: Optional[int] = None
     timestamp: datetime
@@ -37,10 +37,12 @@ class ChatMessage(Model):
         on_delete=fields.SET_NULL,
     )
 
-    async def to_response(self) -> MessageResponse:
+    async def to_response(self, owner, recipient) -> MessageResponse:
+        print(self.user_id, owner.id, recipient.id)
+        user = None if (self.user_id != owner.id and self.user_id != recipient.id) else self.user_id
         return MessageResponse(
             id=self.id,
-            user=self.user_id,
+            user=user,
             text=self.text,
             reply_to=self.reply_to_id,
             timestamp=self.timestamp,
