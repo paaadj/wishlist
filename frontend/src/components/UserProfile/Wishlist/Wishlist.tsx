@@ -46,36 +46,45 @@ function Wishlist(props: IWishlistProps) {
   );
   const [wishItemIsEdit, setWishItemIsEdit] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
+  const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchWishlist = async () => {
-      const requestParams = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
+      setLoading(true);
+      setError(null);
+      setWishlist(undefined);
       try {
+        const requestParams = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
         const response = await fetch(
-          `/backend/api/get_wishlist?page=${page}&per_page=${ROWS_PER_PAGE}&username=${
-            curUser.username
-          }`,
+          `/backend/api/get_wishlist?page=${page}&per_page=${ROWS_PER_PAGE}&username=${curUser.username}`,
           requestParams
         );
+        if (!response.ok) {
+          throw new Error("Cannot fetch wishlist");
+        }
         const data = await response.json();
         setWishlist(data);
       } catch (err) {
-        console.log(
+        setError(
           "Error wishlist fetch" +
             (err instanceof Error ? ": " + err.message : "")
         );
         setWishlist(undefined);
+      } finally {
+        setLoading(false);
       }
     };
     fetchWishlist();
   }, [updateWishlist, page]);
 
   useEffect(() => {
+    setPage(1);
     setWishlist(undefined);
     setUpdateWishlist((prevState) => !prevState);
   }, [curUser]);
@@ -148,7 +157,7 @@ function Wishlist(props: IWishlistProps) {
         `/backend/api/unreserve?item_id=${itemId}`,
         requestParams
       );
-      if (response.ok) {
+      if (!response.ok) {
         throw new Error("Cannot unreserve item");
       }
       console.log("Unreservation successful");
@@ -228,7 +237,8 @@ function Wishlist(props: IWishlistProps) {
           )}
         </ModalWindow>
         <section className="wishlist">
-          {wishlist?.items ? (
+          {wishlist &&
+            wishlist.items.length > 0 &&
             wishlist.items.map((item) => {
               return (
                 <WishlistCard
@@ -246,11 +256,11 @@ function Wishlist(props: IWishlistProps) {
                   handleUnreserveItem={handleUnreserveItem}
                 />
               );
-            })
-          ) : (
-            <h3>Loading</h3>
+            })}
+          {wishlist && wishlist.items.length === 0 && (
+            <h3>No data</h3>
           )}
-          {wishlist && (
+          {wishlist && wishlist.items.length > 0 && (
             <Pagination
               onNextPageClick={handleNextPageClick}
               onPrevPageClick={handlePrevPageClick}
@@ -264,6 +274,8 @@ function Wishlist(props: IWishlistProps) {
               }}
             />
           )}
+          {isLoading && <h3>Loading</h3>}
+          {error && <h3>Error</h3>}
         </section>
       </div>
     </>
