@@ -7,12 +7,12 @@ import Cookies from "js-cookie";
 // };
 
 export type userData = {
-  id: number,
-  firstName: string,
-  lastName?: string,
-  username: string,
-  email: string
-  imgUrl?: string
+  id: number;
+  firstName: string;
+  lastName?: string;
+  username: string;
+  email: string;
+  imgUrl?: string;
 };
 
 export type UserContextType = {
@@ -22,8 +22,8 @@ export type UserContextType = {
   ) => void;
   isAuthenticated: boolean;
   getAccessCookie: () => string | undefined;
-  tryRefreshToken: () => Promise<boolean>
-  setAuthentication: (value: boolean) => void
+  tryRefreshToken: () => Promise<boolean>;
+  setAuthentication: (value: boolean) => void;
   user: userData | undefined;
 };
 
@@ -42,7 +42,7 @@ export const UserProvider = (props: any) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Token: `${refreshToken}`
+        Token: `${refreshToken}`,
       },
       // body: JSON.stringify({ token : refreshToken }),
       // body: `token=${refreshToken}`
@@ -64,8 +64,8 @@ export const UserProvider = (props: any) => {
     }
   };
 
-  const fetchUser = async()=> {
-    if(!getAccessCookie()){
+  const fetchUser = async () => {
+    if (!getAccessCookie()) {
       setUser(undefined);
       return;
     }
@@ -76,25 +76,36 @@ export const UserProvider = (props: any) => {
         Authorization: "Bearer " + getAccessCookie(),
       },
     };
-    const response = await fetch("/backend/users/me", requestParams);
-    const data = await response.json()
-    setUser( {
-      id: data.id,
-      firstName: data.first_name,
-      lastName: data?.last_name ?? "",
-      username: data.username,
-      email: data.email,
-      imgUrl: data?.image_url
-    });
-  }
+    try {
+      const response = await fetch("/backend/users/me", requestParams);
+      if (!response.ok) {
+        throw new Error("Cannot fetch user");
+      }
+      const data = await response.json();
+      setUser({
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data?.last_name ?? "",
+        username: data.username,
+        email: data.email,
+        imgUrl: data?.image_url,
+      });
+    } catch (err) {
+      try {
+        const refreshResponse = await tryRefreshToken();
+        if (!refreshResponse) {
+          throw new Error("Cannot refresh user");
+        }
+      } catch (err) {
+        return;
+      }
+    }
+  };
 
-
-  const setAuthorizationTokens = async(
+  const setAuthorizationTokens = async (
     access_token: string | undefined,
     refresh_token: string | undefined
   ) => {
-
-
     if (access_token === undefined && refresh_token === undefined) {
       removeCookies();
     } else {
@@ -102,16 +113,16 @@ export const UserProvider = (props: any) => {
     }
     await setAccessToken(access_token);
     await setRefreshToken(refresh_token);
-    
-    
   };
 
-  const getAccessCookie = ()=>{
-    return Cookies.get('accessToken')
-  }
+  const getAccessCookie = () => {
+    return Cookies.get("accessToken");
+  };
 
-  const setCookies = (access_token: string | undefined,
-    refresh_token: string | undefined) => {
+  const setCookies = (
+    access_token: string | undefined,
+    refresh_token: string | undefined
+  ) => {
     Cookies.set("accessToken", access_token ?? "undefined", { path: "/" });
     Cookies.set("refreshToken", refresh_token ?? "undefined", { path: "/" });
   };
@@ -120,11 +131,9 @@ export const UserProvider = (props: any) => {
     Cookies.remove("accessToken", { path: "/" });
   };
 
-  
-  const setAuthentication = (value: boolean)=>{
+  const setAuthentication = (value: boolean) => {
     setIsAuthenticated(value);
-  }
-
+  };
 
   /*Check the token */
   useEffect(() => {
@@ -139,7 +148,7 @@ export const UserProvider = (props: any) => {
         getAccessCookie,
         tryRefreshToken,
         setAuthentication,
-        user
+        user,
       }}
     >
       {props.children}

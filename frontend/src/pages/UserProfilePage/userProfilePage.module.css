@@ -1,9 +1,19 @@
 .container{
     position: relative;
     /* background-color: #A3E7FC; */
-    background-color: #EAFFFD;
 
     /* background-color: #E4DFDA; */
+
+}
+.container::before{
+    position: absolute;
+    content: '';
+    /* background-color: #C3DAC3; */
+    /* background-color: #26C485; */
+    background-color: #EAFFFD;
+
+
+    inset: 0;
     z-index: -1;
 }
 .container::after{
