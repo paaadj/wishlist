@@ -37,12 +37,10 @@ class ChatMessage(Model):
         on_delete=fields.SET_NULL,
     )
 
-    async def to_response(self, owner, recipient) -> MessageResponse:
-        print(self.user_id, owner.id, recipient.id)
-        user = None if (self.user_id != owner.id and self.user_id != recipient.id) else self.user_id
+    async def to_response(self) -> MessageResponse:
         return MessageResponse(
             id=self.id,
-            user=user,
+            user=self.user_id,
             text=self.text,
             reply_to=self.reply_to_id,
             timestamp=self.timestamp,
