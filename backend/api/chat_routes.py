@@ -71,16 +71,18 @@ async def send_message_to_connection(chat_id: int, msg: MessageResponse, owner: 
             await conn.send_text(final_msg.__dict__.__str__())
 
 
-# TODO anonymous chat message response
-# TODO determining who the user is, the owner of the message or wishlist
 @chat_router.get("chats/{chat_id}", response_model=ChatResponse)
 async def get_chat_messages(chat_id: int, user=Depends(get_current_user)):
-    chat = await Chat.get_or_none(id=chat_id).prefetch_related('wishlist_item')
+    chat = await Chat.get_or_none(id=chat_id).prefetch_related('wishlist_item__wishlist__user')
     if chat is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Chat is not exists")
+    owner: User = chat.wishlist_item.wishlist.user
     messages_data = []
     for message in await chat.messages:
-        messages_data.append(await message.to_response())
+        print(message)
+        final_msg = await message.to_response()
+        final_msg.user = None if (user.id != final_msg.user and final_msg.user != owner.id) else final_msg.user
+        messages_data.append(final_msg)
     return {
         'id': chat.id,
         'wishlist_item': chat.wishlist_item.id,
