@@ -91,9 +91,20 @@ async def edit_info(
     Edit user info
     """
     try:
+        print(user)
         if username:
+            if not await check_username(username):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"User with username {username} already exists"
+                )
             user.username = username
         if email:
+            if not await check_email(email):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"User with email {email} already exists"
+                )
             user.email = email
         if new_password:
             if not current_password or not await authenticate_user(
