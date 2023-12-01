@@ -44,7 +44,7 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(access_token, JWT_SECRET, algorithms=[ALGORITHM])
         if payload.get("scope") != "access":
             raise jwt.exceptions.InvalidSignatureError
-        user = await User.get(username=payload.get("username"))
+        user = await User.get(id=payload.get("id"))
     except jwt.exceptions.DecodeError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,7 +56,7 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         ) from exc
     except DoesNotExist as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"{exc}")
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"User doesn't exists") from exc
     return user
 
 

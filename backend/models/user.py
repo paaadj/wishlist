@@ -110,5 +110,5 @@ class UserJWT(BaseModel):
     """
     user's data for jwt token
     """
-
+    id: int
     username: str
