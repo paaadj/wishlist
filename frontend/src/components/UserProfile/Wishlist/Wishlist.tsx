@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import "./wishlist.css";
+import styles from "./wishlistStyles.module.css";
 import WishlistCard from "./WishlistCard";
 import {
   UserContext,
@@ -10,6 +10,7 @@ import ModalWindow from "../../ModalWindow/ModalWindow";
 import AddWishItemForm from "./AddWishItemForm";
 import EditWishItemForm from "./EditWishItemForm";
 import Pagination from "../../Pagination/Pagination";
+import classNames from 'classnames';
 
 interface IWishlistProps {
   self: boolean;
@@ -53,7 +54,6 @@ function Wishlist(props: IWishlistProps) {
     const fetchWishlist = async () => {
       setLoading(true);
       setError(null);
-      setWishlist(undefined);
       try {
         const requestParams = {
           method: "GET",
@@ -82,13 +82,18 @@ function Wishlist(props: IWishlistProps) {
     };
     fetchWishlist();
   }, [updateWishlist, page]);
-
+  /**
+   * Update stated for a new current user
+   */
   useEffect(() => {
     setPage(1);
     setWishlist(undefined);
     setUpdateWishlist((prevState) => !prevState);
   }, [curUser]);
 
+  /**
+   * Setup an actual item that is on edit
+   *  */
   useEffect(() => {
     if (wishItemEdit) {
       setWishItemIsEdit(true);
@@ -108,9 +113,9 @@ function Wishlist(props: IWishlistProps) {
     }
   };
 
-  const handleEditWindowLeave = () => {
+  const handleEditWindowLeave = useCallback(() => {
     setWishItemEdit(undefined);
-  };
+  },[]);
 
   const handleReserveItem = async (itemId: number) => {
     const requestParams = {
@@ -134,7 +139,9 @@ function Wishlist(props: IWishlistProps) {
             return item;
           }
         });
-        setWishlist({ ...wishlist, items: updatedWishList });
+        setWishlist((prev) => {
+          return prev ? { ...prev, items: updatedWishList } : prev;
+        });
       }
     } catch (err) {
       console.log(
@@ -169,7 +176,9 @@ function Wishlist(props: IWishlistProps) {
             return item;
           }
         });
-        setWishlist({ ...wishlist, items: updatedWishList });
+        setWishlist((prev) => {
+          return prev ? { ...prev, items: updatedWishList } : prev;
+        });
       }
     } catch (err) {
       console.log(
@@ -196,21 +205,21 @@ function Wishlist(props: IWishlistProps) {
 
   return (
     <>
-      <div className="wishlist-wrapper">
-        <div className="wishlist-header-wrapper">
-          <h3 className="page-text page-title-text wishlist-title">Wishlist</h3>
+      <div className={styles.wrapper}>
+        <div className={styles.header_wrapper}>
+          <h3 className={classNames(styles.title, "page-text", "page-title-text")}>Wishlist</h3>
           {self && (
             <button
               type="button"
               onClick={() => {
                 setActiveModalAdd(true);
               }}
-              className="wishlist-add-button"
+              className={styles.add_button}
             >
               <img
                 src="/img/plus.png"
                 alt="media"
-                className="wishlist-add-button__media"
+                className={styles.add_button__media}
               />
             </button>
           )}
@@ -236,8 +245,9 @@ function Wishlist(props: IWishlistProps) {
             <h3>Loading</h3>
           )}
         </ModalWindow>
-        <section className="wishlist">
+        <section className={styles.wishlist}>
           {wishlist &&
+            !isLoading &&
             wishlist.items.length > 0 &&
             wishlist.items.map((item) => {
               return (
@@ -257,9 +267,7 @@ function Wishlist(props: IWishlistProps) {
                 />
               );
             })}
-          {wishlist && wishlist.items.length === 0 && (
-            <h3>No data</h3>
-          )}
+          {wishlist && wishlist.items.length === 0 && <h3>No data</h3>}
           {wishlist && wishlist.items.length > 0 && (
             <Pagination
               onNextPageClick={handleNextPageClick}

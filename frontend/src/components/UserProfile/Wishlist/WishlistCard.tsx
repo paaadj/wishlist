@@ -5,7 +5,9 @@ import {
   userData,
 } from "../../../context/UserContext";
 import "../user.css";
+import styles from "./wishlistStyles.module.css"
 import ModalWindow from "../../ModalWindow/ModalWindow";
+import classNames from 'classnames';
 
 interface IWishlistCard {
   self: boolean;
@@ -68,13 +70,9 @@ function WishlistCard(props: IWishlistCard) {
 
   return (
     <div
-      className={
-        reservedUser
-          ? "wishlist-card-wrapper reserved-wish"
-          : "wishlist-card-wrapper"
-      }
+      className={classNames(styles.card_wrapper, {[styles.reserved_wish]: reservedUser})}
     >
-      <div className="wishlist-card-img-wrapper">
+      <div className={styles.card_img_wrapper}>
         <img
           src={
             imgUrl
@@ -82,12 +80,12 @@ function WishlistCard(props: IWishlistCard) {
               : "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media"
           }
           alt="wishImg"
-          className="wishlist-card-img"
+          className={styles.card_img}
         />
       </div>
-      <div className="wishlist-card-data-wrapper">
-        <h5 className="wishlist-card-title">{title}</h5>
-        <p className="page-text page-reg-text wishlist-card-desc">
+      <div className={styles.card_data_wrapper}>
+        <h5 className={styles.card_title}>{title}</h5>
+        <p className={classNames("page-text", "page-reg-text", styles.card_desc)}>
           {description}
         </p>
         {reservedUser && <p>Reserved by: {reservedUser.username}</p>}
@@ -99,7 +97,7 @@ function WishlistCard(props: IWishlistCard) {
         {reservedUser && authUserId && reservedUser.id === authUserId && (
           <button onClick={handleUnreserveButtonClick}>Unreserve</button>
         )}
-        <button type="button" className="wishlist-card-button">
+        <button type="button" className={styles.card_button}>
           Check
         </button>
       </div>
