@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import "./modalWindow.css";
+import React from "react";
 
 interface IModalWindow {
   active: boolean;
@@ -34,4 +35,4 @@ function ModalWindow(props: IModalWindow) {
   );
 }
 
-export default ModalWindow;
+export default React.memo(ModalWindow);

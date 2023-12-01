@@ -8,7 +8,7 @@ import {
 } from "../../context/UserContext";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/Header/Header";
-
+import styles from "./userProfilePage.module.css"
 interface IUserProfilePage {
   self: boolean;
 }
@@ -58,15 +58,17 @@ function UserProfilePage(props: IUserProfilePage) {
       }
     }
   }, [self, user, username]);
-  return (
-    <>
-      <Header />
+  return (<>
+
+    <div className={styles.container}>
+    <Header />
       {currentUser ? <User self={self} user={currentUser} /> : <h1>Loading</h1>}
       {currentUser ? (
         <Wishlist self={self} curUser={currentUser} />
       ) : (
         <h1>Loading</h1>
       )}
+    </div>
     </>
   );
 }
