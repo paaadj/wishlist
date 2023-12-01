@@ -4,7 +4,7 @@ from fastapi import APIRouter, WebSocket, HTTPException, status, Depends, Query,
 from auth.services import get_current_user
 from models.chat import Chat, ChatMessage, MessageResponse, ChatResponse
 from models.user import User, UserResponse
-from api.chat_services import send_message
+from api.chat_services import send_message, send_message_to_connection
 from json import JSONDecodeError
 
 
@@ -34,7 +34,7 @@ async def chat_endpoint(
 
     token = await websocket.receive_text()
     user: User | None = None
-    if token is not None:
+    if token != "null":
         try:
             user = await get_current_user(token)
             await websocket.send_text("Success")
@@ -44,31 +44,21 @@ async def chat_endpoint(
 
     connections.setdefault(chat_id, set()).add((websocket, user))
 
-    if user is not None:
-        try:
-            while True:
-                data = await websocket.receive_json()
-                text = data["text"]
-                reply_to = data.get("reply_to", None)
-                message = await send_message(text=text, chat_id=chat_id, user=user, reply_to=reply_to)
-                message = await message.to_response()
-                await send_message_to_connection(chat_id=chat_id, msg=message, owner=owner)
-        except KeyError as exc:
-            await websocket.send_text(f"Unsupported data. INFO: {exc}")
-        except WebSocketDisconnect as exc:
-            connections[chat_id].remove(websocket)
-            await websocket.close(code=status.WS_1000_NORMAL_CLOSURE, reason="Unknown error")
-            return
-        except JSONDecodeError as exc:
-            await websocket.send_text(f"Unsupported data. INFO: {exc}")
-
-
-async def send_message_to_connection(chat_id: int, msg: MessageResponse, owner: User):
-    for conn, user in connections[chat_id]:
-        if conn.client_state != 3:
-            final_msg = msg.model_copy()
-            final_msg.user = None if (msg.user != owner.id and msg.user != user.id) else msg.user
-            await conn.send_text(final_msg.__dict__.__str__())
+    try:
+        while True:
+            data = await websocket.receive_json()
+            text = data["text"]
+            reply_to = data.get("reply_to", None)
+            message = await send_message(text=text, chat_id=chat_id, user=user, reply_to=reply_to)
+            message = await message.to_response()
+            await send_message_to_connection(chat_id=chat_id, msg=message, owner=owner, connections=connections)
+    except KeyError as exc:
+        await websocket.send_text(f"Unsupported data. INFO: {exc}")
+    except WebSocketDisconnect as exc:
+        connections[chat_id].remove((websocket, user))
+        return
+    except JSONDecodeError as exc:
+        await websocket.send_text(f"Unsupported data. INFO: {exc}")
 
 
 @chat_router.get("chats/{chat_id}", response_model=ChatResponse)
@@ -79,7 +69,6 @@ async def get_chat_messages(chat_id: int, user=Depends(get_current_user)):
     owner: User = chat.wishlist_item.wishlist.user
     messages_data = []
     for message in await chat.messages:
-        print(message)
         final_msg = await message.to_response()
         final_msg.user = None if (user.id != final_msg.user and final_msg.user != owner.id) else final_msg.user
         messages_data.append(final_msg)
