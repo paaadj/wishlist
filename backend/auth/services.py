@@ -26,12 +26,15 @@ async def authenticate_user(username: str, password: str):
     :param password: user's password
     :return: user if exists
     """
-    user = await User.get_or_none(username=username)
-    if user is None:
-        return False
-    if not user.verify_password(password):
-        return False
-    return user
+    try:
+        user = await User.get_or_none(username=username)
+        if user is None:
+            return False
+        if not user.verify_password(password):
+            return False
+        return user
+    except ValidationError as validation_error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format, {validation_error}")
 
 
 async def get_current_user(access_token: str = Depends(oauth2_scheme)):
@@ -47,7 +50,7 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         user = await User.get(id=payload.get("id"))
     except jwt.exceptions.DecodeError as exc:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_404_UNAUTHORIZED,
             detail="Invalid token format or signature",
         ) from exc
     except jwt.exceptions.ExpiredSignatureError as exc:

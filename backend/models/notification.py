@@ -15,6 +15,8 @@ class Notification(Model):
 
     data = fields.JSONField(null=True)
     info = fields.CharField(max_length=255)
+    date = fields.DatetimeField()
+
     class Meta:
         table = "notifications"
 
@@ -30,7 +32,7 @@ class DeferredNotifications(Model):
 
     data = fields.JSONField(null=True)
 
-    date_to_notify = fields.DateField()
+    date_to_notify = fields.DatetimeField()
 
     class Meta:
         table = "deferred_notifications"
@@ -40,5 +42,10 @@ class DeferredNotifications(Model):
         now = datetime.datetime.now()
         notifications = await cls.filter(date_to_notify__lt=now).prefetch_related("user")
         for notification in notifications:
-            await Notification.create(user=notification.user, type=notification.type, data=notification.data)
+            await Notification.create(
+                user=notification.user,
+                type=notification.type,
+                data=notification.data,
+                date=notification.date_to_notify,
+            )
             await notification.delete()

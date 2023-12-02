@@ -11,7 +11,7 @@ from typing import Annotated, Optional
 from pydantic import AnyHttpUrl
 from config import settings
 from firebase_config import storage
-from datetime import date
+from datetime import datetime
 import uuid
 
 
@@ -180,7 +180,7 @@ async def remove_item(item_id: int, user: User):
 async def create_reminder(
         item_id: int,
         user: User,
-        date_to_remind: date,
+        date_to_remind: datetime,
 ):
     data = {
         "item_id": item_id
@@ -196,7 +196,7 @@ async def create_reminder(
 async def reserve(
     item_id: int,
     user: User,
-    date_to_remind: date = None,
+    date_to_remind: datetime = None,
 ):
     item: WishlistItem = await fetch_item(item_id)
     if item.reserved_user:
