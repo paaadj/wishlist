@@ -8,6 +8,7 @@ from models.chat import Chat
 from models.user import User
 from models.user import UserResponse
 from models.notification import Notification, DeferredNotifications
+from tortoise.expressions import Q
 from typing import Annotated, Optional
 from pydantic import AnyHttpUrl
 from config import settings
@@ -183,6 +184,9 @@ async def create_reminder(
         user: User,
         date_to_remind: datetime,
 ):
+    """
+    Create deferred notification about reservation
+    """
     data = {
         "item_id": item_id
     }
@@ -199,6 +203,12 @@ async def reserve(
     user: User,
     date_to_remind: datetime = None,
 ):
+    """
+    Reserve item.
+    item_id: int - id of item to reserve
+    user who reserve
+    date_to_remind - Optional. Date when need to remind
+    """
     item: WishlistItem = await fetch_item(item_id)
     if item.reserved_user:
         raise HTTPException(
@@ -219,6 +229,11 @@ async def cancel_reservation(
     item_id: int,
     user: User,
 ):
+    """
+    Cancel item reservation.
+    item_id: int - id of reserved item
+    user who reserved. Needs to be sure that this is the right user
+    """
     item = await fetch_item(item_id)
     if item.reserved_user != user:
         raise HTTPException(
@@ -228,7 +243,7 @@ async def cancel_reservation(
     data = json.dumps({
         "item_id": item_id
     })
-    reservation = await DeferredNotifications.filter(data__contains=data).first()
+    reservation = await DeferredNotifications.filter(data__contains=data, type="reserve reminder").first()
     if reservation is not None:
         await reservation.delete()
     await item.save()

@@ -32,6 +32,14 @@ async def add_item(
     user: User = Depends(get_current_user),
     image: UploadFile = File(None),
 ):
+    """
+    Add item to wishlist
+    title: str in Form
+    description: str in Form
+    link (Optional) link to item in HttpUrl format
+    image - Image file
+    Require access token in header
+    """
     return await create_item(
         title=title,
         description=description,
@@ -112,9 +120,18 @@ async def delete_item(item_id: int, user=Depends(get_current_user)):
 
 @api_router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
 async def reserve_item(item_id: int, date: datetime.datetime = None, user=Depends(get_current_user)):
+    """
+    Reserve item with item_id: int
+    require access token in header
+    date (Optional) - date to remind about reservation if need
+    """
     return await reserve(item_id, user, date)
 
 
 @api_router.post("/unreserve", response_model=WishlistItemResponse, tags=["wishlist"])
 async def cancel_reservation_item(item_id: int, user=Depends(get_current_user)):
+    """
+    Cancel item reservation with item_id and user
+    Require access token in header
+    """
     return await cancel_reservation(item_id, user)
