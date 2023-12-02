@@ -96,3 +96,20 @@ async def get_chat_messages(chat_id: int, access_token=Header(None)):
         'wishlist_item': chat.wishlist_item.id,
         'messages': messages_data
     }
+
+
+@chat_router.get("chats/{chat_id}/{chat_message}", response_model=MessageResponse)
+async def get_chat_message(chat_id: int, chat_message: int, access_token=Header(None)):
+    user: User | None = None if access_token is None else await get_current_user(access_token)
+    chat_message: ChatMessage | None = await (ChatMessage
+                                        .get_or_none(id=chat_message)
+                                        .prefetch_related("chat__wishlist_item__wishlist__user"))
+    if chat_message is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message doesn't exists")
+    owner: User = chat_message.chat.wishlist_item.wishlist.user
+    final_msg: MessageResponse = await chat_message.to_response()
+    final_msg.user = None \
+        if ((user is None and chat_message.user_id != owner.id)
+            or (user is not None and chat_message.user_id != owner.id and chat_message.user_id != user.id)) \
+        else final_msg.user
+    return final_msg
