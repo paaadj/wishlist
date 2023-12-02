@@ -31,7 +31,7 @@ async def send_message_to_connection(
         if conn.client_state != 3:
             final_msg = msg.model_copy()
             final_msg.user = None \
-                if ((user is None and msg.user != owner.id)
+                if ((user is None and msg.user.id != owner.id)
                     or (msg.user != owner.id and msg.user != user.id)) \
                 else msg.user
             await conn.send_json(final_msg.model_dump())

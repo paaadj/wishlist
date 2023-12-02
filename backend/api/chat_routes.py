@@ -1,11 +1,23 @@
 import json
 from typing import Dict, Annotated
-from fastapi import APIRouter, WebSocket, HTTPException, status, Depends, Query, WebSocketDisconnect, WebSocketException
+from fastapi import (
+    APIRouter,
+    WebSocket,
+    HTTPException,
+    status,
+    Depends,
+    Query,
+    WebSocketDisconnect,
+    WebSocketException,
+    Request,
+    Header,
+)
 from auth.services import get_current_user
 from models.chat import Chat, ChatMessage, MessageResponse, ChatResponse
 from models.user import User, UserResponse
 from api.chat_services import send_message, send_message_to_connection
 from json import JSONDecodeError
+from typing import Optional
 
 
 chat_router = APIRouter()
@@ -65,15 +77,19 @@ async def chat_endpoint(
 
 
 @chat_router.get("chats/{chat_id}", response_model=ChatResponse)
-async def get_chat_messages(chat_id: int, user=Depends(get_current_user)):
-    chat = await Chat.get_or_none(id=chat_id).prefetch_related('wishlist_item__wishlist__user')
+async def get_chat_messages(chat_id: int, access_token=Header(None)):
+    user: User | None = None if access_token is None else await get_current_user(access_token)
+    chat = await Chat.get_or_none(wishlist_item_id=chat_id).prefetch_related('wishlist_item__wishlist__user')
     if chat is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Chat is not exists")
     owner: User = chat.wishlist_item.wishlist.user
     messages_data = []
-    for message in await chat.messages:
-        final_msg = await message.to_response()
-        final_msg.user = None if (user.id != final_msg.user and final_msg.user != owner.id) else final_msg.user
+    for msg in await chat.messages:
+        final_msg = await msg.to_response()
+        final_msg.user = None \
+            if ((user is None and msg.user_id != owner.id)
+                or (user is not None and msg.user_id != owner.id and msg.user_id != user.id)) \
+            else final_msg.user
         messages_data.append(final_msg)
     return {
         'id': chat.id,
