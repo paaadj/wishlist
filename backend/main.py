@@ -14,7 +14,7 @@ from api.wishlist_routes import api_router
 from api.chat_routes import chat_router
 from config import settings
 from aerich import Command
-from aerich_config import TORTOISE_ORM
+from aerich_cfg import TORTOISE_ORM
 
 
 app = FastAPI()
