@@ -31,9 +31,12 @@ async def chat_endpoint(
         return
 
     owner = chat.wishlist_item.wishlist.user
-
-    token = await websocket.receive_text()
+    try:
+        token = await websocket.receive_text()
+    except WebSocketDisconnect:
+        return
     user: User | None = None
+
     if token != "null":
         try:
             user = await get_current_user(token)
@@ -53,8 +56,8 @@ async def chat_endpoint(
             message = await message.to_response()
             await send_message_to_connection(chat_id=chat_id, msg=message, owner=owner, connections=connections)
     except KeyError as exc:
-        await websocket.send_text(f"Unsupported data. INFO: {exc}")
-    except WebSocketDisconnect as exc:
+        await websocket.send_text(f"U127nsupported data. INFO: {exc}")
+    except WebSocketDisconnect:
         connections[chat_id].remove((websocket, user))
         return
     except JSONDecodeError as exc:
