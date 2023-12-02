@@ -21,10 +21,10 @@ from api.wishlist_services import (
 )
 
 
-api_router = APIRouter()
+router = APIRouter()
 
 
-@api_router.post("/add_item", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.post("/add_item", response_model=WishlistItemResponse, tags=["wishlist"])
 async def add_item(
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
@@ -49,7 +49,7 @@ async def add_item(
     )
 
 
-@api_router.get("/get_wishlist", response_model=WishlistResponse, tags=["wishlist"])
+@router.get("/get_wishlist", response_model=WishlistResponse, tags=["wishlist"])
 async def get_wishlist(
     page: int = 1,
     per_page: int = 3,
@@ -73,7 +73,7 @@ async def get_wishlist(
     return await fetch_wishlist(page=page - 1, per_page=per_page, user=user)
 
 
-@api_router.get("/get_item", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.get("/get_item", response_model=WishlistItemResponse, tags=["wishlist"])
 async def get_item_via_id(item_id: int):
     """
     Get item via id
@@ -84,7 +84,7 @@ async def get_item_via_id(item_id: int):
     return await fetch_item(item_id)
 
 
-@api_router.put("/update_item", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.put("/update_item", response_model=WishlistItemResponse, tags=["wishlist"])
 async def update_item(
     item_id: int,
     title: Annotated[str, Form()] = None,
@@ -106,7 +106,7 @@ async def update_item(
     )
 
 
-@api_router.delete(
+@router.delete(
     "/delete/{item_id}", response_model=WishlistItemResponse, tags=["wishlist"]
 )
 async def delete_item(item_id: int, user=Depends(get_current_user)):
@@ -118,7 +118,7 @@ async def delete_item(item_id: int, user=Depends(get_current_user)):
     return await remove_item(item_id, user)
 
 
-@api_router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
 async def reserve_item(item_id: int, date: datetime.datetime = None, user=Depends(get_current_user)):
     """
     Reserve item with item_id: int
@@ -128,7 +128,7 @@ async def reserve_item(item_id: int, date: datetime.datetime = None, user=Depend
     return await reserve(item_id, user, date)
 
 
-@api_router.post("/unreserve", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.post("/unreserve", response_model=WishlistItemResponse, tags=["wishlist"])
 async def cancel_reservation_item(item_id: int, user=Depends(get_current_user)):
     """
     Cancel item reservation with item_id and user

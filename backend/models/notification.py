@@ -1,6 +1,16 @@
 import datetime
 
 from tortoise import Model, fields
+from pydantic import BaseModel
+
+
+class NotificationResponse(BaseModel):
+
+    id: int
+    read: bool
+    type: str
+    data: dict
+    date: str
 
 
 class Notification(Model):
@@ -17,11 +27,18 @@ class Notification(Model):
     type = fields.CharField(max_length=255)
 
     data = fields.JSONField(null=True)
-    info = fields.CharField(max_length=255)
     date = fields.DatetimeField()
 
     class Meta:
         table = "notifications"
+
+    def to_response(self) -> NotificationResponse:
+        return NotificationResponse(
+            id=self.id,
+            read=self.read,
+            type=self.type,
+            data=self.data,
+            date=self.date.__str__(),)
 
 
 class DeferredNotifications(Model):

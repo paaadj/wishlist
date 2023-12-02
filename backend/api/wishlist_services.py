@@ -190,11 +190,12 @@ async def create_reminder(
     data = {
         "item_id": item_id
     }
+    new_date = datetime(date_to_remind.year, date_to_remind.month, date_to_remind.day, date_to_remind.hour)
     await DeferredNotifications.create(
         user=user,
         type="reserve reminder",
         data=data,
-        date_to_notify=date_to_remind,
+        date_to_notify=new_date,
     )
 
 
