@@ -13,6 +13,9 @@ from auth.routes import auth_router
 from api.wishlist_routes import api_router
 from api.chat_routes import chat_router
 from config import settings
+from aerich import Command
+from aerich_cfg import TORTOISE_ORM
+
 
 app = FastAPI()
 
@@ -31,6 +34,10 @@ async def init():
     """
     Initial method
     """
+    command = Command(tortoise_config=TORTOISE_ORM, app='models')
+    await command.init()
+    await command.migrate('update')
+    await command.upgrade(False)
     await Tortoise.init(
         db_url=settings.DATABASE_URL, modules={"models": settings.MODULE_LIST}
     )

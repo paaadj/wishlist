@@ -14,7 +14,7 @@ class Notification(Model):
     type = fields.CharField(max_length=255)
 
     data = fields.JSONField(null=True)
-
+    info = fields.CharField(max_length=255)
     class Meta:
         table = "notifications"
 
