@@ -17,7 +17,7 @@ class MessageResponse(BaseModel):
     user: Optional[int] = None
     text: str
     reply_to: Optional[int] = None
-    timestamp: datetime
+    timestamp: str
 
 
 class ChatMessage(Model):
@@ -43,11 +43,8 @@ class ChatMessage(Model):
             user=self.user_id,
             text=self.text,
             reply_to=self.reply_to_id,
-            timestamp=self.timestamp,
+            timestamp=self.timestamp.__str__(),
         )
-
-
-
 
 
 class ChatResponse(BaseModel):
