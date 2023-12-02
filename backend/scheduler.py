@@ -19,4 +19,4 @@ async def check_deferred_notifications():
 
 scheduler = AsyncIOScheduler()
 scheduler.add_job(clear_refresh_tokens, 'cron', hour="00", minute="00")
-scheduler.add_job(check_deferred_notifications, 'cron', hour="00", minute="00")
+scheduler.add_job(check_deferred_notifications, 'cron', minute="00")
