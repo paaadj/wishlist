@@ -11,6 +11,7 @@ from fastapi import (
     WebSocketException,
     Request,
     Header,
+    Form,
 )
 from auth.services import get_current_user
 from models.chat import Chat, ChatMessage, MessageResponse, ChatResponse
@@ -113,3 +114,20 @@ async def get_chat_message(chat_id: int, chat_message: int, access_token=Header(
             or (user is not None and chat_message.user_id != owner.id and chat_message.user_id != user.id)) \
         else final_msg.user
     return final_msg
+
+
+@chat_router.post("chats/{chat_id}/{chat_message}/edit", response_model=MessageResponse)
+async def edit_chat_message(
+        chat_id: int,
+        chat_message: int,
+        message: Annotated[str, Form()],
+        user=Depends(get_current_user),
+):
+    chat_message = await ChatMessage.get_or_none(id=chat_message)
+    if chat_message is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message doesn't exists")
+    if chat_message.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cant edit not yours message")
+    chat_message.text = message
+    await chat_message.save()
+    return await chat_message.to_response()
