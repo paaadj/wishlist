@@ -1,3 +1,4 @@
+import json
 import math
 
 from fastapi import HTTPException, UploadFile, Form, File, status
@@ -224,5 +225,11 @@ async def cancel_reservation(
             status_code=status.HTTP_403_FORBIDDEN, detail="You didn't reserve this item"
         )
     item.reserved_user = None
+    data = json.dumps({
+        "item_id": item_id
+    })
+    reservation = await DeferredNotifications.filter(data__contains=data).first()
+    if reservation is not None:
+        await reservation.delete()
     await item.save()
     return item
