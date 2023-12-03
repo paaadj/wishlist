@@ -51,6 +51,7 @@ function Wishlist(props: IWishlistProps) {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
+  const [chatId, setChatId] = useState<number | undefined>();
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -207,20 +208,20 @@ function Wishlist(props: IWishlistProps) {
 
 
 
-  const handleChatOpen = () => {
-    setChatOpen(true);
+  const handleChatOpen = (chatId : number) => {
+    setChatId(chatId);
   };
   const handleChatClose = () => {
-    setChatOpen(false);
+    setChatId(undefined);
   };
   return (
     <>
       <div className={styles.wrapper}>
         <div className={styles.header_wrapper}>
           <h3 className={classNames(styles.title, "page-text", "page-title-text")}>Wishlist</h3>
-          <button onClick={handleChatOpen}>Open chat</button>
-          <button onClick={handleChatClose}>Close chat</button>
-          {chatOpen && <Chat userReciver={curUser} />}
+          <button >Open chat</button>
+          
+          {chatId && <Chat userReciver={curUser} chatId={chatId} handleClose={handleChatClose}/>}
           {self && (
             <button
               type="button"
@@ -277,6 +278,7 @@ function Wishlist(props: IWishlistProps) {
                   setEditWishItem={handleSetEditItem}
                   handleReserveItem={handleReserveItem}
                   handleUnreserveItem={handleUnreserveItem}
+                  handleChatOpen={handleChatOpen}
                 />
               );
             })}
