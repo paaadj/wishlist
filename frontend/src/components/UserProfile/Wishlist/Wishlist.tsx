@@ -11,6 +11,7 @@ import AddWishItemForm from "./AddWishItemForm";
 import EditWishItemForm from "./EditWishItemForm";
 import Pagination from "../../Pagination/Pagination";
 import classNames from 'classnames';
+import Chat from "../../Chat/Chat";
 
 interface IWishlistProps {
   self: boolean;
@@ -49,6 +50,7 @@ function Wishlist(props: IWishlistProps) {
   const [page, setPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -203,11 +205,22 @@ function Wishlist(props: IWishlistProps) {
     setPage(prev > 0 ? prev : current);
   }, [page]);
 
+
+
+  const handleChatOpen = () => {
+    setChatOpen(true);
+  };
+  const handleChatClose = () => {
+    setChatOpen(false);
+  };
   return (
     <>
       <div className={styles.wrapper}>
         <div className={styles.header_wrapper}>
           <h3 className={classNames(styles.title, "page-text", "page-title-text")}>Wishlist</h3>
+          <button onClick={handleChatOpen}>Open chat</button>
+          <button onClick={handleChatClose}>Close chat</button>
+          {chatOpen && <Chat userReciver={curUser} />}
           {self && (
             <button
               type="button"
