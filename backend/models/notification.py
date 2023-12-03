@@ -1,9 +1,22 @@
 import datetime
 
 from tortoise import Model, fields
+from pydantic import BaseModel
+
+
+class NotificationResponse(BaseModel):
+
+    id: int
+    read: bool
+    type: str
+    data: dict
+    date: str
 
 
 class Notification(Model):
+    """
+    Notifications model
+    """
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField(
         "models.User",
@@ -14,14 +27,24 @@ class Notification(Model):
     type = fields.CharField(max_length=255)
 
     data = fields.JSONField(null=True)
-    info = fields.CharField(max_length=255)
     date = fields.DatetimeField()
 
     class Meta:
         table = "notifications"
 
+    def to_response(self) -> NotificationResponse:
+        return NotificationResponse(
+            id=self.id,
+            read=self.read,
+            type=self.type,
+            data=self.data,
+            date=self.date.__str__(),)
+
 
 class DeferredNotifications(Model):
+    """
+    Deferred notifications model
+    """
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField(
         "models.User",
@@ -36,16 +59,3 @@ class DeferredNotifications(Model):
 
     class Meta:
         table = "deferred_notifications"
-
-    @classmethod
-    async def check_notifications(cls):
-        now = datetime.datetime.now()
-        notifications = await cls.filter(date_to_notify__lt=now).prefetch_related("user")
-        for notification in notifications:
-            await Notification.create(
-                user=notification.user,
-                type=notification.type,
-                data=notification.data,
-                date=notification.date_to_notify,
-            )
-            await notification.delete()

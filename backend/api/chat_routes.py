@@ -21,13 +21,13 @@ from json import JSONDecodeError
 from typing import Optional
 
 
-chat_router = APIRouter()
+router = APIRouter()
 
 
 connections: Dict[int, set[(WebSocket, User | None)]] = {}
 
 
-@chat_router.websocket("/chats/{chat_id}/ws")
+@router.websocket("/chats/{chat_id}/ws")
 async def chat_endpoint(
         websocket: WebSocket,
         chat_id: int
@@ -77,7 +77,7 @@ async def chat_endpoint(
         await websocket.send_text(f"Unsupported data. INFO: {exc}")
 
 
-@chat_router.get("chats/{chat_id}", response_model=ChatResponse)
+@router.get("/chats/{chat_id}", response_model=ChatResponse, tags=["chat"])
 async def get_chat_messages(chat_id: int, access_token=Header(None)):
     user: User | None = None if access_token is None else await get_current_user(access_token)
     chat = await Chat.get_or_none(wishlist_item_id=chat_id).prefetch_related('wishlist_item__wishlist__user')
@@ -99,7 +99,7 @@ async def get_chat_messages(chat_id: int, access_token=Header(None)):
     }
 
 
-@chat_router.get("chats/{chat_id}/{chat_message}", response_model=MessageResponse)
+@router.get("/chats/{chat_id}/{chat_message}", response_model=MessageResponse, tags=["chat"])
 async def get_chat_message(chat_id: int, chat_message: int, access_token=Header(None)):
     user: User | None = None if access_token is None else await get_current_user(access_token)
     chat_message: ChatMessage | None = await (ChatMessage
@@ -116,7 +116,7 @@ async def get_chat_message(chat_id: int, chat_message: int, access_token=Header(
     return final_msg
 
 
-@chat_router.post("chats/{chat_id}/{chat_message}/edit", response_model=MessageResponse)
+@router.post("/chats/{chat_id}/{chat_message}/edit", response_model=MessageResponse, tags=["chat"])
 async def edit_chat_message(
         chat_id: int,
         chat_message: int,
