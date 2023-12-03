@@ -4,7 +4,7 @@ Module containing handlers for retrieving a user using an access token.
 import uuid
 
 import jwt
-from fastapi import Depends, HTTPException, status, UploadFile, WebSocket
+from fastapi import Depends, HTTPException, status, UploadFile, WebSocket, Request
 from fastapi.security import OAuth2PasswordBearer
 from tortoise.exceptions import ValidationError, DoesNotExist
 from tortoise.expressions import Q
@@ -61,6 +61,19 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"User doesn't exists") from exc
     return user
+
+
+async def get_current_user_or_none(request: Request):
+    access_token: str = request.headers.get('access_token')
+    if access_token:
+        try:
+            auth_type, access_token = map(str, access_token.split())
+            if auth_type.lower() != "bearer":
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong auth type")
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authorization header")
+        user: User | None = None if access_token is None else await get_current_user(access_token)
+        
 
 
 async def create_user(user: UserCreate):
