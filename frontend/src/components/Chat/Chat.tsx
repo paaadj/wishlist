@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import {
   UserContext,
   UserContextType,
@@ -30,8 +30,21 @@ function Chat(props: IChat) {
   const [chatMessages, setChatMessages] = React.useState<
     chatHistory | undefined
   >(undefined);
+  const chatMessage = React.useRef<chatMessage>();
+
+  const addMessage = async (message: chatMessage) => {
+    if (chatMessages && message) {
+      const updatedChatMessages = {
+        ...chatMessages,
+        messages: [...chatMessages.messages, message],
+      };
+
+      setChatMessages(updatedChatMessages);
+    }
+  };
 
   React.useEffect(() => {
+    console.log("Connect");
     const fetchPrevChatMessages = async () => {
       setLoading(true);
       setError(null);
@@ -44,7 +57,7 @@ function Chat(props: IChat) {
           },
         };
 
-        const response = await fetch(`/backend/apichats/${20}`, requestParams);
+        const response = await fetch(`/backend/api/chats/${20}`, requestParams);
         if (!response.ok) {
           throw new Error("Cannot fetch previous chat messages");
         }
@@ -54,19 +67,15 @@ function Chat(props: IChat) {
         console.log("Error" + (err instanceof Error ? err.message : ""));
       }
     };
-    fetchPrevChatMessages();
+
     socket.current = new WebSocket("ws://127.0.0.1:8000/api/chats/20/ws");
     socket.current.onopen = () => {
       if (socket.current) {
-        console.log(getAccessCookie());
         socket.current.send(getAccessCookie() ?? "");
-        console.log("Connect");
-      }
-      if (chatMessages) {
-        console.log(chatMessages);
       }
     };
 
+    fetchPrevChatMessages();
     return () => {
       if (socket.current?.OPEN) {
         socket.current?.close();
@@ -74,49 +83,35 @@ function Chat(props: IChat) {
       }
     };
   }, []);
+  /**
+   * Update onMessage function to see current chatMessages(fix required maybe, I don't know)
+   */
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.onmessage = (message) => {
+        if (message.data !== "Success") {
+          const messageData = JSON.parse(message.data);
+          if (messageData.text !== "Success") {
+            chatMessage.current = messageData;
+            if (chatMessage.current) {
+              addMessage(chatMessage.current);
+            }
+          }
+        }
+      };
+    }
+  }, [chatMessages]);
 
   const handleChat = () => {
     if (socket.current) {
       socket.current.send(JSON.stringify({ text: "test", reply_to: 0 }));
-      if (user && chatMessages) {
-        const updateChatHistoryMessages = [
-          ...chatMessages.messages,
-          {
-            id: (chatMessages.messages.at(-1)?.id ?? 0)  + 1,
-            user: user?.id,
-            text: "test " + new Date(),
-            reply_to: 0,
-            timestamp: "data",
-          },
-        ];
-        setChatMessages((prev) => {
-          return prev
-            ? {
-                ...prev,
-                messages: updateChatHistoryMessages,
-              }
-            : prev;
-        });
-      }
-      console.log("test");
+      console.log("SEND");
     }
   };
-  const handleConnection = () => {
-    // socket.current = new WebSocket("ws://127.0.0.1:8000/api/chats/16/ws");
-    // if(!socket.current.CONNECTING){
-    //     socket.current.send(getAccessCookie() ?? "");
-    // }
-    console.log("Connect");
-  };
-  const handleDisconnection = () => {
-    socket.current?.close();
-    console.log("Disconnect");
-  };
+
 
   return (
     <>
-      <button onClick={handleConnection}>Connect</button>
-      <button onClick={handleDisconnection}>Disonnect</button>
       <button onClick={handleChat}>Send message</button>
       <div className={styles.chat}>
         <div className={styles.messages_container}>
