@@ -21,6 +21,7 @@ interface IWishlistCard {
   setEditWishItem: (wishEditItemId: number) => void;
   handleReserveItem: (itemId: number) => Promise<void>;
   handleUnreserveItem: (itemId: number) => Promise<void>;
+  handleChatOpen: (chatId: number) => void;
 }
 
 function WishlistCard(props: IWishlistCard) {
@@ -35,7 +36,8 @@ function WishlistCard(props: IWishlistCard) {
     updateWishlistFunction,
     setEditWishItem,
     handleReserveItem,
-    handleUnreserveItem
+    handleUnreserveItem,
+    handleChatOpen
   } = props;
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
 
@@ -68,6 +70,10 @@ function WishlistCard(props: IWishlistCard) {
     handleUnreserveItem(wishItemId);
   };
 
+  const handleOpenChatButtonClick = () => {
+    handleChatOpen(wishItemId);
+  }
+
   return (
     <div
       className={classNames(styles.card_wrapper, {[styles.reserved_wish]: reservedUser})}
@@ -88,6 +94,7 @@ function WishlistCard(props: IWishlistCard) {
         <p className={classNames("page-text", "page-reg-text", styles.card_desc)}>
           {description}
         </p>
+        <button onClick={handleOpenChatButtonClick}>Open chat</button>
         {reservedUser && <p>Reserved by: {reservedUser.username}</p>}
         {self && <button onClick={deleteWishlistItem}>delete</button>}
         {self && <button onClick={handleEditButtonClick}>Edit</button>}
@@ -100,6 +107,7 @@ function WishlistCard(props: IWishlistCard) {
         <button type="button" className={styles.card_button}>
           Check
         </button>
+        
       </div>
     </div>
   );

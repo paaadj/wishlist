@@ -1,9 +1,35 @@
-.chat{
-    position: absolute;
-    height: 700px;
-    width: 400px;
-    background-color: #fff;
-    right: 0;
-    bottom: 0;
-    overflow-y: scroll;
+.chat {
+  position: fixed;
+  max-height: 700px;
+  width: 400px;
+  background-color: #fff;
+  right: 0;
+  bottom: 0px;
+}
+.chat_input_field{
+
+}
+.chat_input{
+    min-height: 40px;
+    max-height: 100px;
+    border: 1px solid black;
+    word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.messages_container {
+    min-height: 500px;
+    max-height: 500px;
+  overflow-y: scroll;
+}
+.message {
+    word-wrap: break-word;
+}
+
+.self_message {
+  background-color: aqua;
+}
+
+.recived_message {
+  background-color: green;
 }
