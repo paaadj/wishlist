@@ -78,7 +78,14 @@ async def chat_endpoint(
 
 
 @router.get("/chats/{chat_id}", response_model=ChatResponse, tags=["chat"])
-async def get_chat_messages(chat_id: int, access_token=Header(None)):
+async def get_chat_messages12(chat_id: int, access_token: str = Header(None)):
+    if access_token:
+        try:
+            auth_type, access_token = map(str, access_token.split())
+            if auth_type.lower() != "bearer":
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong auth type")
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authorization header")
     user: User | None = None if access_token is None else await get_current_user(access_token)
     chat = await Chat.get_or_none(wishlist_item_id=chat_id).prefetch_related('wishlist_item__wishlist__user')
     if chat is None:
@@ -101,6 +108,13 @@ async def get_chat_messages(chat_id: int, access_token=Header(None)):
 
 @router.get("/chats/{chat_id}/{chat_message}", response_model=MessageResponse, tags=["chat"])
 async def get_chat_message(chat_id: int, chat_message: int, access_token=Header(None)):
+    if access_token:
+        try:
+            auth_type, access_token = map(str, access_token.split())
+            if auth_type.lower() != "bearer":
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong auth type")
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authorization header")
     user: User | None = None if access_token is None else await get_current_user(access_token)
     chat_message: ChatMessage | None = await (ChatMessage
                                         .get_or_none(id=chat_message)
