@@ -13,9 +13,10 @@ import {
 } from "../../context/UserContext";
 import styles from "./chat.module.css";
 import classNames from "classnames";
+import IconButton from "../IconButton/IconButton";
 interface IChat {
   userReciver: userData;
-  chatId: number;
+  chatItem: { id: number; title: string };
   handleClose: () => void;
 }
 type chatMessage = {
@@ -33,7 +34,7 @@ type chatHistory = {
 
 function Chat(props: IChat) {
   const socket = useRef<WebSocket>();
-  const { userReciver, chatId, handleClose } = props;
+  const { userReciver, chatItem, handleClose } = props;
   const { getAccessCookie, user, tryRefreshToken } = useContext(
     UserContext
   ) as UserContextType;
@@ -57,8 +58,6 @@ function Chat(props: IChat) {
   };
 
   React.useEffect(() => {
-    console.log(user);
-    console.log("Connect");
     const fetchPrevChatMessages = async () => {
       setLoading(true);
       setError(null);
@@ -72,7 +71,7 @@ function Chat(props: IChat) {
         };
 
         const response = await fetch(
-          `/backend/api/chats/${chatId}`,
+          `/backend/api/chats/${chatItem.id}`,
           requestParams
         );
         if (!response.ok) {
@@ -80,6 +79,7 @@ function Chat(props: IChat) {
         }
         const data = await response.json();
         setChatMessages(data);
+        setLoading(false);
       } catch (err) {
         try {
           const refreshResponse = await tryRefreshToken();
@@ -93,9 +93,12 @@ function Chat(props: IChat) {
         }
       }
     };
-
+    if (socket.current?.OPEN) {
+      socket.current?.close();
+      console.log("Disconnect");
+    }
     socket.current = new WebSocket(
-      `ws://127.0.0.1:8000/api/chats/${chatId}/ws`
+      `ws://127.0.0.1:8000/api/chats/${chatItem.id}/ws`
     );
     socket.current.onopen = () => {
       if (socket.current) {
@@ -110,7 +113,7 @@ function Chat(props: IChat) {
         console.log("Disconnect");
       }
     };
-  }, []);
+  }, [chatItem]);
   /**
    * Update onMessage function to see current chatMessages(fix required maybe, I don't know)
    */
@@ -144,19 +147,23 @@ function Chat(props: IChat) {
   return (
     <>
       <div className={classNames(styles.chat)}>
-        <h5>{userReciver.username}</h5>
-        <button onClick={handleClose}>Close chat</button>
+        <div className={styles.header}>
+          <h5>{userReciver.username}</h5>
+          <h5>{chatItem.title}</h5>
+          <button onClick={handleClose}>Close chat</button>
+        </div>
         <div
           ref={chatMessagesContainerRef}
           className={styles.messages_container}
         >
-          {chatMessages && user ? (
+          {chatMessages && !isLoading && user ? (
             chatMessages.messages.map((item) => {
-              console.log(item.user + " and " + user.id);
               return (
                 <p
                   className={classNames(
                     styles.message,
+                    "page-text",
+                    "page-reg-text",
                     { [styles.self_message]: item.user === user.id },
                     { [styles.recived_message]: item.user !== user.id }
                   )}
@@ -173,16 +180,23 @@ function Chat(props: IChat) {
         <div className={styles.chat_input_field}>
           <div
             contentEditable
-            className={styles.chat_input}
+            className={classNames(styles.chat_input, "page-text", "page-reg-text")}
             onKeyDown={(event: React.KeyboardEvent<HTMLElement>) => {
               if (event.key === "Enter" && chatInputRef.current) {
+                event.preventDefault();
                 handleChat(chatInputRef.current.innerHTML);
                 chatInputRef.current.innerHTML = "";
               }
             }}
             ref={chatInputRef}
           ></div>
-          <button
+          <IconButton size={32} iconSrc="/img/telegram.png" onClick={() => {
+              if (chatInputRef.current) {
+                handleChat(chatInputRef.current.innerHTML);
+                chatInputRef.current.innerHTML = "";
+              }
+            }} />
+          {/* <button
             onClick={() => {
               if (chatInputRef.current) {
                 handleChat(chatInputRef.current.innerHTML);
@@ -191,7 +205,7 @@ function Chat(props: IChat) {
             }}
           >
             Send message
-          </button>
+          </button> */}
         </div>
       </div>
     </>

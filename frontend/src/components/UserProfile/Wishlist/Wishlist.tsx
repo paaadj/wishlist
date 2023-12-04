@@ -51,7 +51,7 @@ function Wishlist(props: IWishlistProps) {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
-  const [chatId, setChatId] = useState<number | undefined>();
+  const [chatItem, setChatItem] = useState<{id: number, title: string} | undefined>();
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -208,20 +208,18 @@ function Wishlist(props: IWishlistProps) {
 
 
 
-  const handleChatOpen = (chatId : number) => {
-    setChatId(chatId);
+  const handleChatOpen = (chatItem : {id: number, title: string}) => {
+    setChatItem(chatItem);
   };
   const handleChatClose = () => {
-    setChatId(undefined);
+    setChatItem(undefined);
   };
   return (
     <>
       <div className={styles.wrapper}>
         <div className={styles.header_wrapper}>
           <h3 className={classNames(styles.title, "page-text", "page-title-text")}>Wishlist</h3>
-          <button >Open chat</button>
-          
-          {chatId && <Chat userReciver={curUser} chatId={chatId} handleClose={handleChatClose}/>}
+          {chatItem && <Chat userReciver={curUser} chatItem={chatItem} handleClose={handleChatClose}/>}
           {self && (
             <button
               type="button"
