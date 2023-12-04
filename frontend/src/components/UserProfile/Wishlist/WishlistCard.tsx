@@ -21,7 +21,7 @@ interface IWishlistCard {
   setEditWishItem: (wishEditItemId: number) => void;
   handleReserveItem: (itemId: number) => Promise<void>;
   handleUnreserveItem: (itemId: number) => Promise<void>;
-  handleChatOpen: (chatId: number) => void;
+  handleChatOpen: (chatItem: {id: number, title: string}) => void;
 }
 
 function WishlistCard(props: IWishlistCard) {
@@ -71,7 +71,7 @@ function WishlistCard(props: IWishlistCard) {
   };
 
   const handleOpenChatButtonClick = () => {
-    handleChatOpen(wishItemId);
+    handleChatOpen({id : wishItemId, title: title});
   }
 
   return (

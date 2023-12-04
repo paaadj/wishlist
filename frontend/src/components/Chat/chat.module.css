@@ -1,35 +1,67 @@
 .chat {
+  padding: 10px 10px;
   position: fixed;
   max-height: 700px;
+  min-height: 700px;
   width: 400px;
   background-color: #fff;
   right: 0;
   bottom: 0px;
+  display: grid;
+  grid-template-rows: 10% 1fr auto;
+  grid-template-columns: 100%;
+  border-radius: 10px;
+  background-color: #EAFFFD;
+  box-shadow: 0px 0px 30px 10px rgba(0, 0, 0, 0.09);
+}
+.header{
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  justify-content: space-between;
 }
 .chat_input_field{
+  display: flex;
+  justify-content: space-between;
+  grid-column: 1;
+  grid-row: 3;
+  padding: 10px 10px 0 0;
+  align-items: flex-end;
 
 }
 .chat_input{
-    min-height: 40px;
-    max-height: 100px;
+  border-radius: 5px;
+  max-height: 100px;
+  min-height: 30px;
+  width: 90%;
     border: 1px solid black;
     word-wrap: break-word;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: auto; 
 }
 .messages_container {
-    min-height: 500px;
-    max-height: 500px;
+  grid-column: 1;
+  grid-row: 2;
   overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+
 }
 .message {
-    word-wrap: break-word;
+  word-wrap: break-word;
+  margin: 0;
+  border-radius: 5px;
+  padding: 5px;
+  max-width: 80%;
 }
 
 .self_message {
   background-color: aqua;
+  align-self: flex-end;
 }
 
 .recived_message {
   background-color: green;
+  align-self: flex-start;
 }
