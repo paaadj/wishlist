@@ -14,7 +14,7 @@ from models.user import User, UserCreate
 from passlib.hash import bcrypt
 from models.wishlist import Wishlist
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 JWT_SECRET = settings.SECRET_KEY
 ALGORITHM = "HS256"
 
@@ -44,6 +44,8 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
     :return: user if access token is valid
     """
     try:
+        if access_token is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
         payload = jwt.decode(access_token, JWT_SECRET, algorithms=[ALGORITHM])
         if payload.get("scope") != "access":
             raise jwt.exceptions.InvalidSignatureError
@@ -63,17 +65,8 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
     return user
 
 
-async def get_current_user_or_none(request: Request):
-    access_token: str = request.headers.get('access_token')
-    if access_token:
-        try:
-            auth_type, access_token = map(str, access_token.split())
-            if auth_type.lower() != "bearer":
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong auth type")
-        except ValueError:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authorization header")
-        user: User | None = None if access_token is None else await get_current_user(access_token)
-        
+async def get_current_user_or_none(access_token: str = Depends(oauth2_scheme)) -> User | None:
+    return None if access_token is None else await get_current_user(access_token)
 
 
 async def create_user(user: UserCreate):

@@ -13,7 +13,7 @@ from fastapi import (
     Header,
     Form,
 )
-from auth.services import get_current_user
+from auth.services import get_current_user, get_current_user_or_none
 from models.chat import Chat, ChatMessage, MessageResponse, ChatResponse
 from models.user import User, UserResponse
 from api.chat_services import send_message, send_message_to_connection
@@ -67,7 +67,7 @@ async def chat_endpoint(
             message = await message.to_response()
             await send_message_to_connection(chat_id=chat_id, msg=message, owner=owner, connections=connections)
     except KeyError as exc:
-        await websocket.send_text(f"U127nsupported data. INFO: {exc}")
+        await websocket.send_text(f"Unsupported data. INFO: {exc}")
     except WebSocketDisconnect:
         connections[chat_id].remove((websocket, user))
         return
@@ -76,16 +76,7 @@ async def chat_endpoint(
 
 
 @router.get("/chats/{chat_id}", response_model=ChatResponse, tags=["chat"])
-async def get_chat_messages12(chat_id: int, authorization: str = Header(None)):
-    access_token = None
-    if authorization:
-        try:
-            auth_type, access_token = map(str, authorization.split())
-            if auth_type.lower() != "bearer":
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong auth type")
-        except ValueError:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authorization header")
-    user: User | None = None if access_token is None else await get_current_user(access_token)
+async def get_chat_messages(chat_id: int, user: User = Depends(get_current_user_or_none)):
     chat = await Chat.get_or_none(wishlist_item_id=chat_id).prefetch_related('wishlist_item__wishlist__user')
     if chat is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Chat is not exists")
@@ -106,16 +97,7 @@ async def get_chat_messages12(chat_id: int, authorization: str = Header(None)):
 
 
 @router.get("/chats/{chat_id}/{chat_message}", response_model=MessageResponse, tags=["chat"])
-async def get_chat_message(chat_id: int, chat_message: int, authorization: str = Header(None)):
-    access_token = None
-    if authorization:
-        try:
-            auth_type, access_token = map(str, authorization.split())
-            if auth_type.lower() != "bearer":
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong auth type")
-        except ValueError:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid authorization header")
-    user: User | None = None if access_token is None else await get_current_user(access_token)
+async def get_chat_message(chat_id: int, chat_message: int, user: User = Depends(get_current_user_or_none)):
     chat_message: ChatMessage | None = await (ChatMessage
                                               .get_or_none(id=chat_message)
                                               .prefetch_related("chat__wishlist_item__wishlist__user"))
