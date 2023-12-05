@@ -1,3 +1,4 @@
+import enum
 import re
 
 from fastapi import UploadFile, File, Form
@@ -18,6 +19,18 @@ class Wishlist(Model):
     class Meta:
         table = "wishlists"
 
+
+class WishlistItemResponse(BaseModel):
+    """
+    Wishlist item response model
+    """
+
+    id: int
+    title: str
+    description: str
+    link: Optional[AnyHttpUrl] = None
+    image_url: Optional[str] = None
+    reserved_user: int
 
 class WishlistItem(Model):
     id = fields.IntField(pk=True)
@@ -51,18 +64,21 @@ class WishlistItem(Model):
     def __str__(self):
         print(self.title, self.image_url)
 
+    def to_response(self, user: User | None) -> WishlistItemResponse:
+        reserved_user_response = 0
+        if user is not None and self.reserved_user_id == user.id:
+            reserved_user_response = 2
+        elif self.reserved_user_id:
+            reserved_user_response = 1
 
-class WishlistItemResponse(BaseModel):
-    """
-    Wishlist item response model
-    """
-
-    id: int
-    title: str
-    description: str
-    link: Optional[AnyHttpUrl] = None
-    image_url: Optional[str] = None
-    reserved_user: Optional[UserResponse] = None
+        return WishlistItemResponse(
+            id=self.id,
+            title=self.title,
+            description=self.description,
+            link=self.link,
+            image_url=self.image_url,
+            reserved_user=reserved_user_response,
+        )
 
 
 class WishlistResponse(BaseModel):
