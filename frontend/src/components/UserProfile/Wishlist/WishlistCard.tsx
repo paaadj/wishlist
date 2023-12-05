@@ -5,9 +5,9 @@ import {
   userData,
 } from "../../../context/UserContext";
 import "../user.css";
-import styles from "./wishlistStyles.module.css"
+import styles from "./wishlistStyles.module.css";
 import ModalWindow from "../../ModalWindow/ModalWindow";
-import classNames from 'classnames';
+import classNames from "classnames";
 
 interface IWishlistCard {
   self: boolean;
@@ -16,12 +16,12 @@ interface IWishlistCard {
   title: string;
   description: string;
   imgUrl: string;
-  reservedUser?: userData;
+  reservedUser?: number;
   updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
   setEditWishItem: (wishEditItemId: number) => void;
   handleReserveItem: (itemId: number) => Promise<void>;
   handleUnreserveItem: (itemId: number) => Promise<void>;
-  handleChatOpen: (chatItem: {id: number, title: string}) => void;
+  handleChatOpen: (chatItem: { id: number; title: string }) => void;
 }
 
 function WishlistCard(props: IWishlistCard) {
@@ -37,7 +37,7 @@ function WishlistCard(props: IWishlistCard) {
     setEditWishItem,
     handleReserveItem,
     handleUnreserveItem,
-    handleChatOpen
+    handleChatOpen,
   } = props;
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
 
@@ -71,12 +71,15 @@ function WishlistCard(props: IWishlistCard) {
   };
 
   const handleOpenChatButtonClick = () => {
-    handleChatOpen({id : wishItemId, title: title});
-  }
+    handleChatOpen({ id: wishItemId, title: title });
+  };
 
   return (
     <div
-      className={classNames(styles.card_wrapper, {[styles.reserved_wish]: reservedUser})}
+      className={classNames(styles.card_wrapper, {
+        [styles.reserved_wish]: reservedUser === 1,
+        [styles.self_reserved_wish]: reservedUser === 2,
+      })}
     >
       <div className={styles.card_img_wrapper}>
         <img
@@ -91,23 +94,24 @@ function WishlistCard(props: IWishlistCard) {
       </div>
       <div className={styles.card_data_wrapper}>
         <h5 className={styles.card_title}>{title}</h5>
-        <p className={classNames("page-text", "page-reg-text", styles.card_desc)}>
+        {reservedUser && <p>Reserved</p>}
+        <p
+          className={classNames("page-text", "page-reg-text", styles.card_desc)}
+        >
           {description}
         </p>
         <button onClick={handleOpenChatButtonClick}>Open chat</button>
-        {reservedUser && <p>Reserved by: {reservedUser.username}</p>}
         {self && <button onClick={deleteWishlistItem}>delete</button>}
         {self && <button onClick={handleEditButtonClick}>Edit</button>}
         {!reservedUser && !self && (
           <button onClick={handleReserveButtonClick}>Reserve</button>
         )}
-        {reservedUser && authUserId && reservedUser.id === authUserId && (
+        {reservedUser && authUserId && reservedUser === 2 && (
           <button onClick={handleUnreserveButtonClick}>Unreserve</button>
         )}
         <button type="button" className={styles.card_button}>
           Check
         </button>
-        
       </div>
     </div>
   );

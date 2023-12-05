@@ -21,6 +21,10 @@ function UserProfilePage(props: IUserProfilePage) {
   const [currentUser, setCurrentUser] = useState<userData | undefined>(
     undefined
   );
+  const baseImageUrl = "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url:string | undefined) => {
+    return url ? url.replace('/', "%2F") : url;
+  };
   const fetchAnotherUser = async () => {
     const requestParams = {
       method: "GET",
@@ -34,13 +38,14 @@ function UserProfilePage(props: IUserProfilePage) {
     );
     if (response.ok) {
       const data = await response.json();
+      console.log(data.image);
       setCurrentUser({
         id: data.id,
         firstName: data.first_name,
         lastName: data?.last_name ?? "",
         username: data.username,
         email: data.email,
-        imgUrl: data?.image_url,
+        imgUrl: baseImageUrl + fixImageUrl(data?.image_url) + "?alt=media",
       });
     } else {
       setCurrentUser(undefined);

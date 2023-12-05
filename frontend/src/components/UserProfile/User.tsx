@@ -15,6 +15,7 @@ function User(props: IUser) {
   // const [userLastName, setUserLastName] = useState(user.lastName);
   // const [userUsername, setUserUsername] = useState(user.username);
   // const [userEmail, setUserEmail] = useState(user.email);
+  const baseImageUrl = "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
   const [userImgUrl, setUserImgUrl] = useState(
     user.imgUrl
       ? user.imgUrl + `&t=${new Date().getTime()}`
@@ -55,7 +56,7 @@ function User(props: IUser) {
           active={userDataIsEdit}
           setActive={setUserDataIsEdit}
         >1</ModalWindow>
-        <img src={userImgUrl} alt="avarar" className="personal-data-avatar" />
+        <img src={userImgUrl} alt="avatar" className="personal-data-avatar" />
         {self && <button onClick={handleEditAvatar}>Edit avatar</button>}
         <ModalWindow active={avatarIsEdit} setActive={setAvatarIsEdit}>
           <UserEditAvatarForm updateUserAvatarUrl={setUserImgUrl} />

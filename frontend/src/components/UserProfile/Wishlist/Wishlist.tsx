@@ -24,7 +24,7 @@ type WishItem = {
   description: string;
   link: string;
   image_url: string;
-  reserved_user?: userData;
+  reserved_user?: number;
 };
 
 type WishList = {
@@ -137,7 +137,7 @@ function Wishlist(props: IWishlistProps) {
       if (wishlist) {
         let updatedWishList = wishlist.items.map((item) => {
           if (item.id === itemId) {
-            return { ...item, reserved_user: user };
+            return { ...item, reserved_user: 2 };
           } else {
             return item;
           }

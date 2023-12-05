@@ -34,6 +34,10 @@ export const UserProvider = (props: any) => {
   const [accessToken, setAccessToken] = useState(Cookies.get("accessToken"));
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<userData | undefined>(undefined);
+  const baseImageUrl = "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url:string | undefined) => {
+    return url ? url.replace('/', "%2F") : url;
+  };
   const tryRefreshToken = async () => {
     if (refreshToken === undefined) {
       return false;
@@ -82,13 +86,14 @@ export const UserProvider = (props: any) => {
         throw new Error("Cannot fetch user");
       }
       const data = await response.json();
+      console.log(data.image_url);
       setUser({
         id: data.id,
         firstName: data.first_name,
         lastName: data?.last_name ?? "",
         username: data.username,
         email: data.email,
-        imgUrl: data?.image_url,
+        imgUrl: baseImageUrl + fixImageUrl(data?.image_url) + "?alt=media",
       });
     } catch (err) {
       try {
