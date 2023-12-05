@@ -119,12 +119,12 @@ async def edit_info(
         if last_name:
             user.last_name = last_name
         if image:
-            user.image_filename, user.image_url = await upload_image(
-                image, user.image_filename
+            user.image_url = await upload_image(
+                image, user.image_url
             )
-        elif user.image_filename:
-            await delete_image(user.image_filename)
-            user.image_filename = None
+        elif user.image_url:
+            # TODO move delete image to another route
+            await delete_image(user.image_url)
             user.image_url = None
         await user.save()
         return user.__dict__

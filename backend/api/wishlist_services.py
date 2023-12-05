@@ -30,17 +30,16 @@ async def upload_image(
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
     if not filename:
-        filename = str(uuid.uuid4())
-    storage.child("item_images/" + filename).put(
+        filename = "item_images/" +  str(uuid.uuid4())
+    storage.child(filename).put(
         content, content_type=image.content_type
     )
-    item.image_filename = filename
-    item.image_url = storage.child("item_images/" + filename).get_url(None)
+    item.image_url = filename
     return item
 
 
 async def remove_image(filename: str):
-    storage.delete("item_images/" + filename, token=None)
+    storage.delete(filename, token=None)
 
 
 async def create_item(
@@ -149,10 +148,9 @@ async def edit_item(
     if link:
         item.link = link
     if image:
-        item = await upload_image(item=item, image=image, filename=item.image_filename)
-    elif item.image_filename:
-        await remove_image(item.image_filename)
-        item.image_filename = None
+        item = await upload_image(item=item, image=image, filename=item.image_url)
+    elif item.image_url:
+        await remove_image(item.image_url)
         item.image_url = None
 
     await item.save()
@@ -173,8 +171,8 @@ async def remove_item(item_id: int, user: User):
         )
     wishlist = await user.wishlist
     item = await fetch_item_in_wishlist(item_id, wishlist)
-    if item.image_filename:
-        await remove_image(item.image_filename)
+    if item.image_url:
+        await remove_image(item.image_url)
     await WishlistItem.delete(item)
     return item
 
