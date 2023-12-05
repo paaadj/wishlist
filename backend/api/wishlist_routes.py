@@ -4,7 +4,8 @@ Module containing API routes and handlers
 import datetime
 
 from fastapi import APIRouter, Depends, UploadFile, Form, File, HTTPException, status
-from models.wishlist import WishlistItemResponse, WishlistResponse
+from models.wishlist import WishlistResponse
+from models.wishlist_items import WishlistItemResponse
 from auth.services import get_current_user, get_current_user_or_none
 from auth.services import get_user_by_username
 from models.user import UserResponse, User
