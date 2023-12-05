@@ -38,16 +38,8 @@ class User(Model):
     last_name = fields.CharField(
         max_length=30, null=True, validators=[MinLengthValidator(2)]
     )
-    image_filename = fields.CharField(max_length=50, null=True)
     image_url = fields.CharField(
         max_length=150,
-        validators=[
-            RegexValidator(
-                r"^https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,63}\."
-                r"[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&/=/]*)$",
-                re.I,
-            )
-        ],
         null=True,
     )
     created_at = fields.DatetimeField(auto_now=True, null=True)
@@ -103,7 +95,7 @@ class UserResponse(BaseModel):
     email: Optional[EmailStr] = None
     first_name: str
     last_name: Optional[str] = None
-    image_url: Optional[AnyHttpUrl] = None
+    image_url: Optional[str] = None
 
 
 class UserJWT(BaseModel):

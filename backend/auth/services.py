@@ -109,16 +109,15 @@ async def upload_image(image: UploadFile, filename: str = None):
             detail="File too large",
         )
     if not filename:
-        filename = str(uuid.uuid4())
-    storage.child("user_images/" + filename).put(
+        filename = "user_images/" + str(uuid.uuid4())
+    storage.child(filename).put(
         content, content_type=image.content_type
     )
-    image_url = storage.child("user_images/" + filename).get_url(None)
-    return filename, image_url
+    return filename
 
 
 async def delete_image(filename):
-    storage.delete("user_images/" + filename, token=None)
+    storage.delete(filename, token=None)
 
 
 async def get_user_by_username(username: str):

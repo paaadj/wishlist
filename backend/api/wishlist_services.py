@@ -3,7 +3,8 @@ import math
 
 from fastapi import HTTPException, UploadFile, Form, File, status
 
-from models.wishlist import WishlistItem, Wishlist, WishlistItemResponse
+from models.wishlist import Wishlist, WishlistResponse
+from models.wishlist_items import WishlistItem, WishlistItemResponse
 from models.chat import Chat
 from models.user import User
 from models.user import UserResponse
@@ -18,7 +19,6 @@ import uuid
 
 
 async def upload_image(
-    item: WishlistItem,
     image: UploadFile,
     filename: str = None,
 ):
@@ -30,17 +30,15 @@ async def upload_image(
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
     if not filename:
-        filename = str(uuid.uuid4())
-    storage.child("item_images/" + filename).put(
+        filename = "item_images/" + str(uuid.uuid4())
+    storage.child(filename).put(
         content, content_type=image.content_type
     )
-    item.image_filename = filename
-    item.image_url = storage.child("item_images/" + filename).get_url(None)
-    return item
+    return filename
 
 
 async def remove_image(filename: str):
-    storage.delete("item_images/" + filename, token=None)
+    storage.delete(filename, token=None)
 
 
 async def create_item(
@@ -49,7 +47,7 @@ async def create_item(
     user: User,
     link: Annotated[AnyHttpUrl, Form()] = None,
     image: UploadFile = File(None),
-):
+) -> WishlistItem:
     """
     create item in user's wishlist
     require access token
@@ -65,23 +63,25 @@ async def create_item(
             new_item = await upload_image(item=new_item, image=image)
         await new_item.save()
         await Chat.create(wishlist_item=new_item)
-        return new_item.__dict__
+        return new_item
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}"
         ) from exc
 
 
-async def fetch_wishlist(page: int, per_page: int, user: User):
+async def fetch_wishlist(page: int, per_page: int, wishlist_owner: User, user: User | None):
     """
     fetch user's wishlist
+    Return WishlistResponse in dict format
     """
-    wishlist = await user.wishlist
-    items: list[WishlistItem] = await (
-        wishlist.items.limit(per_page)
-        .offset(page * per_page)
-        .prefetch_related("reserved_user")
-    )
+    wishlist = await wishlist_owner.wishlist
+
+    items: list[WishlistItemResponse] = []
+
+    for item in await wishlist.items.limit(per_page).offset(page * per_page):
+        items.append(item.to_response(user=user))
+
     total_items = await wishlist.items.all().count()
     total_pages = math.ceil(total_items / per_page)
     return {
@@ -93,7 +93,7 @@ async def fetch_wishlist(page: int, per_page: int, user: User):
     }
 
 
-async def fetch_item(item_id: int):
+async def fetch_item(item_id: int) -> WishlistItem:
     """
     Fetch item by id
     """
@@ -109,7 +109,7 @@ async def fetch_item(item_id: int):
     return item
 
 
-async def fetch_item_in_wishlist(item_id: int, wishlist: Wishlist):
+async def fetch_item_in_wishlist(item_id: int, wishlist: Wishlist) -> WishlistItem:
     """
     Fetch item by id and wishlist
     """
@@ -130,7 +130,7 @@ async def edit_item(
     link: Annotated[AnyHttpUrl, Form()],
     user: UserResponse,
     image: UploadFile = File(None),
-):
+) -> WishlistItem:
     """
     Update item info by item_id
     Return item if updated, HTTP 404 if item doesn't exists, 400 if wrong item_id
@@ -149,10 +149,11 @@ async def edit_item(
     if link:
         item.link = link
     if image:
-        item = await upload_image(item=item, image=image, filename=item.image_filename)
-    elif item.image_filename:
-        await remove_image(item.image_filename)
-        item.image_filename = None
+        image_url = await upload_image(image=image, filename=item.image_url)
+        item.image_url = image_url
+    elif item.image_url:
+        # TODO move remove of item image to another route
+        await remove_image(item.image_url)
         item.image_url = None
 
     await item.save()
@@ -160,7 +161,7 @@ async def edit_item(
     return item
 
 
-async def remove_item(item_id: int, user: User):
+async def remove_item(item_id: int, user: User) -> WishlistItem:
     """
     Remove item by item_id
     require access token in header
@@ -173,8 +174,8 @@ async def remove_item(item_id: int, user: User):
         )
     wishlist = await user.wishlist
     item = await fetch_item_in_wishlist(item_id, wishlist)
-    if item.image_filename:
-        await remove_image(item.image_filename)
+    if item.image_url:
+        await remove_image(item.image_url)
     await WishlistItem.delete(item)
     return item
 
@@ -203,7 +204,7 @@ async def reserve(
     item_id: int,
     user: User,
     date_to_remind: datetime = None,
-):
+) -> WishlistItem:
     """
     Reserve item.
     item_id: int - id of item to reserve
@@ -229,7 +230,7 @@ async def reserve(
 async def cancel_reservation(
     item_id: int,
     user: User,
-):
+) -> WishlistItem:
     """
     Cancel item reservation.
     item_id: int - id of reserved item

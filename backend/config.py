@@ -17,6 +17,7 @@ class Settings:
         "models.wishlist",
         "models.notification",
         "models.chat",
+        "models.wishlist_items",
     ]
 
     ALLOWED_CONTENT_TYPES: list = [
