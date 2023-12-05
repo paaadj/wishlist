@@ -109,7 +109,7 @@ async def upload_image(image: UploadFile, filename: str = None):
             detail="File too large",
         )
     if not filename:
-        filename = "/user_images/" + str(uuid.uuid4())
+        filename = "user_images/" + str(uuid.uuid4())
     storage.child(filename).put(
         content, content_type=image.content_type
     )

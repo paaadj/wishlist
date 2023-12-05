@@ -30,7 +30,7 @@ async def upload_image(
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
     if not filename:
-        filename = "item_images/" +  str(uuid.uuid4())
+        filename = "item_images/" + str(uuid.uuid4())
     storage.child(filename).put(
         content, content_type=image.content_type
     )
