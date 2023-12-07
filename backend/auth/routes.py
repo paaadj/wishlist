@@ -35,9 +35,9 @@ JWT_SECRET = settings.SECRET_KEY
 @auth_router.post("/token", tags=["auth"], response_model=TokenResponse)
 async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     """
-    Authenticate user
-    :param form_data: username and password
-    :return: access and refresh tokens and token type
+    Authenticate user \n
+    **form_data** Form with username and password fields \n
+    **return** access and refresh tokens and token type
     """
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -52,25 +52,30 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
 @auth_router.post("/refresh_token", tags=["auth"], response_model=TokenResponse)
 async def get_new_tokens(token: str = Header(...)):
     """
-    Refresh tokens
-    :param token: refresh token
-    :return: new access and refresh tokens
+    Refresh tokens \n
+    **token** existing refresh token \n
+    **return** new access and new refresh tokens
     """
     return await refresh_tokens(token)
 
 
 @auth_router.post("/reset_auth", tags=["auth"], response_model=bool)
 async def reset_auth(token: str = Header(...)):
+    """
+    Reset auth on other devices \n
+    Delete all refresh tokens from db \n
+
+    """
     return await clear_refresh_tokens(token)
 
 
 @auth_router.post("/register", response_model=UserResponse, tags=["auth"])
 async def register_user(user: UserCreate):
     """
-    Create new user
+    Create new user \n
 
-    :param user: user info for create
-    :return: new user if created or error
+    **user** user info for create \n
+    **return** new user if created else error
     """
     user = await create_user(user)
     return user.__dict__
@@ -88,7 +93,8 @@ async def edit_info(
     image: UploadFile = File(None),
 ):
     """
-    Edit user info
+    Edit user info \n
+    **All parameters are optional**
     """
     try:
         print(user)
@@ -135,21 +141,21 @@ async def edit_info(
 
 
 @auth_router.get("/users/me", response_model=UserResponse, tags=["auth"])
-async def get_user(user: UserResponse = Depends(get_current_user)):
+async def get_user(user: User = Depends(get_current_user)):
     """
-    get user
-    :param user: user
-    :return: user
+    Get user by token \n
+    **Require access_token in header** \n
+    **return** user info
     """
-    return user.__dict__
+    return user
 
 
 @auth_router.get("/users/username/{username}", response_model=bool, tags=["auth"])
 async def check_username(username: str):
     """
-    Check availability of username
-    :param username: to check
-    :return: True if username is available else False
+    Check availability of username \n
+    **username** to check \n
+    **return** True if username is available else False
     """
     try:
         user = await User.filter(username=username).first()
@@ -163,9 +169,9 @@ async def check_username(username: str):
 @auth_router.get("/users/email/{email}", response_model=bool, tags=["auth"])
 async def check_email(email: str):
     """
-    Check availability of email
-    :param email: to check
-    :return: True if email is available else False
+    Check availability of email \n
+    **email** to check \n
+    **return** True if email is available else False
     """
     try:
         user = await User.filter(email=email).first()

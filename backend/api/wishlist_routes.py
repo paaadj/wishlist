@@ -34,12 +34,12 @@ async def add_item(
     image: UploadFile = File(None),
 ):
     """
-    Add item to wishlist
-    title: str in Form
-    description: str in Form
-    link (Optional) link to item in HttpUrl format
-    image - Image file
-    Require access token in header
+    Add item to wishlist \n
+    **title** str in Form \n
+    **description** str in Form \n
+    **link** (Optional) link to item in HttpUrl format \n
+    **image** - Image file \n
+    **Require access token in header** \n
     """
     item = await create_item(
         title=title,
@@ -58,13 +58,11 @@ async def get_wishlist(
     wishlist_owner: User = Depends(get_user_by_username),
     current_user: User | None = Depends(get_current_user_or_none),
 ):
-    """
-    Get wishlist item on page
-    :param page: starts with 1
-    :param per_page: count of items per page
-    :param wishlist_owner:
-    :param current_user: current user if access_token is not None
-    :return: list of items on page, current page, per_page value, total_items, total_pages
+    """ Get wishlist item on page \n
+    **page** starts with 1 \n
+    **per_page** count of items per page \n
+    **current_user** if access_token is not None \n
+    **return** list of items on page, current page, per_page value, total_items, total_pages
     """
     if page < 1:
         raise HTTPException(
@@ -82,9 +80,9 @@ async def get_item_via_id(item_id: int, user: User | None = Depends(get_current_
     """
     Get item via id
 
-    :param item_id: id of item to get
-    :param user: user if access_token is not None
-    :return: item if exists or error
+    **item_id** id of item to get \n
+    **user** user if access_token is not None \n
+    **return** item if exists or error \n
     """
     item = await fetch_item(item_id=item_id)
     return item.to_response(user=user)
@@ -100,7 +98,8 @@ async def update_item(
     image: UploadFile = File(None),
 ):
     """
-    Update user info
+    Update user info \n
+    **All parameters are optional instead of item_id**
     """
     item = await edit_item(
         item_id=item_id,
@@ -118,9 +117,9 @@ async def update_item(
 )
 async def delete_item(item_id: int, user=Depends(get_current_user)):
     """
-    Delete item with item_id
-    require access token in header
-    return item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized
+    Delete item with **item_id** \n
+    **require access token in header** \n
+    **return** item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized \n
     """
     item = await remove_item(item_id, user)
     return item.to_response(user=None)
@@ -129,9 +128,9 @@ async def delete_item(item_id: int, user=Depends(get_current_user)):
 @router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
 async def reserve_item(item_id: int, date: datetime.datetime = None, user=Depends(get_current_user)):
     """
-    Reserve item with item_id: int
-    require access token in header
-    date (Optional) - date to remind about reservation if need
+    Reserve item with **item_id(int)** \n
+    **require access token in header**
+    **date (Optional)** - date to remind about reservation if needed
     """
     item = await reserve(item_id, user, date)
     return item.to_response(user=user)
@@ -140,8 +139,8 @@ async def reserve_item(item_id: int, date: datetime.datetime = None, user=Depend
 @router.post("/unreserve", response_model=WishlistItemResponse, tags=["wishlist"])
 async def cancel_reservation_item(item_id: int, user=Depends(get_current_user)):
     """
-    Cancel item reservation with item_id and user
-    Require access token in header
+    Cancel item reservation with **item_id** \n
+    Require access token in header \n
     """
     item = await cancel_reservation(item_id, user)
     return item.to_response(user=user)
