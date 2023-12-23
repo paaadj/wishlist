@@ -8,6 +8,7 @@ import "../user.css";
 import styles from "./wishlistStyles.module.css";
 import ModalWindow from "../../ModalWindow/ModalWindow";
 import classNames from "classnames";
+import IconButton from "../../IconButton/IconButton";
 
 interface IWishlistCard {
   self: boolean;
@@ -40,7 +41,7 @@ function WishlistCard(props: IWishlistCard) {
     handleChatOpen,
   } = props;
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
-
+  const [popUp, setPopUp] = useState(false);
   const deleteWishlistItem = async () => {
     const requestParams = {
       method: "DELETE",
@@ -60,18 +61,22 @@ function WishlistCard(props: IWishlistCard) {
 
   const handleEditButtonClick = () => {
     setEditWishItem(wishItemId);
+    setPopUp(false);
   };
 
   const handleReserveButtonClick = () => {
     handleReserveItem(wishItemId);
+    setPopUp(false);
   };
 
   const handleUnreserveButtonClick = () => {
     handleUnreserveItem(wishItemId);
+    setPopUp(false);
   };
 
   const handleOpenChatButtonClick = () => {
     handleChatOpen({ id: wishItemId, title: title });
+    setPopUp(false);
   };
 
   return (
@@ -93,25 +98,62 @@ function WishlistCard(props: IWishlistCard) {
         />
       </div>
       <div className={styles.card_data_wrapper}>
-        <h5 className={styles.card_title}>{title}</h5>
-        {reservedUser && <p>Reserved</p>}
+        <header className={styles.card_data_header}>
+          <h5 className={classNames(styles.card_title, "page-text")}>
+            {title}
+          </h5>
+          <div className={styles.card_data_header_buttons}>
+            {reservedUser == 2 && (<IconButton iconSrc="/img/cross.png" onClick={handleUnreserveButtonClick} size={24} />)}
+            {!reservedUser && !self && (<IconButton iconSrc="/img/check.png" onClick={handleReserveButtonClick} size={24} />)}
+            {self && (<IconButton
+              iconSrc="/img/dots.png"
+              onClick={() => {
+                setPopUp((prev) => !prev);
+              }}
+              size={24}
+            />)}
+          </div>
+        </header>
         <p
           className={classNames("page-text", "page-reg-text", styles.card_desc)}
         >
           {description}
         </p>
-        <button onClick={handleOpenChatButtonClick}>Open chat</button>
-        {self && <button onClick={deleteWishlistItem}>delete</button>}
-        {self && <button onClick={handleEditButtonClick}>Edit</button>}
-        {!reservedUser && !self && (
-          <button onClick={handleReserveButtonClick}>Reserve</button>
-        )}
-        {reservedUser && authUserId && reservedUser === 2 && (
-          <button onClick={handleUnreserveButtonClick}>Unreserve</button>
-        )}
-        <button type="button" className={styles.card_button}>
-          Check
-        </button>
+        <div
+          className={classNames(styles.buttons_popup, {
+            [styles.active_popup]: popUp,
+          })}
+        >
+          <button
+            type="button"
+            className={styles.card_button}
+            onClick={handleOpenChatButtonClick}
+          >
+            Open chat
+          </button>
+          {self && (
+            <button
+              type="button"
+              className={styles.card_button}
+              onClick={deleteWishlistItem}
+            >
+              delete
+            </button>
+          )}
+          {self && (
+            <button
+              type="button"
+              className={styles.card_button}
+              onClick={handleEditButtonClick}
+            >
+              Edit
+            </button>
+          )}
+          
+          <button type="button" className={styles.card_button}>
+            Check
+          </button>
+        </div>
       </div>
     </div>
   );

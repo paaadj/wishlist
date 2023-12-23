@@ -6,7 +6,6 @@ function Layout() {
     <>
       <div className={styles.container}>
         <Outlet />
-
         <Footer />
       </div>
     </>

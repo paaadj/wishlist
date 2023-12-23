@@ -10,8 +10,9 @@ import ModalWindow from "../../ModalWindow/ModalWindow";
 import AddWishItemForm from "./AddWishItemForm";
 import EditWishItemForm from "./EditWishItemForm";
 import Pagination from "../../Pagination/Pagination";
-import classNames from 'classnames';
+import classNames from "classnames";
 import Chat from "../../Chat/Chat";
+import IconButton from "../../IconButton/IconButton";
 
 interface IWishlistProps {
   self: boolean;
@@ -35,7 +36,7 @@ type WishList = {
   total_pages: number;
 };
 
-const ROWS_PER_PAGE = 2;
+const ROWS_PER_PAGE = 4;
 
 function Wishlist(props: IWishlistProps) {
   const { self, curUser } = props;
@@ -51,7 +52,9 @@ function Wishlist(props: IWishlistProps) {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
-  const [chatItem, setChatItem] = useState<{id: number, title: string} | undefined>();
+  const [chatItem, setChatItem] = useState<
+    { id: number; title: string } | undefined
+  >();
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -62,6 +65,9 @@ function Wishlist(props: IWishlistProps) {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: getAccessCookie()
+              ? "Bearer " + getAccessCookie()
+              : "",
           },
         };
         const response = await fetch(
@@ -118,7 +124,7 @@ function Wishlist(props: IWishlistProps) {
 
   const handleEditWindowLeave = useCallback(() => {
     setWishItemEdit(undefined);
-  },[]);
+  }, []);
 
   const handleReserveItem = async (itemId: number) => {
     const requestParams = {
@@ -206,9 +212,7 @@ function Wishlist(props: IWishlistProps) {
     setPage(prev > 0 ? prev : current);
   }, [page]);
 
-
-
-  const handleChatOpen = (chatItem : {id: number, title: string}) => {
+  const handleChatOpen = (chatItem: { id: number; title: string }) => {
     setChatItem(chatItem);
   };
   const handleChatClose = () => {
@@ -218,22 +222,26 @@ function Wishlist(props: IWishlistProps) {
     <>
       <div className={styles.wrapper}>
         <div className={styles.header_wrapper}>
-          <h3 className={classNames(styles.title, "page-text", "page-title-text")}>Wishlist</h3>
-          {chatItem && <Chat userReciver={curUser} chatItem={chatItem} handleClose={handleChatClose}/>}
+          <h3
+            className={classNames(styles.title, "page-text", "page-title-text")}
+          >
+            Wishlist
+          </h3>
+          {chatItem && (
+            <Chat
+              userReciver={curUser}
+              chatItem={chatItem}
+              handleClose={handleChatClose}
+            />
+          )}
           {self && (
-            <button
-              type="button"
+            <IconButton
+              iconSrc="/img/plus.png"
               onClick={() => {
                 setActiveModalAdd(true);
               }}
-              className={styles.add_button}
-            >
-              <img
-                src="/img/plus.png"
-                alt="media"
-                className={styles.add_button__media}
-              />
-            </button>
+              size={24}
+            />
           )}
         </div>
 
@@ -257,30 +265,36 @@ function Wishlist(props: IWishlistProps) {
             <h3>Loading</h3>
           )}
         </ModalWindow>
+
         <section className={styles.wishlist}>
-          {wishlist &&
-            !isLoading &&
-            wishlist.items.length > 0 &&
-            wishlist.items.map((item) => {
-              return (
-                <WishlistCard
-                  self={self}
-                  authUserId={user?.id}
-                  key={item.id}
-                  wishItemId={item.id}
-                  title={item.title}
-                  description={item.description}
-                  imgUrl={item.image_url}
-                  reservedUser={item.reserved_user}
-                  updateWishlistFunction={setUpdateWishlist}
-                  setEditWishItem={handleSetEditItem}
-                  handleReserveItem={handleReserveItem}
-                  handleUnreserveItem={handleUnreserveItem}
-                  handleChatOpen={handleChatOpen}
-                />
-              );
-            })}
-          {wishlist && wishlist.items.length === 0 && <h3>No data</h3>}
+          <div className={styles.wishlist_wrap}>
+            {wishlist &&
+              !isLoading &&
+              wishlist.items.length > 0 &&
+              wishlist.items.map((item) => {
+                return (
+                  <WishlistCard
+                    self={self}
+                    authUserId={user?.id}
+                    key={item.id}
+                    wishItemId={item.id}
+                    title={item.title}
+                    description={item.description}
+                    imgUrl={item.image_url}
+                    reservedUser={item.reserved_user}
+                    updateWishlistFunction={setUpdateWishlist}
+                    setEditWishItem={handleSetEditItem}
+                    handleReserveItem={handleReserveItem}
+                    handleUnreserveItem={handleUnreserveItem}
+                    handleChatOpen={handleChatOpen}
+                  />
+                );
+              })}
+            {wishlist && wishlist.items.length === 0 && <h3>No data</h3>}
+            {isLoading && <h3>Loading</h3>}
+            {error && <h3>Error</h3>}
+          </div>
+
           {wishlist && wishlist.items.length > 0 && (
             <Pagination
               onNextPageClick={handleNextPageClick}
@@ -295,8 +309,6 @@ function Wishlist(props: IWishlistProps) {
               }}
             />
           )}
-          {isLoading && <h3>Loading</h3>}
-          {error && <h3>Error</h3>}
         </section>
       </div>
     </>

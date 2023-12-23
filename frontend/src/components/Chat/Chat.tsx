@@ -14,6 +14,7 @@ import {
 import styles from "./chat.module.css";
 import classNames from "classnames";
 import IconButton from "../IconButton/IconButton";
+import Message from "./Message";
 interface IChat {
   userReciver: userData;
   chatItem: { id: number; title: string };
@@ -46,6 +47,10 @@ function Chat(props: IChat) {
   const chatMessage = React.useRef<chatMessage>();
   const chatMessagesContainerRef = React.useRef<HTMLDivElement>(null);
   const chatInputRef = React.useRef<HTMLDivElement>(null);
+  const [currentMessageReplyTo, setCurrentMessageReplyTo] = React.useState<
+    { messageId: number; messageText: string } | undefined
+  >(undefined);
+
   const addMessage = async (message: chatMessage) => {
     if (chatMessages && message) {
       const updatedChatMessages = {
@@ -136,21 +141,46 @@ function Chat(props: IChat) {
       };
     }
   }, [chatMessages]);
-
+  /**Handle click on sendMessageButton */
   const handleChat = (message: string) => {
     if (socket.current && message) {
-      socket.current.send(JSON.stringify({ text: message, reply_to: 0 }));
+      socket.current.send(
+        JSON.stringify({
+          text: message,
+          reply_to: currentMessageReplyTo ? currentMessageReplyTo.messageId : 0,
+        })
+      );
       console.log("SEND");
     }
+  };
+
+  const sendMessage = () => {
+    if (chatInputRef.current) {
+      handleChat(chatInputRef.current.innerHTML);
+      chatInputRef.current.innerHTML = "";
+      setCurrentMessageReplyTo(undefined);
+    }
+  };
+  /**Handle click on message in message container*/
+  const handleMessageClick = (messageId: number, messageText: string) => {
+    setCurrentMessageReplyTo({
+      messageId: messageId,
+      messageText: messageText,
+    });
   };
 
   return (
     <>
       <div className={classNames(styles.chat)}>
         <div className={styles.header}>
-          <h5>{userReciver.username}</h5>
-          <h5>{chatItem.title}</h5>
-          <button onClick={handleClose}>Close chat</button>
+          <h5 className={classNames(styles.header_wish_title, "page-text")}>
+            {chatItem.title}
+          </h5>
+          <IconButton
+            iconSrc="/img/cross.png"
+            size={24}
+            onClick={handleClose}
+          />
         </div>
         <div
           ref={chatMessagesContainerRef}
@@ -159,18 +189,20 @@ function Chat(props: IChat) {
           {chatMessages && !isLoading && user ? (
             chatMessages.messages.map((item) => {
               return (
-                <p
+                <Message
+                  key={item.id}
+                  id={item.id}
+                  chatId={chatItem.id}
+                  text={item.text}
+                  timestamp={item.timestamp}
+                  replyId={item.reply_to ? item.reply_to : undefined}
                   className={classNames(
                     styles.message,
-                    "page-text",
-                    "page-reg-text",
                     { [styles.self_message]: item.user === user.id },
                     { [styles.recived_message]: item.user !== user.id }
                   )}
-                  key={item.id}
-                >
-                  {item.text + " : " + item.timestamp}
-                </p>
+                  onClick={handleMessageClick}
+                />
               );
             })
           ) : (
@@ -178,34 +210,43 @@ function Chat(props: IChat) {
           )}
         </div>
         <div className={styles.chat_input_field}>
+          {currentMessageReplyTo && (
+            <div className={styles.chat_input_field_reply}>
+              <p className={styles.chat_input_field_reply_text}>{currentMessageReplyTo.messageText}</p>
+              <IconButton
+                size={16}
+                className={styles.reply_cancel}
+                iconSrc="/img/cross.png"
+                onClick={() => {
+                  setCurrentMessageReplyTo(undefined);
+                }}
+              />
+            </div>
+          )}
+          <div className={styles.chat_input_wrapper}>
           <div
             contentEditable
-            className={classNames(styles.chat_input, "page-text", "page-reg-text")}
+            className={classNames(
+              styles.chat_input,
+              "page-text",
+              "page-reg-text"
+            )}
             onKeyDown={(event: React.KeyboardEvent<HTMLElement>) => {
-              if (event.key === "Enter" && chatInputRef.current) {
+              if (event.key === "Enter") {
                 event.preventDefault();
-                handleChat(chatInputRef.current.innerHTML);
-                chatInputRef.current.innerHTML = "";
+                sendMessage();
               }
             }}
             ref={chatInputRef}
           ></div>
-          <IconButton size={32} iconSrc="/img/telegram.png" onClick={() => {
-              if (chatInputRef.current) {
-                handleChat(chatInputRef.current.innerHTML);
-                chatInputRef.current.innerHTML = "";
-              }
-            }} />
-          {/* <button
+          <IconButton
+            size={32}
+            iconSrc="/img/telegram.png"
             onClick={() => {
-              if (chatInputRef.current) {
-                handleChat(chatInputRef.current.innerHTML);
-                chatInputRef.current.innerHTML = "";
-              }
+              sendMessage();
             }}
-          >
-            Send message
-          </button> */}
+          />
+          </div>
         </div>
       </div>
     </>
