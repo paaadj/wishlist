@@ -5,6 +5,16 @@ import "./header.css";
 import useDebounce from "../../hooks/useDebounce";
 import useDebounceUserSearch from "../../hooks/useDebounceUserSearch";
 import UserInput from "../UserInput/UserInput";
+import IconButton from "../IconButton/IconButton";
+
+type Notification = {
+  id: number,
+  read: boolean,
+  type: string,
+  data: object,
+  date: string
+};
+
 
 function Header() {
   const navigate = useNavigate();
@@ -14,6 +24,11 @@ function Header() {
   ) as UserContextType;
   const [searchUserValue, setSearchUserValue] = useState<string>("");
   const debounceInput = useDebounceUserSearch(searchUserValue, user?.id, 200);
+
+
+  const [notifications, setNotifications] = useState<Notification[] | undefined>(undefined);
+
+  
   return (
     <>
       <header>
@@ -54,6 +69,7 @@ function Header() {
             {user ? (
               <>
                 <div className="profile">
+                  <IconButton iconSrc="/img/bell.png" size={24}/>
                   <img
                     alt="profile"
                     src={user.imgUrl}
