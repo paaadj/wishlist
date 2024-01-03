@@ -32,7 +32,7 @@ export type UserContextType = {
     ) => Promise<Response>,
     path: string,
     requestParams: object
-  ) => Promise<Response | Error>;
+  ) => Promise<Response>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -66,20 +66,20 @@ export const UserProvider = (props: any) => {
             if (response.ok) {
               return response;
             } else {
-              return new Error("Cannot refresh user");
+              throw new Error("Cannot refresh user");
             }
           } catch (err) {
-            return new Error("Cannot fetch request");
+            throw new Error("Cannot fetch request");
           }
         }
       }
       if (response.ok) {
         return response;
       } else {
-        return new Error("Cannot fetch request");
+        throw new Error("Cannot fetch request");
       }
     } catch (err) {
-      return new Error("Cannot fetch request");
+      throw new Error("Cannot fetch request");
     }
   };
 

@@ -56,6 +56,7 @@
   justify-self: self-end;
 }
 .profile{
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,4 +86,32 @@
   height: 100%;
   width: 100%;
   object-fit: fill;
+}
+
+
+.notification-block{
+  position: absolute;
+  top: 120%;
+  left: -100%;
+  width: 180%;
+  height: fit-content;
+  padding: 10px 15px;
+  background-color: white;
+  border-radius: 5px;
+}
+
+.notification{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.notification__text{
+  margin: 0;
+}
+.unreadNotification{
+  background-color: #52b2d5;
+  border-radius: 50%;
+  height: 5px;
+  aspect-ratio: 1/1;
+
 }
