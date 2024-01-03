@@ -25,6 +25,14 @@ export type UserContextType = {
   tryRefreshToken: () => Promise<boolean>;
   setAuthentication: (value: boolean) => void;
   user: userData | undefined;
+  requestProvider: (
+    func: (
+      input: RequestInfo | URL,
+      init?: RequestInit | undefined
+    ) => Promise<Response>,
+    path: string,
+    requestParams: object
+  ) => Promise<Response | Error>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -34,10 +42,47 @@ export const UserProvider = (props: any) => {
   const [accessToken, setAccessToken] = useState(Cookies.get("accessToken"));
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<userData | undefined>(undefined);
-  const baseImageUrl = "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
-  const fixImageUrl = (url:string | undefined) => {
-    return url ? url.replace('/', "%2F") : url;
+  const baseImageUrl =
+    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url: string | undefined) => {
+    return url ? url.replace("/", "%2F") : url;
   };
+
+  const requestProvider = async (
+    func: (
+      input: RequestInfo | URL,
+      init?: RequestInit | undefined
+    ) => Promise<Response>,
+    path: string,
+    requestParams: object
+  ) => {
+    try {
+      const response = await func(path, requestParams);
+      if (response.status == 403) {
+        const refreshState = await tryRefreshToken();
+        if (refreshState === true) {
+          try {
+            const response = await func(path, requestParams);
+            if (response.ok) {
+              return response;
+            } else {
+              return new Error("Cannot refresh user");
+            }
+          } catch (err) {
+            return new Error("Cannot fetch request");
+          }
+        }
+      }
+      if (response.ok) {
+        return response;
+      } else {
+        return new Error("Cannot fetch request");
+      }
+    } catch (err) {
+      return new Error("Cannot fetch request");
+    }
+  };
+
   const tryRefreshToken = async () => {
     if (refreshToken === undefined) {
       return false;
@@ -154,6 +199,7 @@ export const UserProvider = (props: any) => {
         tryRefreshToken,
         setAuthentication,
         user,
+        requestProvider,
       }}
     >
       {props.children}
