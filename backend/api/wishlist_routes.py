@@ -19,6 +19,7 @@ from api.wishlist_services import (
     remove_item,
     reserve,
     cancel_reservation,
+remove_item_image,
 )
 
 
@@ -110,6 +111,15 @@ async def update_item(
         image=image,
     )
     return item.to_response(user=None)
+
+
+@router.get("{item_id}/delete_image", response_model=WishlistItemResponse, tags=["wishlist"])
+async def remove_image(
+        item_id: int,
+        user: User = Depends(get_current_user),
+):
+    item = await remove_item_image(item_id=item_id, user=user)
+    return item.to_response(user)
 
 
 @router.delete(

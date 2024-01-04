@@ -151,13 +151,23 @@ async def edit_item(
     if image:
         image_url = await upload_image(image=image, filename=item.image_url)
         item.image_url = image_url
-    elif item.image_url:
-        # TODO move remove of item image to another route
-        await remove_image(item.image_url)
-        item.image_url = None
 
     await item.save()
 
+    return item
+
+
+async def remove_item_image(item_id: int, user: User) -> WishlistItem:
+    wishlist = await user.wishlist
+    item = await fetch_item_in_wishlist(item_id=item_id, wishlist=wishlist)
+    if item.image_url is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Item with id {item_id} have no image"
+        )
+    await remove_image(item.image_url)
+    item.image_url = None
+    await item.save()
     return item
 
 

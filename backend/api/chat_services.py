@@ -10,6 +10,13 @@ from typing import Dict
 
 
 async def send_message(text: str, chat_id: int, user: User, reply_to=None) -> ChatMessage:
+    """
+    Create message in db
+    :param text: of message
+    :param user: who sent
+    :param chat_id: id
+    :param reply_to: id of message to reply else None
+    """
     chat = await Chat.get(id=chat_id)
     reply_message = await ChatMessage.get_or_none(id=reply_to)
     message = await ChatMessage.create(

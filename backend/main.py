@@ -1,8 +1,6 @@
 """
-Main file
+Entry point
 """
-import datetime
-import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,6 +31,8 @@ app.add_middleware(
 async def init():
     """
     Initial method
+    Migrate db then connect to it
+    Start scheduler then run all schedule jobs
     """
     command = Command(tortoise_config=TORTOISE_ORM, app='models')
     await command.init()
@@ -60,6 +60,7 @@ app.include_router(auth_router)
 app.include_router(notification_router)
 app.include_router(wishlist_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
+
 if __name__ == "__main__":
     import uvicorn
 

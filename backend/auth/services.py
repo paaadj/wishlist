@@ -52,7 +52,7 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         user = await User.get(id=payload.get("id"))
     except jwt.exceptions.DecodeError as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_UNAUTHORIZED,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token format or signature",
         ) from exc
     except jwt.exceptions.ExpiredSignatureError as exc:
@@ -66,10 +66,17 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
 
 
 async def get_current_user_or_none(access_token: str = Depends(oauth2_scheme)) -> User | None:
+    """
+    Return user if exists else none
+    """
     return None if access_token is None else await get_current_user(access_token)
 
 
 async def create_user(user: UserCreate):
+    """
+    Create user
+    user: necessary fields to create user
+    """
     try:
         if user.email:
             q = Q(username=user.username) | Q(email=user.email)
@@ -98,6 +105,11 @@ async def create_user(user: UserCreate):
 
 
 async def upload_image(image: UploadFile, filename: str = None):
+    """
+    if filename is not None update existing image on firebase else upload it
+    image -- file to upload
+    filename -- existing file's filename else None
+    """
     if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type"
@@ -117,10 +129,16 @@ async def upload_image(image: UploadFile, filename: str = None):
 
 
 async def delete_image(filename):
+    """
+    Delete image from firebase storage by filename
+    """
     storage.delete(filename, token=None)
 
 
 async def get_user_by_username(username: str):
+    """
+    Return user if exists else HTTP error 400
+    """
     try:
         user = await User.get_or_none(username=username)
         if user is None:
