@@ -25,6 +25,7 @@ export type UserContextType = {
   tryRefreshToken: () => Promise<boolean>;
   setAuthentication: (value: boolean) => void;
   user: userData | undefined;
+  setUser: React.Dispatch<React.SetStateAction<userData | undefined>>;
   requestProvider: (
     func: (
       input: RequestInfo | URL,
@@ -199,6 +200,7 @@ export const UserProvider = (props: any) => {
         tryRefreshToken,
         setAuthentication,
         user,
+        setUser,
         requestProvider,
       }}
     >

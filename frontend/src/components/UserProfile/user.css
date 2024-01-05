@@ -31,4 +31,44 @@
     border-radius: 50%;
     margin-top: 5%;
 }
+.edit-form-input{
+    color: #000;
+    width: 100%;
+}
+.edit-form-input::placeholder{
+    color: #717070;
+}
+.edit-form-field{
+    border-bottom: 3px solid #284b63;
+    width: 100%;
+}
+.modal-user-form-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 30vh;
+    width: 100%;
 
+}
+.modal-user-form{
+    width: 80%;
+}
+.modal-user-form-title{
+    font-family: 'Kanit', sans-serif;
+    font-size: 2rem;
+    margin: 0;
+    text-align: center;
+    color: #284b63;
+}
+.modal-user-form-button{
+    background-color: #284b63;
+    margin-top: 5%;
+    width: 50%;
+    aspect-ratio: 1/0.1;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1rem;
+}

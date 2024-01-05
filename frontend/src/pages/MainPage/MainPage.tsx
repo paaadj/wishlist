@@ -24,6 +24,12 @@ function MainPage() {
               Unleash Your Wishlist
             </h1>
             <div className="title-controlls">
+            <Link
+                to="/admin"
+                className="title__button page-text page-reg-text white-color white-button-text"
+              >
+                Admin
+              </Link>
               <Link
                 to="/authentication/login"
                 className="title__button page-text page-reg-text white-color white-button-text"

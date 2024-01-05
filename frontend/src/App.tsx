@@ -7,6 +7,7 @@ import Layout from "./components/Layout/Layout";
 import AuthenticationPage from "./pages/AuthenticationPage/AuthenticationPage";
 import Registration from "./components/Authentication/Registration";
 import UserProfilePage from "./pages/UserProfilePage/UserProfilePage";
+import AdminPage from "./pages/AdminPage/AdminPage";
 
 function App() {
   
@@ -14,6 +15,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<MainPage />} />
+        <Route path="admin" element={<AdminPage/>}/>
         <Route path="authentication" element={<AuthenticationPage />}>
           <Route path="login" element={<Login />} />
           <Route path="registration" element={<Registration />} />

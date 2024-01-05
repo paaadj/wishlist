@@ -6,7 +6,6 @@ import useDebounce from "../../hooks/useDebounce";
 import useDebounceUserSearch from "../../hooks/useDebounceUserSearch";
 import UserInput from "../UserInput/UserInput";
 import IconButton from "../IconButton/IconButton";
-import { setInterval } from "timers/promises";
 import Notification from "./Notification";
 export type NotificationType = {
   id: number;
