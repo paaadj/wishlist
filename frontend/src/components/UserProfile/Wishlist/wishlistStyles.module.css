@@ -6,12 +6,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 20px;
 }
 .title{
     font-family: 'Kanit', sans-serif;
     font-size: 3rem;
     text-align: center;
     display: inline-block;
+    
 }
 .wishlist{
     /* display: flex;

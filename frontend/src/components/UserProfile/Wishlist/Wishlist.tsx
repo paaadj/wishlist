@@ -12,7 +12,8 @@ import EditWishItemForm from "./EditWishItemForm";
 import Pagination from "../../Pagination/Pagination";
 import classNames from "classnames";
 import Chat from "../../Chat/Chat";
-import IconButton from "../../IconButton/IconButton";
+import { IconButton } from "@chakra-ui/react";
+import { AddIcon } from "@chakra-ui/icons";
 
 interface IWishlistProps {
   self: boolean;
@@ -236,11 +237,14 @@ function Wishlist(props: IWishlistProps) {
           )}
           {self && (
             <IconButton
-              iconSrc="/img/plus.png"
+              aria-label="Add new wish"
+              _hover={{ background: "transparent" }}
+              bg="transparent"
+              icon={<AddIcon color="#34C924" w="70%" h="70%" _hover={{ color: "#3ABF2B" }} />}
               onClick={() => {
                 setActiveModalAdd(true);
               }}
-              size={24}
+              boxSize={10}
             />
           )}
         </div>

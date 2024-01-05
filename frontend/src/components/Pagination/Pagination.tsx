@@ -1,5 +1,7 @@
 import React from "react";
-import styles from "./Pagination.module.css"
+import styles from "./Pagination.module.css";
+import { Flex, IconButton } from "@chakra-ui/react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 interface IPagination {
   onNextPageClick: () => void;
@@ -22,29 +24,30 @@ function Pagination(props: IPagination) {
     onPrevPageClick();
   };
   return (
-    <div className={styles.paginator}>
-      <button
-        className={styles.arrow}
-        type="button"
+    <Flex align="center" justify="center">
+      <IconButton
+        aria-label="To the next page"
+        icon={<ChevronLeftIcon w="70%" h="70%"/>}
         onClick={handlePrevPageClick}
-        disabled={disable.left}
-      >
-        {"<"}
-      </button>
+        isDisabled={disable.left}
+        mr={5}
+        boxSize={8}
+      />
+
       {nav && (
         <span className={styles.navigation}>
           {nav.current} / {nav.total}
         </span>
       )}
-      <button
-        className={styles.arrow}
-        type="button"
+      <IconButton
+        boxSize={8}
+        aria-label="To the next page"
+        icon={<ChevronRightIcon w="70%" h="70%" />}
         onClick={handleNextPageClick}
-        disabled={disable.right}
-      >
-        {">"}
-      </button>
-    </div>
+        isDisabled={disable.right}
+        ml={5}
+      />
+    </Flex>
   );
 }
 

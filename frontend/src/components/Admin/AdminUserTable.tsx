@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Icon,
   IconButton,
   Table,
   TableContainer,
@@ -13,13 +14,14 @@ import {
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { UserData, usersData } from "../../pages/AdminPage/AdminPage";
 import React from "react";
 import styles from "./tableStyles.module.css";
 import classNames from "classnames";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, UpDownIcon } from "@chakra-ui/icons";
 
 const columns = [
   {
@@ -55,6 +57,7 @@ function AdminUserTable() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const updateData = async (rowId: number, value: Omit<UserData, "id">) => {
@@ -85,6 +88,13 @@ function AdminUserTable() {
                   w={header.getSize()}
                 >
                   {header.column.columnDef.header?.toString()}
+                  {header.column.getCanSort() && (
+                    <UpDownIcon
+                    ml={2}
+                    cursor="pointer"
+                      onClick={header.column.getToggleSortingHandler()}
+                    />
+                  )}
                   {/* <Box
                   onMouseDown={header.getResizeHandler()}
                   onTouchStart={header.getResizeHandler()}
@@ -95,7 +105,14 @@ function AdminUserTable() {
                 </Th>
               ))}
               <Th className={classNames(styles.table_header)} w={24}>
-                <Button _hover={{background: "#3ABF2B"}} bg="#34C924" color="white" size="sm">Add new user</Button>
+                <Button
+                  _hover={{ background: "#3ABF2B" }}
+                  bg="#34C924"
+                  color="white"
+                  size="sm"
+                >
+                  Add new user
+                </Button>
               </Th>
             </Tr>
           ))}
@@ -124,7 +141,7 @@ function AdminUserTable() {
                 <IconButton
                   aria-label="Delete row"
                   bg={"transparent"}
-                  icon={<DeleteIcon />}
+                  icon={<DeleteIcon color={"#E32636"} />}
                   onClick={() => {
                     handleRowEdit(row.original);
                   }}
