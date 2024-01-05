@@ -66,6 +66,10 @@ async def create_refresh_token(user: User) -> RefreshToken:
 
 
 async def clear_refresh_tokens(token: str):
+    """
+    Delete all refresh tokens of user
+    token -- any existing refresh token
+    """
     try:
         refresh_token = await RefreshToken.get_or_none(token=token)
         if refresh_token is None:

@@ -63,6 +63,7 @@ async def get_new_tokens(token: str = Header(...)):
 async def reset_auth(token: str = Header(...)):
     """
     Reset auth on other devices \n
+    **Require existing refresh_token in header**
     Delete all refresh tokens from db \n
 
     """
@@ -128,16 +129,22 @@ async def edit_info(
             user.image_url = await upload_image(
                 image, user.image_url
             )
-        elif user.image_url:
-            # TODO move delete image to another route
-            await delete_image(user.image_url)
-            user.image_url = None
         await user.save()
         return user.__dict__
     except ValidationError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
         )
+
+
+@auth_router.get("/delete_image", response_model=UserResponse, tags=["auth"])
+async def remove_image(user: User = Depends(get_current_user)):
+    if user.image_url is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"You have no image")
+    await delete_image(user.image_url)
+    user.image_url = None
+    await user.save()
+    return user
 
 
 @auth_router.get("/users/me", response_model=UserResponse, tags=["auth"])
