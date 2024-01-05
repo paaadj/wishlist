@@ -8,7 +8,13 @@ import "../user.css";
 import styles from "./wishlistStyles.module.css";
 import ModalWindow from "../../ModalWindow/ModalWindow";
 import classNames from "classnames";
-import IconButton from "../../IconButton/IconButton";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  CiBookmarkMinus,
+  CiBookmarkPlus,
+  CiBookmarkCheck,
+} from "react-icons/ci";
+import { Icon, IconButton } from "@chakra-ui/react";
 
 interface IWishlistCard {
   self: boolean;
@@ -103,15 +109,41 @@ function WishlistCard(props: IWishlistCard) {
             {title}
           </h5>
           <div className={styles.card_data_header_buttons}>
-            {reservedUser == 2 && (<IconButton iconSrc="/img/cross.png" onClick={handleUnreserveButtonClick} size={24} />)}
-            {!reservedUser && !self && (<IconButton iconSrc="/img/check.png" onClick={handleReserveButtonClick} size={24} />)}
-            {self && (<IconButton
-              iconSrc="/img/dots.png"
-              onClick={() => {
-                setPopUp((prev) => !prev);
-              }}
-              size={24}
-            />)}
+            {reservedUser == 2 && (
+              <IconButton
+                aria-label="Unreserve wish"
+                isRound={true}
+                bg="transparent"
+                _hover={{background: "#e1dfdf"}}
+                icon={<Icon as={CiBookmarkMinus} w="100%" h="100%" color="red"/>}
+                onClick={handleUnreserveButtonClick}
+                boxSize={6}
+              />
+            )}
+            {!reservedUser && !self && (
+              <IconButton
+                aria-label="Reserve wish"
+                isRound={true}
+                bg="transparent"
+                _hover={{background: "#e1dfdf"}}
+                icon={<Icon as={CiBookmarkPlus} w="100%" h="100%" color="green"/>}
+                onClick={handleReserveButtonClick}
+                boxSize={6}
+              />
+            )}
+            {self && (
+              <IconButton
+                aria-label="See more actions"
+                isRound={true}
+                _hover={{background: "#e1dfdf"}}
+                bg="transparent"
+                icon={<Icon as={BsThreeDotsVertical} w="100%" h="100%" />}
+                onClick={() => {
+                  setPopUp((prev) => !prev);
+                }}
+                boxSize={6}
+              />
+            )}
           </div>
         </header>
         <p
@@ -149,7 +181,7 @@ function WishlistCard(props: IWishlistCard) {
               Edit
             </button>
           )}
-          
+
           <button type="button" className={styles.card_button}>
             Check
           </button>

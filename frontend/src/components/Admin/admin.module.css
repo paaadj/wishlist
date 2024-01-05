@@ -65,9 +65,10 @@
     background-color: inherit;
     padding: 2px 10px;
     cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
 }
 .side_menu__item:hover{
-    background-color: #318be6;
+    background-color: #2e5772;
 }
 .side_menu__icon{
     height: 80%;

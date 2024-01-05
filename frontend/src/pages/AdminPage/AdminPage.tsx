@@ -6,7 +6,8 @@ import AdminMainView from "../../components/Admin/AdminMainView";
 import React from "react";
 import SideMenuItem from "../../components/Admin/SideMenuItem";
 import AdminUserTable from "../../components/Admin/AdminUserTable";
-
+import { FaUser } from "react-icons/fa";
+import { BsCardChecklist } from "react-icons/bs";
 export type UserData = {
   id: number;
   first_name: string;
@@ -63,12 +64,12 @@ function AdminPage() {
       <AdminHeader toggleSideMenu={handleSideMenuToggle} />
       <AdminSideMenu active={isSideMenuActive}>
         <SideMenuItem
-          imagePath="/img/username.png"
+          icon={FaUser}
           text="Users"
           onClick={() => {}}
         />
         <SideMenuItem
-          imagePath="/img/email.png"
+          icon={BsCardChecklist}
           text="Items"
           onClick={() => {}}
         />

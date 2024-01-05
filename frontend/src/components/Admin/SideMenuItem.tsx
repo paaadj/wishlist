@@ -1,14 +1,17 @@
 import classNames from "classnames";
 import styles from "./admin.module.css"
+import { Icon } from "@chakra-ui/react";
+import { FaUser } from "react-icons/fa";
+import { IconType } from "react-icons";
 interface ISideMenuItem{
-    imagePath: string;
+    icon: IconType;
     text: string;
     onClick: () => void;
 }
 function SideMenuItem(props: ISideMenuItem) {
-    const {imagePath, text, onClick} = props;
+    const {icon, text, onClick} = props;
     return ( <div className={styles.side_menu__item}>
-        <img src={imagePath} alt="icon" className={styles.side_menu__icon}/>
+        <Icon as={icon} boxSize={5} color="white"/>
         <p className={classNames("page-text", "page-reg-text", styles.side_menu__text)}>{text}</p>
     </div> );
 }

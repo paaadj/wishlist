@@ -1,9 +1,10 @@
 import classNames from "classnames";
 import styles from "./admin.module.css";
 import React from "react";
-import { IconButton } from "@chakra-ui/react";
+import { Icon, IconButton } from "@chakra-ui/react";
 import { ArrowForwardIcon, ArrowRightIcon, HamburgerIcon } from "@chakra-ui/icons";
-
+import { FaUser } from "react-icons/fa";
+import { IoExitSharp } from "react-icons/io5";
 interface IAdminHeader {
   toggleSideMenu: () => void;
 }
@@ -39,7 +40,7 @@ function AdminHeader(props: IAdminHeader) {
         </span>
       </div>
       <div className={styles.header_side}>
-        <img src="/img/username.png" alt="avatar" className={styles.avatar} />
+        <Icon as={FaUser} boxSize={5} color={"white"} mr={1}/>
         <p
           className={classNames("page-text", "page-reg-text", styles.username)}
         >
@@ -52,7 +53,7 @@ function AdminHeader(props: IAdminHeader) {
             {background: "transparent"}
           }
           bg={"inherit"}
-          icon={<ArrowRightIcon boxSize={4} color={"white"}/>}
+          icon={<Icon as={IoExitSharp} boxSize={5} color={"white"}/>}
         />
       </div>
     </header>

@@ -1,9 +1,11 @@
+import { Button } from "@chakra-ui/react";
 import { userData } from "../../context/UserContext";
 import ModalWindow from "../ModalWindow/ModalWindow";
 import UserEditAvatarForm from "./UserEditAvatarForm";
 import UserEditProfileDataForm from "./UserEditProfileDataForm";
 import "./user.css";
 import { useEffect, useState } from "react";
+import { EditIcon } from "@chakra-ui/icons";
 
 interface IUser {
   self: boolean;
@@ -54,7 +56,7 @@ function User(props: IUser) {
         <h6 className="page-text page-reg-text">
           {user ? user.email : "Loading"}
         </h6>
-        {self && <button onClick={handleEditProfileData}>Edit profile</button>}
+        {self && <Button leftIcon={<EditIcon />} colorScheme="teal" onClick={handleEditProfileData}>Edit profile</Button>}
         <ModalWindow active={userDataIsEdit} setActive={setUserDataIsEdit}>
           <UserEditProfileDataForm
             prevFirstName={user.firstName}
@@ -64,7 +66,7 @@ function User(props: IUser) {
           />
         </ModalWindow>
         <img src={userImgUrl} alt="avatar" className="personal-data-avatar" />
-        {self && <button onClick={handleEditAvatar}>Edit avatar</button>}
+        {self && <Button leftIcon={<EditIcon />} colorScheme="teal" onClick={handleEditAvatar}>Edit avatar</Button>}
         <ModalWindow active={avatarIsEdit} setActive={setAvatarIsEdit}>
           <UserEditAvatarForm updateUserAvatarUrl={setUserImgUrl} />
         </ModalWindow>

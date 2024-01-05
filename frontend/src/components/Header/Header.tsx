@@ -5,8 +5,11 @@ import "./header.css";
 import useDebounce from "../../hooks/useDebounce";
 import useDebounceUserSearch from "../../hooks/useDebounceUserSearch";
 import UserInput from "../UserInput/UserInput";
-import IconButton from "../IconButton/IconButton";
+// import IconButton from "../IconButton/IconButton";
 import Notification from "./Notification";
+import { Icon, IconButton } from "@chakra-ui/react";
+import { LuBell, LuBellDot } from "react-icons/lu";
+import { IoExitSharp } from "react-icons/io5";
 export type NotificationType = {
   id: number;
   read: boolean;
@@ -51,9 +54,7 @@ function Header() {
       );
       const data = await response.json();
       console.log(user?.username + "::::" + data);
-      setNotificationsUnread(
-        hasUnreadNotification(data)
-      );
+      setNotificationsUnread(hasUnreadNotification(data));
       setNotifications(data);
       // setNotifications(data);
     } catch (err) {
@@ -77,7 +78,7 @@ function Header() {
         requestParams
       );
       const readIndex = notifications.findIndex((item) => item.id === id);
-      if(readIndex !== -1){
+      if (readIndex !== -1) {
         notifications[readIndex].read = true;
       }
     } catch (err) {
@@ -85,8 +86,8 @@ function Header() {
         console.log(err.message);
       }
     }
-    // 
-  }
+    //
+  };
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -155,12 +156,18 @@ function Header() {
               <>
                 <div className="profile">
                   <IconButton
-                    iconSrc={
-                      notificationsUnread
-                        ? "/img/bellUnread.png"
-                        : "/img/bell.png"
+                    aria-label="Notifications"
+                    isRound={true}
+                    _hover={{ background: "transparent" }}
+                    icon={
+                      notificationsUnread ? (
+                        <Icon as={LuBellDot} w="100%" h="100%" />
+                      ) : (
+                        <Icon as={LuBell} w="100%" h="100%" />
+                      )
                     }
-                    size={24}
+                    boxSize={6}
+                    bg="transparent"
                     onClick={() => {
                       setNotificationIsActive(
                         (prevNotificationIsActive) => !prevNotificationIsActive
@@ -172,7 +179,11 @@ function Header() {
                       {notifications.length > 0 ? (
                         notifications.map((item, index) => {
                           return (
-                            <Notification key={item.id} notification={item} readNotification={readNotification}/>
+                            <Notification
+                              key={item.id}
+                              notification={item}
+                              readNotification={readNotification}
+                            />
                           );
                         })
                       ) : (
@@ -195,19 +206,18 @@ function Header() {
                   >
                     {user.username}
                   </Link>
-                  <button
-                    className="profile-logout-button"
+                  <IconButton
+                    aria-label="Logout"
+                    w={"24px"}
+                    _hover={{ background: "transparent" }}
+                    bg={"inherit"}
+                    icon={<Icon as={IoExitSharp} boxSize={6} color={"black"} />}
                     onClick={() => {
                       setAuthorizationTokens(undefined, undefined);
                       navigate("/");
                     }}
-                  >
-                    <img
-                      alt="logout"
-                      src="/img/logout.png"
-                      className="profile-logout-img"
-                    />
-                  </button>
+                  />
+                  
                 </div>
               </>
             ) : (
