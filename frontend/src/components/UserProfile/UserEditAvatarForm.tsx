@@ -61,19 +61,20 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
   };
 
   return (
-    <>
-      <h3>Edit avatar</h3>
-      <form onSubmit={handleSubmit(onSubmitHandler)}>
+    <div className="modal-user-form-wrapper">
+      <h3 className="page-text page-title-text modal-user-form-title">Edit avatar</h3>
+      <form id="editAvatarForm" onSubmit={handleSubmit(onSubmitHandler)}>
         <UserInput
           type="file"
           id="userAvatar"
           {...register("userAvatar", { onChange: handleFileChange })}
-          className="user-input"
+          className="user-input edit-form-input"
           placeholder="Wish image"
+          fieldClassName="edit-form-field"
         />
-        <button>Submit</button>
       </form>
-    </>
+      <button type="submit" form="editAvatarForm" className="modal-user-form-button">Submit</button>
+    </div>
   );
 }
 

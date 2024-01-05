@@ -18,17 +18,20 @@ interface IUserEditProfileDataForm {
 }
 
 function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
-  const { prevFirstName, prevLastName,prevUsername, prevEmail } = props;
+  const { prevFirstName, prevLastName, prevUsername, prevEmail } = props;
   const [firstName, setFirstName] = useState<string>(prevFirstName);
   const [lastName, setLastName] = useState<string>(prevLastName ?? "");
   const [username, setUsername] = useState<string>(prevUsername);
   const [email, setEmail] = useState<string>(prevEmail);
-  const { user, getAccessCookie } = useContext(UserContext) as UserContextType;
+  const { user, setUser, getAccessCookie, requestProvider } = useContext(
+    UserContext
+  ) as UserContextType;
   const { register, handleSubmit, reset } = useForm<IUserEditProfileData>({
     defaultValues: {
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-      email: user?.email,
+      firstName: firstName,
+      lastName: lastName,
+      username: username,
+      email: email,
     },
   });
   const onSubmitHandler = async (values: IUserEditProfileData) => {
@@ -36,8 +39,6 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
 
     formData.append("first_name", firstName);
     formData.append("last_name", lastName);
-    formData.append("username", username);
-    formData.append("email", email);
 
     const requestParams = {
       method: "POST",
@@ -46,24 +47,46 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
       },
       body: formData,
     };
-    const response = await fetch("/backend/edit_info", requestParams);
+    try {
+      const response = await requestProvider(
+        fetch,
+        "/backend/edit_info",
+        requestParams
+      );
+      if (user) {
+        setUser({
+          id: user.id,
+          firstName: firstName,
+          lastName: lastName,
+          username: user.username,
+          email: user.email,
+          imgUrl: user.imgUrl,
+        });
+      }
+      reset();
+    } catch (err) {
 
-    if (response.ok) {
-    } else {
     }
   };
 
   return (
-    <>
-      <h3>Add Wish Item</h3>
-      <form onSubmit={handleSubmit(onSubmitHandler)}>
+    <div className="modal-user-form-wrapper">
+      <h3 className="page-text page-title-text modal-user-form-title">
+        Edit profile data
+      </h3>
+      <form
+        className="modal-user-form"
+        id="profileDataEditForm"
+        onSubmit={handleSubmit(onSubmitHandler)}
+      >
         <UserInput
           type="text"
           id="firstName"
           placeholder="First name"
-          className="user-input"
+          className="user-input edit-form-input"
           imgSource="/img/username.png"
-          required={true}
+          required={false}
+          fieldClassName="edit-form-field"
           {...register("firstName", {
             onChange: (e) => {
               setFirstName(e.target.value);
@@ -74,9 +97,10 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
           type="text"
           id="lastName"
           placeholder="Last name"
-          className="user-input"
+          className="user-input edit-form-input"
           imgSource="/img/username.png"
           required={false}
+          fieldClassName="edit-form-field"
           {...register("lastName", {
             onChange: (e) => {
               setLastName(e.target.value);
@@ -87,10 +111,10 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
           type="text"
           id="username"
           placeholder="Username"
-          className="user-input"
+          className="user-input edit-form-input"
           imgSource="/img/username.png"
-          required={true}
-      
+          required={false}
+          fieldClassName="edit-form-field"
           {...register("username", {
             onChange: (e) => {
               setUsername(e.target.value);
@@ -101,18 +125,25 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
           type="email"
           id="email"
           placeholder="Email"
-          className="user-input"
+          className="user-input edit-form-input"
           imgSource="/img/email.png"
-          required={true}
+          required={false}
+          fieldClassName="edit-form-field"
           {...register("email", {
             onChange: (e) => {
               setEmail(e.target.value);
             },
           })}
         />
-        <button>Submit</button>
       </form>
-    </>
+      <button
+        type="submit"
+        form="profileDataEditForm"
+        className="modal-user-form-button"
+      >
+        Submit
+      </button>
+    </div>
   );
 }
 
