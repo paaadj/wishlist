@@ -11,7 +11,7 @@ interface IAdminHeader {
 
 function AdminHeader(props: IAdminHeader) {
   const { toggleSideMenu } = props;
-  const [userScreenWidth, setUserScreenWidth] = React.useState(0);
+  const [userScreenWidth, setUserScreenWidth] = React.useState(window.innerWidth);
   React.useEffect(() => {
     window.addEventListener("resize", () => {
       setUserScreenWidth(window.innerWidth);
@@ -20,7 +20,7 @@ function AdminHeader(props: IAdminHeader) {
   return (
     <header className={classNames(styles.header)}>
       <div className={styles.header_side}>
-        {userScreenWidth <= 809 && (
+        {userScreenWidth <= 1050 && (
 
           <IconButton
             icon={<HamburgerIcon boxSize={6} color={"white"}/>}
