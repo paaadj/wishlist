@@ -8,7 +8,14 @@ import {
   useState,
 } from "react";
 import { UserContext, UserContextType } from "../../context/UserContext";
-import { Button, Flex, FormControl, FormLabel, Heading, Input } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+} from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 interface IUserEditAvatarForm {
@@ -23,8 +30,15 @@ interface IEditAvatar {
 function UserEditAvatarForm(props: IUserEditAvatarForm) {
   const { updateUserAvatarUrl, setActiveModal } = props;
   const [userAvatar, setUserAvatar] = useState<File | undefined>(undefined);
-  const { register, handleSubmit, reset, formState:{isSubmitting} } = useForm<IEditAvatar>();
-  const { user, getAccessCookie } = useContext(UserContext) as UserContextType;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<IEditAvatar>();
+  const { user, getAccessCookie, setUser } = useContext(
+    UserContext
+  ) as UserContextType;
   const baseImageUrl =
     "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
   const fixImageUrl = (url: string | undefined) => {
@@ -50,10 +64,20 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
     if (response.ok) {
       const data = await response.json();
       if (user && data) {
-        user.imgUrl = baseImageUrl + fixImageUrl(data.image_url) + "?alt=media";
+        // user.imgUrl = baseImageUrl + fixImageUrl(data.image_url) + "?alt=media";
+        setUser((prev) => {
+          if (prev) {
+            return {
+              ...prev,
+              imgUrl: baseImageUrl + fixImageUrl(data.image_url) + "?alt=media",
+            };
+          }
+          return prev;
+        });
         updateUserAvatarUrl(
           user.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png"
         );
+        
       }
     } else {
       console.log("dont Edit avatar");
@@ -75,7 +99,12 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
 
   return (
     <>
-      <Heading mb={5} textAlign="center" className="page-text page-title-text" color="teal">
+      <Heading
+        mb={5}
+        textAlign="center"
+        className="page-text page-title-text"
+        color="teal"
+      >
         Edit avatar
       </Heading>
       <form id="editAvatarForm" onSubmit={handleSubmit(onSubmitHandler)}>
@@ -108,7 +137,7 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
           </Button>
         </Flex>
       </form>
-      
+
       {/* <button
         type="submit"
         form="editAvatarForm"
