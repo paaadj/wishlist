@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Button, Image } from "@chakra-ui/react";
 import { userData } from "../../context/UserContext";
 import ModalWindow from "../ModalWindow/ModalWindow";
 import UserEditAvatarForm from "./UserEditAvatarForm";

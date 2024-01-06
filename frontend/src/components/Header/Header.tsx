@@ -11,6 +11,7 @@ import {
   HStack,
   Icon,
   IconButton,
+  Image,
   Input,
   InputGroup,
   InputRightElement,
@@ -34,6 +35,7 @@ function Header() {
   const { user, setAuthorizationTokens, requestProvider, getAccessCookie } =
     useContext(UserContext) as UserContextType;
   const [searchUserValue, setSearchUserValue] = useState<string>("");
+  const [userAvatar, setUserAvatar] = useState<string | undefined>(user?.imgUrl);
   const debounceInput = useDebounceUserSearch(searchUserValue, user?.id, 200);
 
   const [notifications, setNotifications] = useState<NotificationType[] | []>(
@@ -100,6 +102,8 @@ function Header() {
     //
   };
   useEffect(() => {
+    console.log("userUpdated");
+    setUserAvatar(user?.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png")
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -133,7 +137,7 @@ function Header() {
                 className="page-text page-text-reg"
                 type="text"
                 placeholder="Search by username"
-                _placeholder={{ opacity: 0.5, color: 'gray.500' }}
+                _placeholder={{ opacity: 0.5, color: "gray.500" }}
                 onChange={(e: any) => {
                   setSearchUserValue(e.target.value);
                 }}
@@ -158,7 +162,7 @@ function Header() {
                 overscroll="auto"
                 borderBottomRadius="5px"
                 overflowY="auto"
-                divider={<StackDivider borderColor='gray.300' />}
+                divider={<StackDivider borderColor="gray.300" />}
               >
                 {debounceInput.length > 0 ? (
                   debounceInput.map((item, index) => {
@@ -173,9 +177,7 @@ function Header() {
                     );
                   })
                 ) : (
-                  <p className="search-result-link">
-                    No results
-                  </p>
+                  <p className="search-result-link">No results</p>
                 )}
               </VStack>
             )}
@@ -224,10 +226,12 @@ function Header() {
                   ) : (
                     <></>
                   )}
-                  <img
+                  <Image
                     alt="profile"
-                    src={user.imgUrl}
-                    className="profile__img"
+                    src={userAvatar}
+                    boxSize="40px"
+                    objectFit="cover"
+                    borderRadius="full"
                   />
                   <Link
                     className="page-text page-reg-text profile__link"

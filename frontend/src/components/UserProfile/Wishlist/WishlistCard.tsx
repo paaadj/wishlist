@@ -57,6 +57,14 @@ function WishlistCard(props: IWishlistCard) {
   } = props;
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
   const [popUp, setPopUp] = useState(false);
+  const baseImageUrl =
+    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url: string | undefined) => {
+    return url ? url.replace("/", "%2F") : url;
+  };
+  const fixedImageUrl = imgUrl
+    ? baseImageUrl + fixImageUrl(imgUrl) + "?alt=media"
+    : "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media";
   const deleteWishlistItem = async () => {
     const requestParams = {
       method: "DELETE",
@@ -102,15 +110,7 @@ function WishlistCard(props: IWishlistCard) {
       })}
     >
       <div className={styles.card_img_wrapper}>
-        <img
-          src={
-            imgUrl
-              ? imgUrl
-              : "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media"
-          }
-          alt="wishImg"
-          className={styles.card_img}
-        />
+        <img src={fixedImageUrl} alt="wishImg" className={styles.card_img} />
       </div>
       <div className={styles.card_data_wrapper}>
         <header className={styles.card_data_header}>
