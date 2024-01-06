@@ -13,22 +13,19 @@ import Pagination from "../../Pagination/Pagination";
 import classNames from "classnames";
 import Chat from "../../Chat/Chat";
 import {
+  Flex,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalOverlay,
-  useDisclosure,
+  Spinner,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, WarningIcon } from "@chakra-ui/icons";
+import ReserveWishItemForm from "./ReserveWishItemForm";
 
 interface IWishlistProps {
   self: boolean;
   curUser: userData;
 }
 
-type WishItem = {
+export type WishItem = {
   id: number;
   title: string;
   description: string;
@@ -56,7 +53,11 @@ function Wishlist(props: IWishlistProps) {
   const [wishItemEdit, setWishItemEdit] = useState<WishItem | undefined>(
     undefined
   );
+  const [wishItemReserved, setWishItemReserved] = useState<
+    WishItem | undefined
+  >(undefined);
   const [wishItemIsEdit, setWishItemIsEdit] = useState<boolean>(false);
+  const [reserveFormActive, setReserveFormActive] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,8 +65,6 @@ function Wishlist(props: IWishlistProps) {
   const [chatItem, setChatItem] = useState<
     { id: number; title: string } | undefined
   >();
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -117,9 +116,14 @@ function Wishlist(props: IWishlistProps) {
   useEffect(() => {
     if (wishItemEdit) {
       setWishItemIsEdit(true);
-      onOpen();
     }
   }, [wishItemEdit]);
+
+  useEffect(() => {
+    if (wishItemReserved) {
+      setReserveFormActive(true);
+    }
+  }, [wishItemReserved]);
 
   const handleSetEditItem = (wishEditItemId: number) => {
     if (wishlist) {
@@ -134,12 +138,26 @@ function Wishlist(props: IWishlistProps) {
     }
   };
 
+  const handleSetReserveItem = (wishReserveItemId: number) => {
+    console.log(wishReserveItemId);
+    if (wishlist) {
+      const wishItem = wishlist.items.find(
+        (item) => item.id === wishReserveItemId
+      );
+      if (wishItem) {
+        setWishItemReserved({
+          ...wishItem,
+        });
+      }
+    }
+  };
+
   const handleEditWindowLeave = useCallback(() => {
     setWishItemEdit(undefined);
     setActiveModalAdd(false);
   }, []);
 
-  const handleReserveItem = async (itemId: number) => {
+  const handleReserveItem = async (itemId: number, date: string) => {
     const requestParams = {
       method: "POST",
       headers: {
@@ -262,7 +280,6 @@ function Wishlist(props: IWishlistProps) {
               }
               onClick={() => {
                 setActiveModalAdd(true);
-                onOpen();
               }}
               boxSize={10}
             />
@@ -288,6 +305,17 @@ function Wishlist(props: IWishlistProps) {
             </ModalBody>
           </ModalContent>
         </Modal> */}
+        <ModalWindow
+          active={reserveFormActive}
+          setActive={setReserveFormActive}
+        >
+          {reserveFormActive && (
+            <ReserveWishItemForm
+              updateReservation={handleReserveItem}
+              wishId={wishItemReserved?.id}
+            />
+          )}
+        </ModalWindow>
         <ModalWindow active={activeModalAdd} setActive={setActiveModalAdd}>
           <AddWishItemForm updateWishlistFunction={setUpdateWishlist} />
         </ModalWindow>
@@ -305,7 +333,10 @@ function Wishlist(props: IWishlistProps) {
               prevWishImg={wishItemEdit?.image_url}
             />
           ) : (
-            <h3>Loading</h3>
+            <Flex align="center" justifyContent="center" padding={50} w="100%">
+              <Spinner />
+            </Flex>
+            // <h3>Loading</h3>
           )}
         </ModalWindow>
 
@@ -327,15 +358,33 @@ function Wishlist(props: IWishlistProps) {
                     reservedUser={item.reserved_user}
                     updateWishlistFunction={setUpdateWishlist}
                     setEditWishItem={handleSetEditItem}
-                    handleReserveItem={handleReserveItem}
+                    handleReserveItem={handleSetReserveItem}
                     handleUnreserveItem={handleUnreserveItem}
                     handleChatOpen={handleChatOpen}
                   />
                 );
               })}
             {wishlist && wishlist.items.length === 0 && <h3>No data</h3>}
-            {isLoading && <h3>Loading</h3>}
-            {error && <h3>Error</h3>}
+            {isLoading && (
+              <Flex
+                align="center"
+                justifyContent="center"
+                w="100%"
+                padding={50}
+              >
+                <Spinner />
+              </Flex>
+            )}
+            {error && (
+              <Flex
+                align="center"
+                justifyContent="center"
+                w="100%"
+                padding={50}
+              >
+                <WarningIcon color="red" />
+              </Flex>
+            )}
           </div>
 
           {wishlist && wishlist.items.length > 0 && (

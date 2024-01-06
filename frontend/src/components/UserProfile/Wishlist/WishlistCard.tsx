@@ -24,6 +24,8 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { ChatIcon, DeleteIcon, EditIcon, LinkIcon } from "@chakra-ui/icons";
+import ReserveWishItemForm from "./ReserveWishItemForm";
+import { WishItem } from "./Wishlist";
 
 interface IWishlistCard {
   self: boolean;
@@ -35,7 +37,7 @@ interface IWishlistCard {
   reservedUser?: number;
   updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
   setEditWishItem: (wishEditItemId: number) => void;
-  handleReserveItem: (itemId: number) => Promise<void>;
+  handleReserveItem: (wishEditItemId: number) => void
   handleUnreserveItem: (itemId: number) => Promise<void>;
   handleChatOpen: (chatItem: { id: number; title: string }) => void;
 }
@@ -57,6 +59,7 @@ function WishlistCard(props: IWishlistCard) {
   } = props;
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
   const [popUp, setPopUp] = useState(false);
+
   const baseImageUrl =
     "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
   const fixImageUrl = (url: string | undefined) => {
@@ -84,22 +87,23 @@ function WishlistCard(props: IWishlistCard) {
 
   const handleEditButtonClick = () => {
     setEditWishItem(wishItemId);
-    setPopUp(false);
   };
 
   const handleReserveButtonClick = () => {
     handleReserveItem(wishItemId);
-    setPopUp(false);
   };
+
+  // const handleReserveButtonClick = () => {
+  //   handleReserveItem(wishItemId);
+  //   setPopUp(false);
+  // };
 
   const handleUnreserveButtonClick = () => {
     handleUnreserveItem(wishItemId);
-    setPopUp(false);
   };
 
   const handleOpenChatButtonClick = () => {
     handleChatOpen({ id: wishItemId, title: title });
-    setPopUp(false);
   };
 
   return (
@@ -157,7 +161,6 @@ function WishlistCard(props: IWishlistCard) {
                 boxSize={6}
               />
             )} */}
-            {self && (
               <Menu isLazy placement="left" closeOnSelect={true}>
                 <MenuButton
                   as={IconButton}
@@ -178,28 +181,33 @@ function WishlistCard(props: IWishlistCard) {
                   >
                     Open chat
                   </MenuItem>
-                  <MenuItem
-                    fontWeight="500"
-                    color="red"
-                    icon={<DeleteIcon />}
-                    onClick={deleteWishlistItem}
-                  >
-                    Delete
-                  </MenuItem>
-                  <MenuItem
-                    fontWeight="500"
-                    color="#bc4749"
-                    icon={<EditIcon />}
-                    onClick={handleEditButtonClick}
-                  >
-                    Edit
-                  </MenuItem>
+                  {self && (
+                    <MenuItem
+                      fontWeight="500"
+                      color="red"
+                      icon={<DeleteIcon />}
+                      onClick={deleteWishlistItem}
+                    >
+                      Delete
+                    </MenuItem>
+                  )}
+                  {self && (
+                    <MenuItem
+                      fontWeight="500"
+                      color="#bc4749"
+                      icon={<EditIcon />}
+                      onClick={handleEditButtonClick}
+                    >
+                      Edit
+                    </MenuItem>
+                  )}
+
                   <MenuItem fontWeight="500" icon={<LinkIcon />}>
                     Check
                   </MenuItem>
                 </MenuList>
               </Menu>
-            )}
+            
           </div>
         </header>
         <p
@@ -207,7 +215,7 @@ function WishlistCard(props: IWishlistCard) {
         >
           {description}
         </p>
-        <div
+        {/* <div
           className={classNames(styles.buttons_popup, {
             [styles.active_popup]: popUp,
           })}
@@ -241,7 +249,7 @@ function WishlistCard(props: IWishlistCard) {
           <button type="button" className={styles.card_button}>
             Check
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

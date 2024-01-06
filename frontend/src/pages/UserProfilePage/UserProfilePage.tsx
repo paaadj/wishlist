@@ -8,7 +8,8 @@ import {
 } from "../../context/UserContext";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/Header/Header";
-import styles from "./userProfilePage.module.css"
+import styles from "./userProfilePage.module.css";
+import { Flex, Spinner } from "@chakra-ui/react";
 interface IUserProfilePage {
   self: boolean;
 }
@@ -21,9 +22,10 @@ function UserProfilePage(props: IUserProfilePage) {
   const [currentUser, setCurrentUser] = useState<userData | undefined>(
     undefined
   );
-  const baseImageUrl = "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
-  const fixImageUrl = (url:string | undefined) => {
-    return url ? url.replace('/', "%2F") : url;
+  const baseImageUrl =
+    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url: string | undefined) => {
+    return url ? url.replace("/", "%2F") : url;
   };
   const fetchAnotherUser = async () => {
     const requestParams = {
@@ -63,17 +65,25 @@ function UserProfilePage(props: IUserProfilePage) {
       }
     }
   }, [self, user, username]);
-  return (<>
-
-    <div className={styles.container}>
-    <Header />
-      {currentUser ? <User self={self} user={currentUser} /> : <h1>Loading</h1>}
-      {currentUser ? (
-        <Wishlist self={self} curUser={currentUser} />
-      ) : (
-        <h1>Loading</h1>
-      )}
-    </div>
+  return (
+    <>
+      <div className={styles.container}>
+        <Header />
+        {currentUser ? (
+          <User self={self} user={currentUser} />
+        ) : (
+          <Flex align="center" justifyContent="center" padding={50}>
+            <Spinner />
+          </Flex>
+        )}
+        {currentUser ? (
+          <Wishlist self={self} curUser={currentUser} />
+        ) : (
+          <Flex align="center" justifyContent="center" padding={50}>
+            <Spinner />
+          </Flex>
+        )}
+      </div>
     </>
   );
 }
