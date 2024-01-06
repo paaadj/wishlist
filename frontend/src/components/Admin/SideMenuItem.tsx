@@ -10,7 +10,7 @@ interface ISideMenuItem{
 }
 function SideMenuItem(props: ISideMenuItem) {
     const {icon, text, onClick} = props;
-    return ( <div className={styles.side_menu__item}>
+    return ( <div className={styles.side_menu__item} onClick={onClick}>
         <Icon as={icon} boxSize={5} color="white"/>
         <p className={classNames("page-text", "page-reg-text", styles.side_menu__text)}>{text}</p>
     </div> );
