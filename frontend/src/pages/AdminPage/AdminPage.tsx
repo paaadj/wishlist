@@ -8,6 +8,7 @@ import SideMenuItem from "../../components/Admin/SideMenuItem";
 import AdminUserTable from "../../components/Admin/AdminTable/AdminUserTable";
 import { FaUser } from "react-icons/fa";
 import { BsCardChecklist } from "react-icons/bs";
+import AdminWishTable from "../../components/Admin/AdminTable/AdminWishTable";
 export type UserData = {
   id: number;
   first_name: string;
@@ -15,6 +16,59 @@ export type UserData = {
   username: string;
   email: string;
 };
+
+export type WishData = {
+  id: number;
+  title: string;
+  description: string;
+  link: string | null;
+  image_url: string | null;
+  reserved_user: number | null;
+};
+
+export const wishesData = [
+  {
+    id: 1,
+    title: "Ball",
+    description: "Big ball",
+    link: "#",
+    image_url: null,
+    reserved_user: 0,
+  },
+  {
+    id: 2,
+    title: "Pen",
+    description: "Big Pen",
+    link: "#",
+    image_url: null,
+    reserved_user: 0,
+  },
+  {
+    id: 3,
+    title: "Block",
+    description: "Big Block",
+    link: "#",
+    image_url: null,
+    reserved_user: 0,
+  },
+  {
+    id: 4,
+    title: "Sword",
+    description: "Big Sword",
+    link: "#",
+    image_url: null,
+    reserved_user: 0,
+  },
+  {
+    id: 5,
+    title: "Bottle",
+    description: "Big Bottle",
+    link: "#",
+    image_url: null,
+    reserved_user: 0,
+  },
+];
+
 export const usersData = [
   {
     id: 1,
@@ -121,12 +175,12 @@ export const usersData = [
     username: "Ssaasshjan",
     email: "Sasha@gmail.com",
   },
-
 ];
 
 function AdminPage() {
   const [isSideMenuActive, setIsSideMenuActive] =
     React.useState<boolean>(false);
+  const [currentTable, setCurrentTable] = React.useState<string>("users");
   const handleSideMenuToggle = () => {
     setIsSideMenuActive((prev) => !prev);
   };
@@ -137,16 +191,21 @@ function AdminPage() {
         <SideMenuItem
           icon={FaUser}
           text="Users"
-          onClick={() => {}}
+          onClick={() => {
+            setCurrentTable("users");
+          }}
         />
         <SideMenuItem
           icon={BsCardChecklist}
           text="Items"
-          onClick={() => {}}
+          onClick={() => {
+            setCurrentTable("wishes");
+          }}
         />
       </AdminSideMenu>
       <AdminMainView>
-          <AdminUserTable />
+        {currentTable === "users" && <AdminUserTable />}
+        {currentTable === "wishes" && <AdminWishTable />}
       </AdminMainView>
     </div>
   );

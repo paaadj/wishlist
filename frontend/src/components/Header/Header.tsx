@@ -102,7 +102,6 @@ function Header() {
     //
   };
   useEffect(() => {
-    console.log("userUpdated");
     setUserAvatar(user?.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png")
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
