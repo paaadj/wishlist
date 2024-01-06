@@ -20,7 +20,7 @@
     width: 100%;
     background-color: #fff; 
 }
-@media (min-width: 810px){
+@media (min-width: 1051px){
     .side_menu_position{
         height: 100%;
         width: 100%;
@@ -35,7 +35,7 @@
         
     }
 }
-@media (max-width: 809px) or (device-type: phone) {
+@media (max-width: 1050px) or (device-type: phone) {
     .side_menu_position{
         position: absolute;
         z-index: 10;
