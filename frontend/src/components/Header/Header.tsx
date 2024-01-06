@@ -7,9 +7,20 @@ import useDebounceUserSearch from "../../hooks/useDebounceUserSearch";
 import UserInput from "../UserInput/UserInput";
 // import IconButton from "../IconButton/IconButton";
 import Notification from "./Notification";
-import { Icon, IconButton } from "@chakra-ui/react";
+import {
+  HStack,
+  Icon,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Stack,
+  StackDivider,
+  VStack,
+} from "@chakra-ui/react";
 import { LuBell, LuBellDot } from "react-icons/lu";
 import { IoExitSharp } from "react-icons/io5";
+import { SearchIcon } from "@chakra-ui/icons";
 export type NotificationType = {
   id: number;
   read: boolean;
@@ -111,31 +122,49 @@ function Header() {
         <div className="header-container">
           <div className="page-text page-title-text logo">WISHLIST</div>
           <div className="search">
-            <UserInput
-              id="searchInput"
-              name="searchInput"
-              className="user-input header-search-input"
-              type="text"
-              onChange={(e: any) => {
-                setSearchUserValue(e.target.value);
-              }}
-              onBlur={(e: any) => {
-                setSearchUserValue("");
-              }}
-              onFocus={(e: any) => {
-                setSearchUserValue(e.target.value);
-              }}
-              placeholder="Search user..."
-              imgSource="/img/search-lens.png"
-              fieldClassName="header-search-input-field"
-            />
+            <InputGroup>
+              <InputRightElement pointerEvents="none">
+                <SearchIcon />
+              </InputRightElement>
+              <Input
+                variant="flushed"
+                focusBorderColor="#e5e5e5"
+                fontSize="1.1rem"
+                className="page-text page-text-reg"
+                type="text"
+                placeholder="Search by username"
+                _placeholder={{ opacity: 0.5, color: 'gray.500' }}
+                onChange={(e: any) => {
+                  setSearchUserValue(e.target.value);
+                }}
+                onBlur={(e: any) => {
+                  setSearchUserValue("");
+                }}
+                onFocus={(e: any) => {
+                  setSearchUserValue(e.target.value);
+                }}
+              />
+            </InputGroup>
+            {/* #d6d5d5 */}
             {debounceInput && (
-              <div className="search-result-block">
+              <VStack
+                bg="#e5e5e5"
+                className="page-text page-text-reg"
+                position="absolute"
+                w="100%"
+                maxHeight="20vh"
+                minHeight="20vh"
+                alignItems="center"
+                overscroll="auto"
+                borderBottomRadius="5px"
+                overflowY="auto"
+                divider={<StackDivider borderColor='gray.300' />}
+              >
                 {debounceInput.length > 0 ? (
                   debounceInput.map((item, index) => {
                     return (
                       <Link
-                        className="search-result-link page-text page-reg-text"
+                        className="search-result-link"
                         key={index}
                         to={"/user/" + item.username}
                       >
@@ -144,11 +173,11 @@ function Header() {
                     );
                   })
                 ) : (
-                  <p className="search-result-link page-text page-reg-text">
+                  <p className="search-result-link">
                     No results
                   </p>
                 )}
-              </div>
+              </VStack>
             )}
           </div>
           <div className="header__control">
@@ -217,7 +246,6 @@ function Header() {
                       navigate("/");
                     }}
                   />
-                  
                 </div>
               </>
             ) : (

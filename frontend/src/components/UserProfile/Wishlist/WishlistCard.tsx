@@ -14,7 +14,16 @@ import {
   CiBookmarkPlus,
   CiBookmarkCheck,
 } from "react-icons/ci";
-import { Icon, IconButton } from "@chakra-ui/react";
+import {
+  Button,
+  Icon,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react";
+import { ChatIcon, DeleteIcon, EditIcon, LinkIcon } from "@chakra-ui/icons";
 
 interface IWishlistCard {
   self: boolean;
@@ -114,8 +123,10 @@ function WishlistCard(props: IWishlistCard) {
                 aria-label="Unreserve wish"
                 isRound={true}
                 bg="transparent"
-                _hover={{background: "#e1dfdf"}}
-                icon={<Icon as={CiBookmarkMinus} w="100%" h="100%" color="red"/>}
+                _hover={{ background: "#e1dfdf" }}
+                icon={
+                  <Icon as={CiBookmarkMinus} w="100%" h="100%" color="red" />
+                }
                 onClick={handleUnreserveButtonClick}
                 boxSize={6}
               />
@@ -125,13 +136,15 @@ function WishlistCard(props: IWishlistCard) {
                 aria-label="Reserve wish"
                 isRound={true}
                 bg="transparent"
-                _hover={{background: "#e1dfdf"}}
-                icon={<Icon as={CiBookmarkPlus} w="100%" h="100%" color="green"/>}
+                _hover={{ background: "#e1dfdf" }}
+                icon={
+                  <Icon as={CiBookmarkPlus} w="100%" h="100%" color="green" />
+                }
                 onClick={handleReserveButtonClick}
                 boxSize={6}
               />
             )}
-            {self && (
+            {/* {self && (
               <IconButton
                 aria-label="See more actions"
                 isRound={true}
@@ -143,6 +156,49 @@ function WishlistCard(props: IWishlistCard) {
                 }}
                 boxSize={6}
               />
+            )} */}
+            {self && (
+              <Menu isLazy placement="left" closeOnSelect={true}>
+                <MenuButton
+                  as={IconButton}
+                  aria-label="See more actions"
+                  isRound={true}
+                  _hover={{ background: "#e1dfdf" }}
+                  bg="transparent"
+                  icon={<Icon as={BsThreeDotsVertical} w="100%" h="100%" />}
+                  boxSize={6}
+                />
+                <MenuList>
+                  {/* MenuItems are not rendered unless Menu is open */}
+                  <MenuItem
+                    fontWeight="500"
+                    color="#2a9d8f"
+                    icon={<ChatIcon />}
+                    onClick={handleOpenChatButtonClick}
+                  >
+                    Open chat
+                  </MenuItem>
+                  <MenuItem
+                    fontWeight="500"
+                    color="red"
+                    icon={<DeleteIcon />}
+                    onClick={deleteWishlistItem}
+                  >
+                    Delete
+                  </MenuItem>
+                  <MenuItem
+                    fontWeight="500"
+                    color="#bc4749"
+                    icon={<EditIcon />}
+                    onClick={handleEditButtonClick}
+                  >
+                    Edit
+                  </MenuItem>
+                  <MenuItem fontWeight="500" icon={<LinkIcon />}>
+                    Check
+                  </MenuItem>
+                </MenuList>
+              </Menu>
             )}
           </div>
         </header>
