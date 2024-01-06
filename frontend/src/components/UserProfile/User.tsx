@@ -14,11 +14,6 @@ interface IUser {
 
 function User(props: IUser) {
   const { self, user } = props;
-  
-  // const [userFirstName, setUserFirstName] = useState(user.firstName);
-  // const [userLastName, setUserLastName] = useState(user.lastName);
-  // const [userUsername, setUserUsername] = useState(user.username);
-  // const [userEmail, setUserEmail] = useState(user.email);
   const baseImageUrl =
     "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
   const [userImgUrl, setUserImgUrl] = useState(
@@ -56,19 +51,43 @@ function User(props: IUser) {
         <h6 className="page-text page-reg-text">
           {user ? user.email : "Loading"}
         </h6>
-        {self && <Button leftIcon={<EditIcon />} colorScheme="teal" onClick={handleEditProfileData}>Edit profile</Button>}
+        {self && (
+          <Button
+            leftIcon={<EditIcon />}
+            colorScheme="teal"
+            onClick={handleEditProfileData}
+          >
+            Edit profile
+          </Button>
+        )}
         <ModalWindow active={userDataIsEdit} setActive={setUserDataIsEdit}>
-          <UserEditProfileDataForm
-            prevFirstName={user.firstName}
-            prevLastName={user.lastName}
-            prevUsername={user.username}
-            prevEmail={user.email}
-          />
+          {userDataIsEdit && (
+            <UserEditProfileDataForm
+              prevFirstName={user.firstName}
+              prevLastName={user.lastName}
+              prevUsername={user.username}
+              prevEmail={user.email}
+              setActiveModal={setUserDataIsEdit}
+            />
+          )}
         </ModalWindow>
         <img src={userImgUrl} alt="avatar" className="personal-data-avatar" />
-        {self && <Button leftIcon={<EditIcon />} colorScheme="teal" onClick={handleEditAvatar}>Edit avatar</Button>}
+        {self && (
+          <Button
+            leftIcon={<EditIcon />}
+            colorScheme="teal"
+            onClick={handleEditAvatar}
+          >
+            Edit avatar
+          </Button>
+        )}
         <ModalWindow active={avatarIsEdit} setActive={setAvatarIsEdit}>
-          <UserEditAvatarForm updateUserAvatarUrl={setUserImgUrl} />
+          {avatarIsEdit && (
+            <UserEditAvatarForm
+              updateUserAvatarUrl={setUserImgUrl}
+              setActiveModal={setAvatarIsEdit}
+            />
+          )}
         </ModalWindow>
       </section>
     </>

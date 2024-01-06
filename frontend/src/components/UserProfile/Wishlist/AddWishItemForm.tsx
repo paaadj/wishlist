@@ -9,6 +9,8 @@ import {
   useState,
 } from "react";
 import { UserContext, UserContextType } from "../../../context/UserContext";
+import { Box, Button, Flex, FormControl, FormLabel, Heading, Icon, Input } from "@chakra-ui/react";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 interface IAddWishItemForm {
   updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
@@ -26,7 +28,12 @@ function AddWishItemForm(props: IAddWishItemForm) {
   const [wishDesc, setWishDesc] = useState("");
   const [wishImgBin, setWishImgBin] = useState<File | undefined>(undefined);
 
-  const { register, handleSubmit, reset } = useForm<IAddWishItem>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<IAddWishItem>();
 
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
 
@@ -45,7 +52,7 @@ function AddWishItemForm(props: IAddWishItemForm) {
     if (imgBinary) {
       formData.append("image", imgBinary, imgBinary.name);
     }
-
+    console.log(formData);
     const requestParams = {
       method: "POST",
       headers: {
@@ -87,9 +94,23 @@ function AddWishItemForm(props: IAddWishItemForm) {
 
   return (
     <>
-      <h3>Add Wish Item</h3>
+      <Heading as="h3" mb={5} textAlign="center" size="lg">Add Wish Item</Heading>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <UserInput
+        <FormControl>
+          <FormLabel htmlFor="wishName">Wish name</FormLabel>
+          <Input
+            type="text"
+            id="wishName"
+            placeholder="Wish name"
+            {...register("wishName", {
+              onChange: (e) => {
+                console.log("object");
+                setWishName(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+        {/* <UserInput
           type="text"
           id="wishName"
           className="user-input"
@@ -99,8 +120,22 @@ function AddWishItemForm(props: IAddWishItemForm) {
               setWishName(e.target.value);
             },
           })}
-        />
-        <UserInput
+        /> */}
+        <FormControl>
+          <FormLabel htmlFor="wishDesc">Wish description</FormLabel>
+          <Input
+            type="text"
+            id="wishDesc"
+            placeholder="Wish description"
+            {...register("wishDesc", {
+              onChange: (e) => {
+                console.log(e.target.value);
+                setWishDesc(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+        {/* <UserInput
           type="text"
           id="wishDesc"
           {...register("wishDesc", {
@@ -110,15 +145,34 @@ function AddWishItemForm(props: IAddWishItemForm) {
           })}
           className="user-input"
           placeholder="Wish description"
-        />
-        <UserInput
+        /> */}
+        <FormControl>
+          <FormLabel htmlFor="wishImg">Wish image</FormLabel>
+          <Input
+            type="file"
+            id="wishImg"
+            placeholder="Wish image"
+            {...register("wishImg", { onChange: handleFileChange })}
+          />
+        </FormControl>
+        {/* <UserInput
           type="file"
           id="wishImg"
           {...register("wishImg", { onChange: handleFileChange })}
           className="user-input"
           placeholder="Wish image"
-        />
-        <button>Submit</button>
+        /> */}
+        <Flex justifyContent="center" alignItems="center" mt={5}>
+          <Button
+            mt={4}
+            colorScheme="teal"
+            isLoading={isSubmitting}
+            type="submit"
+            rightIcon={<ArrowForwardIcon />}
+          >
+            Submit
+          </Button>
+        </Flex>
       </form>
     </>
   );
