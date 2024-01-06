@@ -10,7 +10,7 @@
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: 0.5s;
+    transition: opacity 0.2s ease-in-out;
     z-index: 10;
 }
 .modal-window.active{
@@ -23,7 +23,7 @@
     border-radius: 12px;
     background-color: #ffffff;
     transform: scale(0.5);
-    transition: 0.4s all;
+    transition: transform 0.2s ease-in-out;
     width: 50vw;
 }
 

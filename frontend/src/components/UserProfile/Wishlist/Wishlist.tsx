@@ -12,7 +12,15 @@ import EditWishItemForm from "./EditWishItemForm";
 import Pagination from "../../Pagination/Pagination";
 import classNames from "classnames";
 import Chat from "../../Chat/Chat";
-import { IconButton } from "@chakra-ui/react";
+import {
+  IconButton,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 
 interface IWishlistProps {
@@ -56,6 +64,8 @@ function Wishlist(props: IWishlistProps) {
   const [chatItem, setChatItem] = useState<
     { id: number; title: string } | undefined
   >();
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -107,6 +117,7 @@ function Wishlist(props: IWishlistProps) {
   useEffect(() => {
     if (wishItemEdit) {
       setWishItemIsEdit(true);
+      onOpen();
     }
   }, [wishItemEdit]);
 
@@ -125,6 +136,7 @@ function Wishlist(props: IWishlistProps) {
 
   const handleEditWindowLeave = useCallback(() => {
     setWishItemEdit(undefined);
+    setActiveModalAdd(false);
   }, []);
 
   const handleReserveItem = async (itemId: number) => {
@@ -240,15 +252,42 @@ function Wishlist(props: IWishlistProps) {
               aria-label="Add new wish"
               _hover={{ background: "transparent" }}
               bg="transparent"
-              icon={<AddIcon color="#34C924" w="70%" h="70%" _hover={{ color: "#3ABF2B" }} />}
+              icon={
+                <AddIcon
+                  color="#34C924"
+                  w="70%"
+                  h="70%"
+                  _hover={{ color: "#3ABF2B" }}
+                />
+              }
               onClick={() => {
                 setActiveModalAdd(true);
+                onOpen();
               }}
               boxSize={10}
             />
           )}
         </div>
-
+        {/* <Modal isOpen={isOpen} onClose={onClose} onCloseComplete={handleEditWindowLeave}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalCloseButton />
+            <ModalBody>
+              {activeModalAdd && (
+                <AddWishItemForm updateWishlistFunction={setUpdateWishlist} />
+              )}
+              {wishItemIsEdit && (
+                <EditWishItemForm
+                  updateWishlistFunction={setUpdateWishlist}
+                  wishId={wishItemEdit?.id}
+                  prevWishName={wishItemEdit?.title}
+                  prevWishDesc={wishItemEdit?.description}
+                  prevWishImg={wishItemEdit?.image_url}
+                />
+              )}
+            </ModalBody>
+          </ModalContent>
+        </Modal> */}
         <ModalWindow active={activeModalAdd} setActive={setActiveModalAdd}>
           <AddWishItemForm updateWishlistFunction={setUpdateWishlist} />
         </ModalWindow>
