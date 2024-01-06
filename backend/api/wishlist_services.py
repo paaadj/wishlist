@@ -60,7 +60,7 @@ async def create_item(
         )
         new_item.wishlist = await user.wishlist
         if image:
-            new_item = await upload_image(item=new_item, image=image)
+            new_item = await upload_image(image=image)
         await new_item.save()
         await Chat.create(wishlist_item=new_item)
         return new_item
