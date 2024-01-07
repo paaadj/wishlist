@@ -37,10 +37,12 @@ export type NotificationType = {
   id: number;
   read: boolean;
   type: string;
-  data: { text: string };
+  data: { item_id: number };
   date: string;
 };
-
+export type ParsedNotificationType  = Omit<NotificationType, "data"> & {
+  data: { text: string };
+};
 function Header() {
   const navigate = useNavigate();
   const { user, setAuthorizationTokens, requestProvider, getAccessCookie } =
@@ -53,7 +55,7 @@ function Header() {
   );
   const debounceInput = useDebounceUserSearch(searchUserValue, user?.id, 200);
 
-  const [notifications, setNotifications] = useState<NotificationType[] | []>(
+  const [notifications, setNotifications] = useState<ParsedNotificationType[] | []>(
     []
   );
   const [notificationIsActive, setNotificationIsActive] =
@@ -62,7 +64,7 @@ function Header() {
     useState<boolean>(false);
   const intervalRef = useRef<number | null>(null);
 
-  const hasUnreadNotification = (notifications: NotificationType[] | []) => {
+  const hasUnreadNotification = (notifications: ParsedNotificationType[] | []) => {
     return notifications.some((item) => !item.read);
   };
 
@@ -81,9 +83,20 @@ function Header() {
         requestParams
       );
       const data = await response.json();
-      console.log(user?.username + "::::" + data);
-      setNotificationsUnread(hasUnreadNotification(data));
-      setNotifications(data);
+      const urls: string[] = [];
+      data.forEach((note: NotificationType) => {
+        urls.push(`/backend/api/get_item?item_id=${note.data.item_id}`)
+      });
+      const noteTexts = await Promise.all(urls.map(async url => {
+        const resp = await fetch(url);
+        return resp.json();
+      }));
+      const parsedNotifications: ParsedNotificationType[] = [];
+      data.forEach((item: NotificationType, index : number) => {
+        parsedNotifications.push({...item, data:{text: noteTexts[index].title}})
+      });
+      setNotificationsUnread(hasUnreadNotification(parsedNotifications));
+      setNotifications(parsedNotifications);
       // setNotifications(data);
     } catch (err) {
       if (err instanceof Error) {
@@ -249,7 +262,7 @@ function Header() {
                       <PopoverCloseButton />
                       <PopoverHeader><Heading as="h5" size="sm">Notifications</Heading></PopoverHeader>
                       <PopoverBody>
-                        <Flex align="center" justify="center" direction="column">
+                        <Flex align="flex-start" justify="center" direction="column">
                           {notifications.length > 0 ? (
                             notifications.map((item, index) => {
                               return (
@@ -265,7 +278,6 @@ function Header() {
                               No results
                             </p>
                           )}
-                          asdfasdf
                         </Flex>
                       </PopoverBody>
                     </PopoverContent>
