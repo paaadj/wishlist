@@ -7,6 +7,18 @@ import { UserContextType } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import "./authentication.css";
 import UserInput from "../UserInput/UserInput";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  IconButton,
+  Input,
+} from "@chakra-ui/react";
+import { ArrowLeftIcon } from "@chakra-ui/icons";
 
 interface ILoginInput {
   username: string;
@@ -33,7 +45,7 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ILoginInput>({
     defaultValues,
     resolver: yupResolver(registrationValidationSchema),
@@ -62,53 +74,112 @@ const Login = () => {
   };
 
   return (
-    <div className="authentication-wrapper">
-      <div className="authentication-window">
-        <h3 className="authentication__title page-text page-title-text">
-          Sign In
-        </h3>
-        <form
-          onSubmit={handleSubmit(onSubmitHandler)}
-          className="authentication-form"
+    <Flex
+      boxSizing="border-box"
+      direction="column"
+      minW="300px"
+      m={2}
+      w="500px"
+      maxWidth="100%"
+      bg="white"
+      borderRadius={10}
+      p={8}
+    >
+      <Flex align="center" mb={5}>
+        <IconButton
+          onClick={() => navigate("/")}
+          aria-label="Go back"
+          icon={<ArrowLeftIcon />}
+          bg="transparent"
+        />
+        <Heading
+          textAlign="center"
+          as="h3"
+          className=" page-text page-title-text"
         >
-          <UserInput
-            type="text"
-            id="username"
-            placeholder="Username"
-            className="user-input"
-            imgSource="/img/username.png"
-            error={!!errors.username}
-            helperText={errors.username?.message}
-            {...register("username", {
-              onChange: (e) => {
-                setUsername(e.target.value);
-              },
-            })}
-          />
+          Sign In
+        </Heading>
+      </Flex>
+      <form
+        onSubmit={handleSubmit(onSubmitHandler)}
+        className="authentication-form"
+        id="signInForm"
+      >
+          <FormControl isInvalid={!!errors.username}>
+            <FormLabel htmlFor="username">Username</FormLabel>
+            <Input
+              type="text"
+              id="username"
+              placeholder="Username"
+              {...register("username", {
+                onChange: (e) => {
+                  setUsername(e.target.value);
+                },
+              })}
+            />
+            <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
+          </FormControl>
+          {/* <UserInput
+          type="text"
+          id="username"
+          placeholder="Username"
+          className="user-input"
+          imgSource="/img/username.png"
+          error={!!errors.username}
+          helperText={errors.username?.message}
+          {...register("username", {
+            onChange: (e) => {
+              setUsername(e.target.value);
+            },
+          })}
+        /> */}
+          <FormControl isInvalid={!!errors.password}>
+            <FormLabel htmlFor="username">Password</FormLabel>
+            <Input
+              type="password"
+              id="password"
+              placeholder="Password"
+              {...register("password", {
+                onChange: (e) => {
+                  setPassword(e.target.value);
+                },
+              })}
+            />
+            <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+          </FormControl>
+          {/* <UserInput
+          type="password"
+          id="password"
+          placeholder="Password"
+          className="user-input"
+          imgSource="/img/password.png"
+          error={!!errors.password}
+          helperText={errors.password?.message}
+          {...register("password", {
+            onChange: (e) => {
+              setPassword(e.target.value);
+            },
+          })}
+        /> */}
+        
 
-          <UserInput
-            type="password"
-            id="password"
-            placeholder="Password"
-            className="user-input"
-            imgSource="/img/password.png"
-            error={!!errors.password}
-            helperText={errors.password?.message}
-            {...register("password", {
-              onChange: (e) => {
-                setPassword(e.target.value);
-              },
-            })}
-          />
+        {/* <div className="submit-wrapper">
+          <button className="submit-button" type="submit">
+            <span>Sign In</span>
+          </button>
+        </div> */}
+      </form>
+      <Button
+        mt={4}
+        colorScheme="teal"
+        isLoading={isSubmitting}
+        type="submit"
+        form="signInForm"
+      >
+        Sign In
+      </Button>
+    </Flex>
 
-          <div className="submit-wrapper">
-            <button className="submit-button" type="submit">
-              <span>Sign In</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
     // <>
     //   <form onSubmit={handleSubmit(onSubmitHandler)}>
     //     <div>
