@@ -1,11 +1,18 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { Button, Flex, FormControl, FormLabel, Heading, Input } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+} from "@chakra-ui/react";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-interface IReserveWishItemForm{
-    updateReservation: (itemId: number, date: string) => Promise<void>;
-    wishId:number | undefined;
+interface IReserveWishItemForm {
+  updateReservation: (itemId: number, date: string) => Promise<void>;
+  wishId: number | undefined;
 }
 
 interface IReserveWishItem {
@@ -13,8 +20,8 @@ interface IReserveWishItem {
 }
 
 function ReserveWishItemForm(props: IReserveWishItemForm) {
-    const {updateReservation, wishId} = props;
-  const [date, setDate] = React.useState<string | undefined>(undefined);
+  const { updateReservation, wishId } = props;
+  const [date, setDate] = React.useState<string>("");
   const {
     register,
     handleSubmit,
@@ -24,7 +31,11 @@ function ReserveWishItemForm(props: IReserveWishItemForm) {
 
   const onSubmitHandler = async (values: IReserveWishItem) => {
     console.log(values);
+    const parsedDate = date?.replace("T", " ");
     //addItemToWishlist(wishName, wishDesc, undefined, wishImgBin);
+    if (wishId) {
+      updateReservation(wishId, parsedDate);
+    }
     setDate("");
 
     reset();
@@ -37,7 +48,7 @@ function ReserveWishItemForm(props: IReserveWishItemForm) {
       </Heading>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <FormControl>
-          <FormLabel htmlFor="wishDate">Wish date</FormLabel>
+          <FormLabel htmlFor="wishDate">Notification date</FormLabel>
           <Input
             type="datetime-local"
             id="wishDate"

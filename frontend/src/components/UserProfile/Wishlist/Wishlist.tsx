@@ -167,7 +167,7 @@ function Wishlist(props: IWishlistProps) {
     };
     try {
       const response = await fetch(
-        `/backend/api/reserve?item_id=${itemId}`,
+        `/backend/api/reserve?item_id=${itemId}` + (date ? `&date=${date}` : ""),
         requestParams
       );
       console.log("Reservation successful");
@@ -182,6 +182,8 @@ function Wishlist(props: IWishlistProps) {
         setWishlist((prev) => {
           return prev ? { ...prev, items: updatedWishList } : prev;
         });
+        setWishItemReserved(undefined);
+        setReserveFormActive(false);
       }
     } catch (err) {
       console.log(
