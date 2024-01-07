@@ -5,6 +5,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import "./authentication.css";
 import UserInput from "../UserInput/UserInput";
 import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  IconButton,
+  Input,
+} from "@chakra-ui/react";
+import { ArrowLeftIcon } from "@chakra-ui/icons";
 
 interface IRegistrationInput {
   username: string;
@@ -96,7 +108,7 @@ const Registration = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<IRegistrationInput>({
     defaultValues,
     resolver: yupResolver(registrationValidationSchema),
@@ -124,7 +136,7 @@ const Registration = () => {
       console.log("DB error");
     } else {
       // setToken(data.access_token);
-    
+
       console.log("Registration successful");
       navigate("/");
     }
@@ -132,118 +144,229 @@ const Registration = () => {
   };
 
   return (
-    <div className="authentication-wrapper">
-      <div className="authentication-window">
-        <h3 className="authentication__title page-text page-title-text">
-          Sign Up
-        </h3>
-        <form
-          onSubmit={handleSubmit(onSubmitHandler)}
-          className="authentication-form"
+    <Flex
+      boxSizing="border-box"
+      direction="column"
+      minW="300px"
+      m={2}
+      w="500px"
+      maxWidth="100%"
+      bg="white"
+      borderRadius={10}
+      p={8}
+    >
+      <Flex align="center" mb={5}>
+        <IconButton
+          onClick={() => navigate("/")}
+          aria-label="Go back"
+          icon={<ArrowLeftIcon />}
+          bg="transparent"
+        />
+        <Heading
+          textAlign="center"
+          as="h3"
+          className=" page-text page-title-text"
         >
-          
-          <UserInput
+          Sign Up
+        </Heading>
+      </Flex>
+      <form
+        onSubmit={handleSubmit(onSubmitHandler)}
+        className="authentication-form"
+        id="signUpForm"
+      >
+        <FormControl isInvalid={!!errors.firstName}>
+          <FormLabel htmlFor="firstName">First name</FormLabel>
+          <Input
             type="text"
             id="firstName"
             placeholder="First name"
-            className="user-input"
-            imgSource="/img/username.png"
-            required={true}
-            error={!!errors.firstName}
-            helperText={errors.firstName?.message}
             {...register("firstName", {
               onChange: (e) => {
                 setFirstName(e.target.value);
               },
             })}
           />
-          <UserInput
+          <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
+        </FormControl>
+
+        {/* <UserInput
+          type="text"
+          id="firstName"
+          placeholder="First name"
+          className="user-input"
+          imgSource="/img/username.png"
+          required={true}
+          error={!!errors.firstName}
+          helperText={errors.firstName?.message}
+          {...register("firstName", {
+            onChange: (e) => {
+              setFirstName(e.target.value);
+            },
+          })}
+        /> */}
+        <FormControl isInvalid={!!errors.lastName}>
+          <FormLabel htmlFor="firstName">Last name</FormLabel>
+          <Input
             type="text"
             id="lastName"
             placeholder="Last name"
-            className="user-input"
-            imgSource="/img/username.png"
-            required={false}
-            error={!!errors.lastName}
-            helperText={errors.lastName?.message}
             {...register("lastName", {
               onChange: (e) => {
                 setLastName(e.target.value);
               },
             })}
           />
-          <UserInput
+          <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
+        </FormControl>
+        {/* <UserInput
+          type="text"
+          id="lastName"
+          placeholder="Last name"
+          className="user-input"
+          imgSource="/img/username.png"
+          required={false}
+          error={!!errors.lastName}
+          helperText={errors.lastName?.message}
+          {...register("lastName", {
+            onChange: (e) => {
+              setLastName(e.target.value);
+            },
+          })}
+        /> */}
+        <FormControl isInvalid={!!errors.username}>
+          <FormLabel htmlFor="firstName">Username</FormLabel>
+          <Input
             type="text"
             id="username"
             placeholder="Username"
-            className="user-input"
-            imgSource="/img/username.png"
-            required={true}
-            error={!!errors.username}
-            helperText={errors.username?.message}
             {...register("username", {
               onChange: (e) => {
                 setUsername(e.target.value);
               },
             })}
           />
-
-          <UserInput
+          <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
+        </FormControl>
+        {/* <UserInput
+          type="text"
+          id="username"
+          placeholder="Username"
+          className="user-input"
+          imgSource="/img/username.png"
+          required={true}
+          error={!!errors.username}
+          helperText={errors.username?.message}
+          {...register("username", {
+            onChange: (e) => {
+              setUsername(e.target.value);
+            },
+          })}
+        /> */}
+        <FormControl isInvalid={!!errors.email}>
+          <FormLabel htmlFor="firstName">Email</FormLabel>
+          <Input
             type="email"
             id="email"
             placeholder="Email"
-            className="user-input"
-            imgSource="/img/email.png"
-            required={true}
-            error={!!errors.email}
-            helperText={errors.email?.message}
             {...register("email", {
               onChange: (e) => {
                 setEmail(e.target.value);
               },
             })}
           />
-
-          <UserInput
+          <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+        </FormControl>
+        {/* <UserInput
+          type="email"
+          id="email"
+          placeholder="Email"
+          className="user-input"
+          imgSource="/img/email.png"
+          required={true}
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          {...register("email", {
+            onChange: (e) => {
+              setEmail(e.target.value);
+            },
+          })}
+        /> */}
+        <FormControl isInvalid={!!errors.password}>
+          <FormLabel htmlFor="firstName">Password</FormLabel>
+          <Input
             type="password"
             id="password"
             placeholder="Password"
-            className="user-input"
-            imgSource="/img/password.png"
-            required={true}
-            error={!!errors.password}
-            helperText={errors.password?.message}
             {...register("password", {
               onChange: (e) => {
                 setPassword(e.target.value);
               },
             })}
           />
-
-          <UserInput
+          <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+        </FormControl>
+        {/* <UserInput
+          type="password"
+          id="password"
+          placeholder="Password"
+          className="user-input"
+          imgSource="/img/password.png"
+          required={true}
+          error={!!errors.password}
+          helperText={errors.password?.message}
+          {...register("password", {
+            onChange: (e) => {
+              setPassword(e.target.value);
+            },
+          })}
+        /> */}
+        <FormControl isInvalid={!!errors.confirmPassword}>
+          <FormLabel htmlFor="firstName">Confirm password</FormLabel>
+          <Input
             type="password"
             id="confirm-Password"
             placeholder="Confirm password"
-            className="user-input"
-            imgSource="/img/password.png"
-            required={true}
-            error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword?.message}
             {...register("confirmPassword", {
               onChange: (e) => {
                 setConfirmPassword(e.target.value);
               },
             })}
           />
-          
-          <div className="submit-wrapper">
-            <button className="submit-button" type="submit">
-              <span>Sign Up</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
+        </FormControl>
+        {/* <UserInput
+          type="password"
+          id="confirm-Password"
+          placeholder="Confirm password"
+          className="user-input"
+          imgSource="/img/password.png"
+          required={true}
+          error={!!errors.confirmPassword}
+          helperText={errors.confirmPassword?.message}
+          {...register("confirmPassword", {
+            onChange: (e) => {
+              setConfirmPassword(e.target.value);
+            },
+          })}
+        /> */}
+
+        {/* <div className="submit-wrapper">
+          <button className="submit-button" type="submit">
+            <span>Sign Up</span>
+          </button>
+        </div> */}
+      </form>
+      <Button
+        mt={5}
+        colorScheme="teal"
+        isLoading={isSubmitting}
+        type="submit"
+        form="signUpForm"
+      >
+        Sign Up
+      </Button>
+    </Flex>
   );
 };
 

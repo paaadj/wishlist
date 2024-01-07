@@ -5,7 +5,7 @@ function AuthenticationPage() {
   const navigate = useNavigate();
   return (
     <div className="auth-wrapper">
-      <img src="/img/auth_bg.jpg" alt="BG" className="auth-background" />
+      {/* <img src="/img/auth_bg.jpg" alt="BG" className="auth-background" />
       <div className="auth-window">
         <div className="welcome-side">
           <div className="logo-wrapper">
@@ -59,9 +59,9 @@ function AuthenticationPage() {
               />
             </button>
           </nav>
-        </div>
+        </div> */}
         {outlet ? <Outlet /> : <Navigate to="/" />}
-      </div>
+      {/* </div> */}
     </div>
   );
 }
