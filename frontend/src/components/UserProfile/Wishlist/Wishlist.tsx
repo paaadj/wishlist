@@ -42,7 +42,7 @@ type WishList = {
   total_pages: number;
 };
 
-const ROWS_PER_PAGE = 4;
+const ROWS_PER_PAGE = 6;
 
 function Wishlist(props: IWishlistProps) {
   const { self, curUser } = props;

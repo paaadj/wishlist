@@ -15,9 +15,11 @@ import {
   CiBookmarkCheck,
 } from "react-icons/ci";
 import {
+  Box,
   Button,
   Icon,
   IconButton,
+  Image,
   Menu,
   MenuButton,
   MenuItem,
@@ -37,7 +39,7 @@ interface IWishlistCard {
   reservedUser?: number;
   updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
   setEditWishItem: (wishEditItemId: number) => void;
-  handleReserveItem: (wishEditItemId: number) => void
+  handleReserveItem: (wishEditItemId: number) => void;
   handleUnreserveItem: (itemId: number) => Promise<void>;
   handleChatOpen: (chatItem: { id: number; title: string }) => void;
 }
@@ -107,149 +109,102 @@ function WishlistCard(props: IWishlistCard) {
   };
 
   return (
-    <div
-      className={classNames(styles.card_wrapper, {
-        [styles.reserved_wish]: reservedUser === 1,
-        [styles.self_reserved_wish]: reservedUser === 2,
-      })}
-    >
-      <div className={styles.card_img_wrapper}>
-        <img src={fixedImageUrl} alt="wishImg" className={styles.card_img} />
-      </div>
-      <div className={styles.card_data_wrapper}>
-        <header className={styles.card_data_header}>
-          <h5 className={classNames(styles.card_title, "page-text")}>
-            {title}
-          </h5>
-          <div className={styles.card_data_header_buttons}>
-            {reservedUser == 2 && (
-              <IconButton
-                aria-label="Unreserve wish"
-                isRound={true}
-                bg="transparent"
-                _hover={{ background: "#e1dfdf" }}
-                icon={
-                  <Icon as={CiBookmarkMinus} w="100%" h="100%" color="red" />
-                }
-                onClick={handleUnreserveButtonClick}
-                boxSize={6}
-              />
-            )}
-            {!reservedUser && !self && (
-              <IconButton
-                aria-label="Reserve wish"
-                isRound={true}
-                bg="transparent"
-                _hover={{ background: "#e1dfdf" }}
-                icon={
-                  <Icon as={CiBookmarkPlus} w="100%" h="100%" color="green" />
-                }
-                onClick={handleReserveButtonClick}
-                boxSize={6}
-              />
-            )}
-            {/* {self && (
-              <IconButton
-                aria-label="See more actions"
-                isRound={true}
-                _hover={{background: "#e1dfdf"}}
-                bg="transparent"
-                icon={<Icon as={BsThreeDotsVertical} w="100%" h="100%" />}
-                onClick={() => {
-                  setPopUp((prev) => !prev);
-                }}
-                boxSize={6}
-              />
-            )} */}
-              <Menu isLazy placement="left" closeOnSelect={true}>
-                <MenuButton
-                  as={IconButton}
-                  aria-label="See more actions"
-                  isRound={true}
-                  _hover={{ background: "#e1dfdf" }}
-                  bg="transparent"
-                  icon={<Icon as={BsThreeDotsVertical} w="100%" h="100%" />}
-                  boxSize={6}
-                />
-                <MenuList>
-                  {/* MenuItems are not rendered unless Menu is open */}
-                  <MenuItem
-                    fontWeight="500"
-                    color="#2a9d8f"
-                    icon={<ChatIcon />}
-                    onClick={handleOpenChatButtonClick}
-                  >
-                    Open chat
-                  </MenuItem>
-                  {self && (
-                    <MenuItem
-                      fontWeight="500"
-                      color="red"
-                      icon={<DeleteIcon />}
-                      onClick={deleteWishlistItem}
-                    >
-                      Delete
-                    </MenuItem>
-                  )}
-                  {self && (
-                    <MenuItem
-                      fontWeight="500"
-                      color="#bc4749"
-                      icon={<EditIcon />}
-                      onClick={handleEditButtonClick}
-                    >
-                      Edit
-                    </MenuItem>
-                  )}
+    <div className={styles.card_wrapper}>
+      <div
+        className={classNames(styles.card, styles.card_size, {
+          [styles.reserved_wish]: reservedUser === 1,
+          [styles.self_reserved_wish]: reservedUser === 2,
+        })}
+      >
+        <div className={styles.card_data_header_buttons}>
+          {reservedUser == 2 && (
+            <IconButton
+              aria-label="Unreserve wish"
+              isRound={true}
+              bg="transparent"
+              _hover={{ background: "#e1dfdf" }}
+              icon={<Icon as={CiBookmarkMinus} w="100%" h="100%" color="red" />}
+              onClick={handleUnreserveButtonClick}
+              boxSize={6}
+            />
+          )}
+          {!reservedUser && !self && (
+            <IconButton
+              aria-label="Reserve wish"
+              isRound={true}
+              bg="transparent"
+              _hover={{ background: "#e1dfdf" }}
+              icon={
+                <Icon as={CiBookmarkPlus} w="100%" h="100%" color="green" />
+              }
+              onClick={handleReserveButtonClick}
+              boxSize={6}
+            />
+          )}
+          <Menu isLazy placement="left-start" closeOnSelect={true}>
+            <MenuButton
+              as={IconButton}
+              aria-label="See more actions"
+              isRound={true}
+              _hover={{ background: "#e1dfdf" }}
+              bg="transparent"
+              icon={<Icon as={BsThreeDotsVertical} w="100%" h="100%" />}
+              boxSize={6}
+            />
+            <MenuList>
+              {/* MenuItems are not rendered unless Menu is open */}
+              <MenuItem
+                fontWeight="500"
+                color="#2a9d8f"
+                icon={<ChatIcon />}
+                onClick={handleOpenChatButtonClick}
+              >
+                Open chat
+              </MenuItem>
+              {self && (
+                <MenuItem
+                  fontWeight="500"
+                  color="red"
+                  icon={<DeleteIcon />}
+                  onClick={deleteWishlistItem}
+                >
+                  Delete
+                </MenuItem>
+              )}
+              {self && (
+                <MenuItem
+                  fontWeight="500"
+                  color="#bc4749"
+                  icon={<EditIcon />}
+                  onClick={handleEditButtonClick}
+                >
+                  Edit
+                </MenuItem>
+              )}
 
-                  <MenuItem fontWeight="500" icon={<LinkIcon />}>
-                    Check
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            
-          </div>
-        </header>
+              <MenuItem fontWeight="500" icon={<LinkIcon />}>
+                Check
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </div>
+        <div className={styles.card_img_wrapper}>
+          <Image
+            src={fixedImageUrl}
+            alt="wishImg"
+            className={styles.card_img}
+            m={8}
+            borderRadius={5}
+            boxShadow="xl"
+          />
+        </div>
+
+        <h5 className={classNames(styles.card_title, "page-text")}>{title}</h5>
         <p
           className={classNames("page-text", "page-reg-text", styles.card_desc)}
         >
           {description}
         </p>
-        {/* <div
-          className={classNames(styles.buttons_popup, {
-            [styles.active_popup]: popUp,
-          })}
-        >
-          <button
-            type="button"
-            className={styles.card_button}
-            onClick={handleOpenChatButtonClick}
-          >
-            Open chat
-          </button>
-          {self && (
-            <button
-              type="button"
-              className={styles.card_button}
-              onClick={deleteWishlistItem}
-            >
-              delete
-            </button>
-          )}
-          {self && (
-            <button
-              type="button"
-              className={styles.card_button}
-              onClick={handleEditButtonClick}
-            >
-              Edit
-            </button>
-          )}
-
-          <button type="button" className={styles.card_button}>
-            Check
-          </button>
-        </div> */}
       </div>
     </div>
   );

@@ -8,20 +8,31 @@ import UserInput from "../UserInput/UserInput";
 // import IconButton from "../IconButton/IconButton";
 import Notification from "./Notification";
 import {
+  Flex,
   HStack,
+  Heading,
   Icon,
   IconButton,
   Image,
   Input,
   InputGroup,
   InputRightElement,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Stack,
   StackDivider,
   VStack,
+  background,
 } from "@chakra-ui/react";
 import { LuBell, LuBellDot } from "react-icons/lu";
 import { IoExitSharp } from "react-icons/io5";
 import { SearchIcon } from "@chakra-ui/icons";
+import classNames from "classnames";
 export type NotificationType = {
   id: number;
   read: boolean;
@@ -34,8 +45,12 @@ function Header() {
   const navigate = useNavigate();
   const { user, setAuthorizationTokens, requestProvider, getAccessCookie } =
     useContext(UserContext) as UserContextType;
+
+  const [searchIsOpen, setSearchIsOpen] = useState<boolean>();
   const [searchUserValue, setSearchUserValue] = useState<string>("");
-  const [userAvatar, setUserAvatar] = useState<string | undefined>(user?.imgUrl);
+  const [userAvatar, setUserAvatar] = useState<string | undefined>(
+    user?.imgUrl
+  );
   const debounceInput = useDebounceUserSearch(searchUserValue, user?.id, 200);
 
   const [notifications, setNotifications] = useState<NotificationType[] | []>(
@@ -102,7 +117,9 @@ function Header() {
     //
   };
   useEffect(() => {
-    setUserAvatar(user?.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png")
+    setUserAvatar(
+      user?.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png"
+    );
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -124,14 +141,19 @@ function Header() {
       <header>
         <div className="header-container">
           <div className="page-text page-title-text logo">WISHLIST</div>
-          <div className="search">
+
+          <div
+            className={classNames("search", "search-visability", {
+              "search-isActive": searchIsOpen,
+            })}
+          >
             <InputGroup>
               <InputRightElement pointerEvents="none">
                 <SearchIcon />
               </InputRightElement>
               <Input
-                variant="flushed"
-                focusBorderColor="#e5e5e5"
+                variant="outlined"
+                focusBorderColor="lightblue"
                 fontSize="1.1rem"
                 className="page-text page-text-reg"
                 type="text"
@@ -151,9 +173,10 @@ function Header() {
             {/* #d6d5d5 */}
             {debounceInput && (
               <VStack
-                bg="#e5e5e5"
+                bg="white"
                 className="page-text page-text-reg"
                 position="absolute"
+                top="90%"
                 w="100%"
                 maxHeight="20vh"
                 minHeight="20vh"
@@ -176,68 +199,95 @@ function Header() {
                     );
                   })
                 ) : (
-                  <p className="search-result-link">No results</p>
+                  <p >No results</p>
                 )}
               </VStack>
             )}
           </div>
+
           <div className="header__control">
             {user ? (
               <>
                 <div className="profile">
                   <IconButton
-                    aria-label="Notifications"
+                    aria-label="Seach user"
                     isRound={true}
                     _hover={{ background: "transparent" }}
-                    icon={
-                      notificationsUnread ? (
-                        <Icon as={LuBellDot} w="100%" h="100%" />
-                      ) : (
-                        <Icon as={LuBell} w="100%" h="100%" />
-                      )
-                    }
-                    boxSize={6}
+                    boxSize={5}
                     bg="transparent"
+                    icon={<SearchIcon w="100%" h="100%" />}
+                    className="search-buttom-visability"
                     onClick={() => {
-                      setNotificationIsActive(
-                        (prevNotificationIsActive) => !prevNotificationIsActive
-                      );
+                      setSearchIsOpen((prev) => !prev);
                     }}
                   />
-                  {notificationIsActive ? (
-                    <div className="notification-block">
-                      {notifications.length > 0 ? (
-                        notifications.map((item, index) => {
-                          return (
-                            <Notification
-                              key={item.id}
-                              notification={item}
-                              readNotification={readNotification}
-                            />
-                          );
-                        })
-                      ) : (
-                        <p className="search-result-link page-text page-reg-text">
-                          No results
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <></>
-                  )}
+                  <Popover isLazy placement="auto-start">
+                    <PopoverTrigger>
+                      <IconButton
+                        aria-label="Notifications"
+                        isRound={true}
+                        _hover={{ background: "transparent" }}
+                        icon={
+                          notificationsUnread ? (
+                            <Icon as={LuBellDot} w="100%" h="100%" />
+                          ) : (
+                            <Icon as={LuBell} w="100%" h="100%" />
+                          )
+                        }
+                        boxSize={6}
+                        bg="transparent"
+                        // onClick={() => {
+                        //   setNotificationIsActive(
+                        //     (prevNotificationIsActive) =>
+                        //       !prevNotificationIsActive
+                        //   );
+                        // }}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverHeader><Heading as="h5" size="sm">Notifications</Heading></PopoverHeader>
+                      <PopoverBody>
+                        <Flex align="center" justify="center" direction="column">
+                          {notifications.length > 0 ? (
+                            notifications.map((item, index) => {
+                              return (
+                                <Notification
+                                  key={item.id}
+                                  notification={item}
+                                  readNotification={readNotification}
+                                />
+                              );
+                            })
+                          ) : (
+                            <p className="page-text page-reg-text">
+                              No results
+                            </p>
+                          )}
+                          asdfasdf
+                        </Flex>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+
                   <Image
                     alt="profile"
                     src={userAvatar}
                     boxSize="40px"
                     objectFit="cover"
                     borderRadius="full"
+                    cursor="pointer"
+                    onClick={() => navigate("/user/me")}
                   />
+
                   <Link
                     className="page-text page-reg-text profile__link"
                     to="/user/me"
                   >
                     {user.username}
                   </Link>
+
                   <IconButton
                     aria-label="Logout"
                     w={"24px"}
