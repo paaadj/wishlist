@@ -13,7 +13,7 @@ import { Box, Button, Flex, FormControl, FormLabel, Heading, Icon, Input } from 
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 interface IAddWishItemForm {
-  updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
+  addWishItemToWishlistFunc: (title: string, description: string, linkToSite?: string, imgBinary?: File) => Promise<void>;
 }
 
 interface IAddWishItem {
@@ -23,7 +23,7 @@ interface IAddWishItem {
 }
 
 function AddWishItemForm(props: IAddWishItemForm) {
-  const { updateWishlistFunction } = props;
+  const { addWishItemToWishlistFunc } = props;
   const [wishName, setWishName] = useState("");
   const [wishDesc, setWishDesc] = useState("");
   const [wishImgBin, setWishImgBin] = useState<File | undefined>(undefined);
@@ -37,40 +37,10 @@ function AddWishItemForm(props: IAddWishItemForm) {
 
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
 
-  const addItemToWishlist = async (
-    title: string,
-    description: string,
-    linkToSite?: string,
-    imgBinary?: File
-  ) => {
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    if (linkToSite) {
-      formData.append("link", linkToSite);
-    }
-    if (imgBinary) {
-      formData.append("image", imgBinary, imgBinary.name);
-    }
-    console.log(formData);
-    const requestParams = {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-      body: formData,
-    };
-    const response = await fetch(`/backend/api/add_item`, requestParams);
-    if (response.ok) {
-      console.log("Added item");
-      updateWishlistFunction((prevState) => !prevState);
-    } else {
-      console.log("Don't added item");
-    }
-  };
+  
 
   const onSubmitHandler = async (values: IAddWishItem) => {
-    addItemToWishlist(wishName, wishDesc, undefined, wishImgBin);
+    addWishItemToWishlistFunc(wishName, wishDesc, undefined, wishImgBin);
     setWishName("");
     setWishDesc("");
     setWishImgBin(undefined);
