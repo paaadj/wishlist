@@ -13,8 +13,10 @@ import {
 } from "../../context/UserContext";
 import styles from "./chat.module.css";
 import classNames from "classnames";
-import IconButton from "../IconButton/IconButton";
 import Message from "./Message";
+import { Flex, Icon, IconButton, Spinner } from "@chakra-ui/react";
+import { CloseIcon } from "@chakra-ui/icons";
+import { IoSend } from "react-icons/io5";
 interface IChat {
   userReciver: userData;
   chatItem: { id: number; title: string };
@@ -62,7 +64,7 @@ function Chat(props: IChat) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchPrevChatMessages = async () => {
       setLoading(true);
       setError(null);
@@ -177,8 +179,10 @@ function Chat(props: IChat) {
             {chatItem.title}
           </h5>
           <IconButton
-            iconSrc="/img/cross.png"
-            size={24}
+          bg="transparent"
+            aria-label="Close chat"
+            icon={<CloseIcon />}
+            boxSize={5}
             onClick={handleClose}
           />
         </div>
@@ -206,17 +210,22 @@ function Chat(props: IChat) {
               );
             })
           ) : (
-            <p>Loading</p>
+            <Flex align="center" justifyContent="center" padding={50} w="100%" h="100%">
+              <Spinner />
+            </Flex>
           )}
         </div>
         <div className={styles.chat_input_field}>
           {currentMessageReplyTo && (
             <div className={styles.chat_input_field_reply}>
-              <p className={styles.chat_input_field_reply_text}>{currentMessageReplyTo.messageText}</p>
+              <p className={styles.chat_input_field_reply_text}>
+                {currentMessageReplyTo.messageText}
+              </p>
               <IconButton
-                size={16}
-                className={styles.reply_cancel}
-                iconSrc="/img/cross.png"
+              bg="transparent"
+                aria-label="Close reply message"
+                icon={<CloseIcon w="100%" h="100%"/>}
+                boxSize={3}
                 onClick={() => {
                   setCurrentMessageReplyTo(undefined);
                 }}
@@ -224,28 +233,30 @@ function Chat(props: IChat) {
             </div>
           )}
           <div className={styles.chat_input_wrapper}>
-          <div
-            contentEditable
-            className={classNames(
-              styles.chat_input,
-              "page-text",
-              "page-reg-text"
-            )}
-            onKeyDown={(event: React.KeyboardEvent<HTMLElement>) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
+            <div
+              contentEditable
+              className={classNames(
+                styles.chat_input,
+                "page-text",
+                "page-reg-text"
+              )}
+              onKeyDown={(event: React.KeyboardEvent<HTMLElement>) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  sendMessage();
+                }
+              }}
+              ref={chatInputRef}
+            ></div>
+            <IconButton
+            bg="transparent"
+              aria-label="Send message"
+              boxSize={5}
+              icon={<Icon h="100%" w="100%" as={IoSend} />}
+              onClick={() => {
                 sendMessage();
-              }
-            }}
-            ref={chatInputRef}
-          ></div>
-          <IconButton
-            size={32}
-            iconSrc="/img/telegram.png"
-            onClick={() => {
-              sendMessage();
-            }}
-          />
+              }}
+            />
           </div>
         </div>
       </div>

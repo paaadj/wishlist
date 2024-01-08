@@ -139,7 +139,11 @@ export const UserProvider = (props: any) => {
         lastName: data?.last_name ?? "",
         username: data.username,
         email: data.email,
-        imgUrl: baseImageUrl + fixImageUrl(data?.image_url) + "?alt=media",
+        imgUrl: baseImageUrl +
+        (data.image
+          ? fixImageUrl(data.image_url)
+          : "mqdefault.jpeg") +
+        "?alt=media",
       });
     } catch (err) {
       try {

@@ -40,14 +40,18 @@ function UserProfilePage(props: IUserProfilePage) {
     );
     if (response.ok) {
       const data = await response.json();
-      console.log(data.image);
       setCurrentUser({
         id: data.id,
         firstName: data.first_name,
         lastName: data?.last_name ?? "",
         username: data.username,
         email: data.email,
-        imgUrl: baseImageUrl + fixImageUrl(data?.image_url) + "?alt=media",
+        imgUrl:
+          baseImageUrl +
+          (data.image
+            ? fixImageUrl(data.image_url)
+            : "mqdefault.jpeg") +
+          "?alt=media",
       });
     } else {
       setCurrentUser(undefined);
