@@ -18,12 +18,14 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
+import React from "react";
 
 interface IEditWishItemForm {
   wishId?: number;
   prevWishName?: string;
   prevWishDesc?: string;
   prevWishImg?: string;
+  closeWishItemIsEdit: ()=>void;
   editWishItemFunc: (
     wishId: number,
     title?: string,
@@ -40,7 +42,8 @@ interface IEditWishItem {
 }
 
 function EditWishItemForm(props: IEditWishItemForm) {
-  const { wishId, prevWishName, prevWishDesc, prevWishImg, editWishItemFunc } =
+  console.log("EditWishFormRerender");
+  const { wishId, prevWishName, prevWishDesc, prevWishImg, closeWishItemIsEdit, editWishItemFunc } =
     props;
   const [wishName, setWishName] = useState(prevWishName);
   const [wishDesc, setWishDesc] = useState(prevWishDesc);
@@ -68,6 +71,7 @@ function EditWishItemForm(props: IEditWishItemForm) {
       setWishDesc("");
       setWishImgBin(undefined);
       reset();
+      closeWishItemIsEdit();
     }
   };
 
@@ -174,4 +178,4 @@ function EditWishItemForm(props: IEditWishItemForm) {
   );
 }
 
-export default EditWishItemForm;
+export default React.memo(EditWishItemForm);

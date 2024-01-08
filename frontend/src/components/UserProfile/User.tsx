@@ -13,9 +13,9 @@ interface IUser {
 }
 
 function User(props: IUser) {
+  console.log("UserRerender");
+
   const { self, user } = props;
-  const baseImageUrl =
-    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
   const [userImgUrl, setUserImgUrl] = useState(
     user.imgUrl
       ? user.imgUrl + `&t=${new Date().getTime()}`

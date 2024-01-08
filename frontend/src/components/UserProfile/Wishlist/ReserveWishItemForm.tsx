@@ -20,6 +20,7 @@ interface IReserveWishItem {
 }
 
 function ReserveWishItemForm(props: IReserveWishItemForm) {
+  console.log("ReserveWishFormRerender");
   const { updateReservation, wishId } = props;
   const [date, setDate] = React.useState<string>("");
   const {

@@ -29,6 +29,7 @@ interface IUserEditProfileDataForm {
 }
 
 function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
+  console.log("UserEditDataRerender");
   const {
     prevFirstName,
     prevLastName,
