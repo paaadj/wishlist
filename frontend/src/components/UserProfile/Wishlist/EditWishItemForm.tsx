@@ -9,15 +9,28 @@ import {
   useState,
 } from "react";
 import { UserContext, UserContextType } from "../../../context/UserContext";
-import { Button, Flex, FormControl, FormLabel, Heading, Input } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+} from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 interface IEditWishItemForm {
-  updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
   wishId?: number;
   prevWishName?: string;
   prevWishDesc?: string;
   prevWishImg?: string;
+  editWishItemFunc: (
+    wishId: number,
+    title?: string,
+    description?: string,
+    linkToSite?: string,
+    imgBinary?: File
+  ) => Promise<void>;
 }
 
 interface IEditWishItem {
@@ -27,13 +40,8 @@ interface IEditWishItem {
 }
 
 function EditWishItemForm(props: IEditWishItemForm) {
-  const {
-    updateWishlistFunction,
-    wishId,
-    prevWishName,
-    prevWishDesc,
-    prevWishImg,
-  } = props;
+  const { wishId, prevWishName, prevWishDesc, prevWishImg, editWishItemFunc } =
+    props;
   const [wishName, setWishName] = useState(prevWishName);
   const [wishDesc, setWishDesc] = useState(prevWishDesc);
   const [wishImgBin, setWishImgBin] = useState<File | undefined>(undefined);
@@ -53,52 +61,14 @@ function EditWishItemForm(props: IEditWishItemForm) {
 
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
 
-  const EditItemToWishlist = async (
-    title?: string,
-    description?: string,
-    linkToSite?: string,
-    imgBinary?: File
-  ) => {
-    const formData = new FormData();
-    if (title) {
-      formData.append("title", title);
-    }
-    if (description) {
-      formData.append("description", description);
-    }
-    if (linkToSite) {
-      formData.append("link", linkToSite);
-    }
-    if (imgBinary) {
-      console.log(imgBinary);
-      formData.append("image", imgBinary, imgBinary.name);
-    }
-
-    const requestParams = {
-      method: "PUT",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-      body: formData,
-    };
-    const response = await fetch(
-      `/backend/api/update_item?item_id=${wishId}`,
-      requestParams
-    );
-    if (response.ok) {
-      console.log("Edit item");
-      updateWishlistFunction((prevState) => !prevState);
-    } else {
-      console.log("Don't edit item");
-    }
-  };
-
   const onSubmitHandler = async (values: IEditWishItem) => {
-    EditItemToWishlist(wishName, wishDesc, undefined, wishImgBin);
-    setWishName("");
-    setWishDesc("");
-    setWishImgBin(undefined);
-    reset();
+    if (wishId) {
+      editWishItemFunc(wishId, wishName, wishDesc, undefined, wishImgBin);
+      setWishName("");
+      setWishDesc("");
+      setWishImgBin(undefined);
+      reset();
+    }
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -119,7 +89,9 @@ function EditWishItemForm(props: IEditWishItemForm) {
 
   return (
     <>
-      <Heading as="h3" mb={5} textAlign="center" size="lg">Edit Wish Item</Heading>
+      <Heading as="h3" mb={5} textAlign="center" size="lg">
+        Edit Wish Item
+      </Heading>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <FormControl>
           <FormLabel htmlFor="wishName">Wish name</FormLabel>

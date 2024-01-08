@@ -118,7 +118,9 @@ function Wishlist(props: IWishlistProps) {
       setWishItemIsEdit(true);
     }
   }, [wishItemEdit]);
-
+/**
+   * Setup an actual item that is on reserve
+   *  */
   useEffect(() => {
     if (wishItemReserved) {
       setReserveFormActive(true);
@@ -251,6 +253,80 @@ function Wishlist(props: IWishlistProps) {
   const handleChatClose = () => {
     setChatItem(undefined);
   };
+
+  const handleEditWishItem = async (
+    wishId: number,
+    title?: string,
+    description?: string,
+    linkToSite?: string,
+    imgBinary?: File
+  ) => {
+    const formData = new FormData();
+    if (title) {
+      formData.append("title", title);
+    }
+    if (description) {
+      formData.append("description", description);
+    }
+    if (linkToSite) {
+      formData.append("link", linkToSite);
+    }
+    if (imgBinary) {
+      console.log(imgBinary);
+      formData.append("image", imgBinary, imgBinary.name);
+    }
+
+    const requestParams = {
+      method: "PUT",
+      headers: {
+        Authorization: "Bearer " + getAccessCookie(),
+      },
+      body: formData,
+    };
+    const response = await fetch(
+      `/backend/api/update_item?item_id=${wishId}`,
+      requestParams
+    );
+    if (response.ok) {
+      console.log("Edit item");
+      setUpdateWishlist((prevState) => !prevState);
+    } else {
+      console.log("Don't edit item");
+    }
+  };
+
+  const handleAddWishItemToWishlist = async (
+    title: string,
+    description: string,
+    linkToSite?: string,
+    imgBinary?: File
+  ) => {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    if (linkToSite) {
+      formData.append("link", linkToSite);
+    }
+    if (imgBinary) {
+      formData.append("image", imgBinary, imgBinary.name);
+    }
+    console.log(formData);
+    const requestParams = {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + getAccessCookie(),
+      },
+      body: formData,
+    };
+    const response = await fetch(`/backend/api/add_item`, requestParams);
+    if (response.ok) {
+      console.log("Added item");
+      setUpdateWishlist((prevState) => !prevState);
+    } else {
+      console.log("Don't added item");
+    }
+  };
+
   return (
     <>
       <div className={styles.wrapper}>
@@ -287,26 +363,6 @@ function Wishlist(props: IWishlistProps) {
             />
           )}
         </div>
-        {/* <Modal isOpen={isOpen} onClose={onClose} onCloseComplete={handleEditWindowLeave}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalCloseButton />
-            <ModalBody>
-              {activeModalAdd && (
-                <AddWishItemForm updateWishlistFunction={setUpdateWishlist} />
-              )}
-              {wishItemIsEdit && (
-                <EditWishItemForm
-                  updateWishlistFunction={setUpdateWishlist}
-                  wishId={wishItemEdit?.id}
-                  prevWishName={wishItemEdit?.title}
-                  prevWishDesc={wishItemEdit?.description}
-                  prevWishImg={wishItemEdit?.image_url}
-                />
-              )}
-            </ModalBody>
-          </ModalContent>
-        </Modal> */}
         <ModalWindow
           active={reserveFormActive}
           setActive={setReserveFormActive}
@@ -319,7 +375,7 @@ function Wishlist(props: IWishlistProps) {
           )}
         </ModalWindow>
         <ModalWindow active={activeModalAdd} setActive={setActiveModalAdd}>
-          <AddWishItemForm updateWishlistFunction={setUpdateWishlist} />
+          <AddWishItemForm addWishItemToWishlistFunc={handleAddWishItemToWishlist} />
         </ModalWindow>
         <ModalWindow
           active={wishItemIsEdit}
@@ -328,17 +384,16 @@ function Wishlist(props: IWishlistProps) {
         >
           {wishItemIsEdit ? (
             <EditWishItemForm
-              updateWishlistFunction={setUpdateWishlist}
               wishId={wishItemEdit?.id}
               prevWishName={wishItemEdit?.title}
               prevWishDesc={wishItemEdit?.description}
               prevWishImg={wishItemEdit?.image_url}
+              editWishItemFunc={handleEditWishItem}
             />
           ) : (
             <Flex align="center" justifyContent="center" padding={50} w="100%">
               <Spinner />
             </Flex>
-            // <h3>Loading</h3>
           )}
         </ModalWindow>
 
