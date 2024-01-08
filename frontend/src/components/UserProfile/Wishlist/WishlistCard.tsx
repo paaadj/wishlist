@@ -28,6 +28,7 @@ import {
 import { ChatIcon, DeleteIcon, EditIcon, LinkIcon } from "@chakra-ui/icons";
 import ReserveWishItemForm from "./ReserveWishItemForm";
 import { WishItem } from "./Wishlist";
+import React from "react";
 
 interface IWishlistCard {
   self: boolean;
@@ -37,14 +38,16 @@ interface IWishlistCard {
   description: string;
   imgUrl: string;
   reservedUser?: number;
-  updateWishlistFunction: Dispatch<SetStateAction<boolean>>;
+  updateWishlistFunction: ()=>void;
   setEditWishItem: (wishEditItemId: number) => void;
-  handleReserveItem: (wishEditItemId: number) => void;
+  handleSetReserveItem: (wishEditItemId: number) => void;
+  handleDeleteItem: (wishId: number) => Promise<void>
   handleUnreserveItem: (itemId: number) => Promise<void>;
   handleChatOpen: (chatItem: { id: number; title: string }) => void;
 }
 
 function WishlistCard(props: IWishlistCard) {
+  console.log("WishCardRerender");
   const {
     self,
     authUserId,
@@ -55,7 +58,8 @@ function WishlistCard(props: IWishlistCard) {
     reservedUser,
     updateWishlistFunction,
     setEditWishItem,
-    handleReserveItem,
+    handleDeleteItem,
+    handleSetReserveItem,
     handleUnreserveItem,
     handleChatOpen,
   } = props;
@@ -70,21 +74,8 @@ function WishlistCard(props: IWishlistCard) {
   const fixedImageUrl = imgUrl
     ? baseImageUrl + fixImageUrl(imgUrl) + "?alt=media"
     : "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media";
-  const deleteWishlistItem = async () => {
-    const requestParams = {
-      method: "DELETE",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-    };
-    const response = await fetch(
-      `/backend/api/delete/${wishItemId}`,
-      requestParams
-    );
-    if (response.ok) {
-      console.log("delete succsess");
-      updateWishlistFunction((prevState) => !prevState);
-    }
+  const deleteWishlistItem = () => {
+    handleDeleteItem(wishItemId);
   };
 
   const handleEditButtonClick = () => {
@@ -92,7 +83,7 @@ function WishlistCard(props: IWishlistCard) {
   };
 
   const handleReserveButtonClick = () => {
-    handleReserveItem(wishItemId);
+    handleSetReserveItem(wishItemId);
   };
 
   // const handleReserveButtonClick = () => {
@@ -210,4 +201,4 @@ function WishlistCard(props: IWishlistCard) {
   );
 }
 
-export default WishlistCard;
+export default React.memo(WishlistCard);

@@ -28,6 +28,7 @@ interface IEditAvatar {
 }
 
 function UserEditAvatarForm(props: IUserEditAvatarForm) {
+  console.log("UserEditAvatarFormRerender");
   const { updateUserAvatarUrl, setActiveModal } = props;
   const [userAvatar, setUserAvatar] = useState<File | undefined>(undefined);
   const {

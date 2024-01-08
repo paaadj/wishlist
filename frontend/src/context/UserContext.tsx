@@ -140,7 +140,7 @@ export const UserProvider = (props: any) => {
         username: data.username,
         email: data.email,
         imgUrl: baseImageUrl +
-        (data.image
+        (data.image_url
           ? fixImageUrl(data.image_url)
           : "mqdefault.jpeg") +
         "?alt=media",

@@ -12,13 +12,10 @@ import EditWishItemForm from "./EditWishItemForm";
 import Pagination from "../../Pagination/Pagination";
 import classNames from "classnames";
 import Chat from "../../Chat/Chat";
-import {
-  Flex,
-  IconButton,
-  Spinner,
-} from "@chakra-ui/react";
+import { Flex, IconButton, Spinner } from "@chakra-ui/react";
 import { AddIcon, WarningIcon } from "@chakra-ui/icons";
 import ReserveWishItemForm from "./ReserveWishItemForm";
+import React from "react";
 
 interface IWishlistProps {
   self: boolean;
@@ -45,6 +42,7 @@ type WishList = {
 const ROWS_PER_PAGE = 6;
 
 function Wishlist(props: IWishlistProps) {
+  console.log("WishlistRerender");
   const { self, curUser } = props;
   const { user, getAccessCookie } = useContext(UserContext) as UserContextType;
   const [wishlist, setWishlist] = useState<WishList | undefined>(undefined);
@@ -118,7 +116,7 @@ function Wishlist(props: IWishlistProps) {
       setWishItemIsEdit(true);
     }
   }, [wishItemEdit]);
-/**
+  /**
    * Setup an actual item that is on reserve
    *  */
   useEffect(() => {
@@ -127,110 +125,144 @@ function Wishlist(props: IWishlistProps) {
     }
   }, [wishItemReserved]);
 
-  const handleSetEditItem = (wishEditItemId: number) => {
-    if (wishlist) {
-      const wishItem = wishlist.items.find(
-        (item) => item.id === wishEditItemId
-      );
-      if (wishItem) {
-        setWishItemEdit({
-          ...wishItem,
-        });
-      }
-    }
-  };
+  const handleUpdateWishListFunction = useCallback(() => {
+    setUpdateWishlist((prev) => !prev);
+  }, []);
 
-  const handleSetReserveItem = (wishReserveItemId: number) => {
-    console.log(wishReserveItemId);
-    if (wishlist) {
-      const wishItem = wishlist.items.find(
-        (item) => item.id === wishReserveItemId
-      );
-      if (wishItem) {
-        setWishItemReserved({
-          ...wishItem,
-        });
+  const handleSetEditItem = useCallback(
+    (wishEditItemId: number) => {
+      if (wishlist) {
+        const wishItem = wishlist.items.find(
+          (item) => item.id === wishEditItemId
+        );
+        if (wishItem) {
+          setWishItemEdit({
+            ...wishItem,
+          });
+        }
       }
-    }
-  };
+    },
+    [wishlist]
+  );
+
+  const handleSetReserveItem = useCallback(
+    (wishReserveItemId: number) => {
+      console.log(wishReserveItemId);
+      if (wishlist) {
+        const wishItem = wishlist.items.find(
+          (item) => item.id === wishReserveItemId
+        );
+        if (wishItem) {
+          setWishItemReserved({
+            ...wishItem,
+          });
+        }
+      }
+    },
+    [wishlist]
+  );
 
   const handleEditWindowLeave = useCallback(() => {
     setWishItemEdit(undefined);
     setActiveModalAdd(false);
   }, []);
 
-  const handleReserveItem = async (itemId: number, date: string) => {
+  const handleDeleteWishlistItem = async (wishId: number) => {
     const requestParams = {
-      method: "POST",
+      method: "DELETE",
       headers: {
         Authorization: "Bearer " + getAccessCookie(),
-        "Content-Type": "application/json",
       },
     };
-    try {
-      const response = await fetch(
-        `/backend/api/reserve?item_id=${itemId}` + (date ? `&date=${date}` : ""),
-        requestParams
-      );
-      console.log("Reservation successful");
-      if (wishlist) {
-        let updatedWishList = wishlist.items.map((item) => {
-          if (item.id === itemId) {
-            return { ...item, reserved_user: 2 };
-          } else {
-            return item;
-          }
-        });
-        setWishlist((prev) => {
-          return prev ? { ...prev, items: updatedWishList } : prev;
-        });
-        setWishItemReserved(undefined);
-        setReserveFormActive(false);
-      }
-    } catch (err) {
-      console.log(
-        "Error wishlist fetch" +
-          (err instanceof Error ? ": " + err.message : "")
-      );
+    const response = await fetch(
+      `/backend/api/delete/${wishId}`,
+      requestParams
+    );
+    if (response.ok) {
+      console.log("delete succsess");
+      handleUpdateWishListFunction();
     }
   };
 
-  const handleUnreserveItem = async (itemId: number) => {
-    const requestParams = {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-        "Content-Type": "application/json",
-      },
-    };
-    try {
-      const response = await fetch(
-        `/backend/api/unreserve?item_id=${itemId}`,
-        requestParams
-      );
-      if (!response.ok) {
-        throw new Error("Cannot unreserve item");
+  const handleReserveItem = useCallback(
+    async (itemId: number, date: string) => {
+      const requestParams = {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + getAccessCookie(),
+          "Content-Type": "application/json",
+        },
+      };
+      try {
+        const response = await fetch(
+          `/backend/api/reserve?item_id=${itemId}` +
+            (date ? `&date=${date}` : ""),
+          requestParams
+        );
+        console.log("Reservation successful");
+        if (wishlist) {
+          let updatedWishList = wishlist.items.map((item) => {
+            if (item.id === itemId) {
+              return { ...item, reserved_user: 2 };
+            } else {
+              return item;
+            }
+          });
+          setWishlist((prev) => {
+            return prev ? { ...prev, items: updatedWishList } : prev;
+          });
+          setWishItemReserved(undefined);
+          setReserveFormActive(false);
+        }
+      } catch (err) {
+        console.log(
+          "Error wishlist fetch" +
+            (err instanceof Error ? ": " + err.message : "")
+        );
       }
-      console.log("Unreservation successful");
-      if (wishlist) {
-        let updatedWishList = wishlist.items.map((item) => {
-          if (item.id === itemId) {
-            return { ...item, reserved_user: undefined };
-          } else {
-            return item;
-          }
-        });
-        setWishlist((prev) => {
-          return prev ? { ...prev, items: updatedWishList } : prev;
-        });
+    },
+    [wishlist]
+  );
+
+  const handleUnreserveItem = useCallback(
+    async (itemId: number) => {
+      const requestParams = {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + getAccessCookie(),
+          "Content-Type": "application/json",
+        },
+      };
+      try {
+        const response = await fetch(
+          `/backend/api/unreserve?item_id=${itemId}`,
+          requestParams
+        );
+        if (!response.ok) {
+          throw new Error("Cannot unreserve item");
+        }
+        console.log("Unreservation successful");
+        if (wishlist) {
+          let updatedWishList = wishlist.items.map((item) => {
+            if (item.id === itemId) {
+              return { ...item, reserved_user: undefined };
+            } else {
+              return item;
+            }
+          });
+          setWishlist((prev) => {
+            return prev ? { ...prev, items: updatedWishList } : prev;
+          });
+        }
+      } catch (err) {
+        console.log(
+          "Error wishlist fetch" +
+            (err instanceof Error ? ": " + err.message : "")
+        );
       }
-    } catch (err) {
-      console.log(
-        "Error wishlist fetch" +
-          (err instanceof Error ? ": " + err.message : "")
-      );
-    }
-  };
+    },
+    [wishlist]
+  );
 
   const handleNextPageClick = useCallback(() => {
     const current = page;
@@ -247,85 +279,129 @@ function Wishlist(props: IWishlistProps) {
     setPage(prev > 0 ? prev : current);
   }, [page]);
 
-  const handleChatOpen = (chatItem: { id: number; title: string }) => {
-    setChatItem(chatItem);
-  };
-  const handleChatClose = () => {
+  const handleChatOpen = useCallback(
+    (chatItem: { id: number; title: string }) => {
+      setChatItem(chatItem);
+    },
+    []
+  );
+  const handleChatClose = useCallback(() => {
     setChatItem(undefined);
-  };
+  }, []);
 
-  const handleEditWishItem = async (
-    wishId: number,
-    title?: string,
-    description?: string,
-    linkToSite?: string,
-    imgBinary?: File
-  ) => {
-    const formData = new FormData();
-    if (title) {
+  const handleCloseItemIsEdit = useCallback(() => {
+    setWishItemIsEdit(false);
+  }, []);
+
+  const handleEditWishItem = useCallback(
+    async (
+      wishId: number,
+      title?: string,
+      description?: string,
+      linkToSite?: string,
+      imgBinary?: File
+    ) => {
+      const formData = new FormData();
+      if (title) {
+        formData.append("title", title);
+      }
+      if (description) {
+        formData.append("description", description);
+      }
+      if (linkToSite) {
+        formData.append("link", linkToSite);
+      }
+      if (imgBinary) {
+        formData.append("image", imgBinary, imgBinary.name);
+      }
+
+      const requestParams = {
+        method: "PUT",
+        headers: {
+          Authorization: "Bearer " + getAccessCookie(),
+        },
+        body: formData,
+      };
+      const response = await fetch(
+        `/backend/api/update_item?item_id=${wishId}`,
+        requestParams
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Edit item");
+        console.log(data);
+        if (wishlist) {
+          let updatedWishList = wishlist.items.map((item) => {
+            if (item.id === data.id) {
+              return data;
+            } else {
+              return item;
+            }
+          });
+          setWishlist((prev) => {
+            return prev ? { ...prev, items: updatedWishList } : prev;
+          });
+        }
+        // setUpdateWishlist((prevState) => !prevState);
+      } else {
+        console.log("Don't edit item");
+      }
+    },
+    []
+  );
+
+  const handleAddWishItemToWishlist = useCallback(
+    async (
+      title: string,
+      description: string,
+      linkToSite?: string,
+      imgBinary?: File
+    ) => {
+      const formData = new FormData();
       formData.append("title", title);
-    }
-    if (description) {
       formData.append("description", description);
-    }
-    if (linkToSite) {
-      formData.append("link", linkToSite);
-    }
-    if (imgBinary) {
-      console.log(imgBinary);
-      formData.append("image", imgBinary, imgBinary.name);
-    }
-
-    const requestParams = {
-      method: "PUT",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-      body: formData,
-    };
-    const response = await fetch(
-      `/backend/api/update_item?item_id=${wishId}`,
-      requestParams
-    );
-    if (response.ok) {
-      console.log("Edit item");
-      setUpdateWishlist((prevState) => !prevState);
-    } else {
-      console.log("Don't edit item");
-    }
-  };
-
-  const handleAddWishItemToWishlist = async (
-    title: string,
-    description: string,
-    linkToSite?: string,
-    imgBinary?: File
-  ) => {
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    if (linkToSite) {
-      formData.append("link", linkToSite);
-    }
-    if (imgBinary) {
-      formData.append("image", imgBinary, imgBinary.name);
-    }
-    console.log(formData);
-    const requestParams = {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-      body: formData,
-    };
-    const response = await fetch(`/backend/api/add_item`, requestParams);
-    if (response.ok) {
-      console.log("Added item");
-      setUpdateWishlist((prevState) => !prevState);
-    } else {
-      console.log("Don't added item");
-    }
-  };
+      if (linkToSite) {
+        formData.append("link", linkToSite);
+      }
+      if (imgBinary) {
+        formData.append("image", imgBinary, imgBinary.name);
+      }
+      console.log(formData);
+      const requestParams = {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + getAccessCookie(),
+        },
+        body: formData,
+      };
+      const response = await fetch(`/backend/api/add_item`, requestParams);
+      if (response.ok) {
+        console.log("Added item");
+        console.log(wishlist);
+        if (wishlist) {
+          if (wishlist.total_items - wishlist.page * wishlist.per_page < 0) {
+            console.log("menishe");
+            const data = await response.json();
+            console.log(data);
+            wishlist.items.push(data);
+          }
+          setWishlist((prev) => {
+            return prev
+              ? {
+                  ...prev,
+                  items: wishlist.items,
+                  total_items: prev.total_items + 1,
+                  total_pages: Math.ceil((prev.total_items + 1) / prev.per_page)
+                }
+              : prev;
+          });
+        }
+      } else {
+        console.log("Don't added item");
+      }
+    },
+    [wishlist]
+  );
 
   return (
     <>
@@ -375,7 +451,9 @@ function Wishlist(props: IWishlistProps) {
           )}
         </ModalWindow>
         <ModalWindow active={activeModalAdd} setActive={setActiveModalAdd}>
-          <AddWishItemForm addWishItemToWishlistFunc={handleAddWishItemToWishlist} />
+          <AddWishItemForm
+            addWishItemToWishlistFunc={handleAddWishItemToWishlist}
+          />
         </ModalWindow>
         <ModalWindow
           active={wishItemIsEdit}
@@ -388,6 +466,7 @@ function Wishlist(props: IWishlistProps) {
               prevWishName={wishItemEdit?.title}
               prevWishDesc={wishItemEdit?.description}
               prevWishImg={wishItemEdit?.image_url}
+              closeWishItemIsEdit={handleCloseItemIsEdit}
               editWishItemFunc={handleEditWishItem}
             />
           ) : (
@@ -413,9 +492,10 @@ function Wishlist(props: IWishlistProps) {
                     description={item.description}
                     imgUrl={item.image_url}
                     reservedUser={item.reserved_user}
-                    updateWishlistFunction={setUpdateWishlist}
+                    updateWishlistFunction={handleUpdateWishListFunction}
                     setEditWishItem={handleSetEditItem}
-                    handleReserveItem={handleSetReserveItem}
+                    handleDeleteItem={handleDeleteWishlistItem}
+                    handleSetReserveItem={handleSetReserveItem}
                     handleUnreserveItem={handleUnreserveItem}
                     handleChatOpen={handleChatOpen}
                   />
@@ -464,4 +544,4 @@ function Wishlist(props: IWishlistProps) {
   );
 }
 
-export default Wishlist;
+export default React.memo(Wishlist);

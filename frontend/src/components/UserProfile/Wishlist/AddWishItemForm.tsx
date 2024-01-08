@@ -11,6 +11,7 @@ import {
 import { UserContext, UserContextType } from "../../../context/UserContext";
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Icon, Input } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
+import React from "react";
 
 interface IAddWishItemForm {
   addWishItemToWishlistFunc: (title: string, description: string, linkToSite?: string, imgBinary?: File) => Promise<void>;
@@ -23,6 +24,7 @@ interface IAddWishItem {
 }
 
 function AddWishItemForm(props: IAddWishItemForm) {
+  console.log("AddWishFormRerender");
   const { addWishItemToWishlistFunc } = props;
   const [wishName, setWishName] = useState("");
   const [wishDesc, setWishDesc] = useState("");
