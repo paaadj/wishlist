@@ -21,4 +21,4 @@ async def read_notification(notification_id: int, user=Depends(get_current_user)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification doesn't exists")
     notification.read = True
     await notification.save()
-    return notification
+    return notification.to_response()
