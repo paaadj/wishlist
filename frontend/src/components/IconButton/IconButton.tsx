@@ -2,7 +2,7 @@ import classNames from "classnames";
 import styles from "./iconButton.module.css"
 
 interface IIconButton{
-    size: 16 | 24 | 32 | 40 | 48;
+    size: 16 | 20 | 24 | 32 | 40 | 48;
     iconSrc: string;
     onClick?: () => void;
     className?: string;

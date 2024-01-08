@@ -46,7 +46,7 @@
   grid-column: 1;
   grid-row: 3;
   padding: 10px 10px 0 0;
-  align-items: flex-end;
+  align-items: center;
 }
 .chat_input_field_reply{
   display: flex;
@@ -84,6 +84,7 @@
 }
 .chat_input {
   border-radius: 5px;
+  padding: 2px 5px;
   max-height: 100px;
   min-height: 30px;
   width: 90%;

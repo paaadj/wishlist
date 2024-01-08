@@ -92,8 +92,8 @@ function Message(props: IMessage) {
             { [styles.within_reply]: replyId !== undefined },
             { [styles.without_reply]: replyId === undefined }
           )}
-          size={24}
-          iconSrc="/img/temp.png"
+          size={20}
+          iconSrc="/img/reply.png"
           onClick={handleMessageClick}
         />
 
