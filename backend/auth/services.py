@@ -72,6 +72,13 @@ async def get_current_user_or_none(access_token: str = Depends(oauth2_scheme)) -
     return None if access_token is None else await get_current_user(access_token)
 
 
+async def get_current_admin(access_token: str = Depends(oauth2_scheme)) -> User:
+    user: User = await get_current_user(access_token)
+    if not user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    return user
+
+
 async def create_user(user: UserCreate):
     """
     Create user

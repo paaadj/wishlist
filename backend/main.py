@@ -10,6 +10,7 @@ from auth.routes import auth_router
 from api.wishlist_routes import router as wishlist_router
 from api.chat_routes import router as chat_router
 from api.notification_routes import router as notification_router
+from api.admin_routes import router as admin_router
 from config import settings
 from aerich import Command
 from aerich_cfg import TORTOISE_ORM
@@ -60,6 +61,7 @@ app.include_router(auth_router)
 app.include_router(notification_router)
 app.include_router(wishlist_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
+app.include_router(admin_router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
