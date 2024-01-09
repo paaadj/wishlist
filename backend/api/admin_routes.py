@@ -53,9 +53,6 @@ async def get_users(
                               title="Sort users by field name(- for descending order) in format *field1,field2*"
                               )
 ):
-    """
-
-    """
     query = User.all()
     if username:
         query = query.filter(username__icontains=username)
@@ -85,8 +82,9 @@ async def get_users(
     users = await query.offset((page - 1) * per_page).limit(per_page)
     total_users = await User.all().count()
     total_pages = math.ceil(total_users / per_page)
+    users_response = [user.to_admin_response() for user in users]
     response = {
-        "users": [user.to_admin_response() for user in users],
+        "users": users_response,
         "per_page": per_page,
         "page": page,
         "total_items": total_users,
