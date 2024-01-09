@@ -155,7 +155,7 @@ async def remove_user_image(
         await delete_user_image(user.image_url)
         user.image_url = None
     await user.save()
-    return user
+    return user.to_admin_response()
 
 
 @router.post("/users/delete", response_model=UserResponseAdmin, tags=["admin"])
@@ -237,7 +237,7 @@ async def edit_wishlist_item(
 
     await item.save()
 
-    return item
+    return item.to_admin_response()
 
 
 @router.get("/wishlists/{item_id}/remove_image", response_model=WishlistItemAdminResponse, tags=["admin"])
@@ -252,7 +252,7 @@ async def remove_item_image(
         await delete_item_image(item.image_url)
         item.image_url = None
     await item.save()
-    return item
+    return item.to_admin_response()
 
 
 @router.post("/wishlists/{item_id}/delete", response_model=WishlistItemAdminResponse, tags=["admin"])
@@ -264,4 +264,4 @@ async def delete_item(
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
     await item.delete()
-    return item
+    return item.to_admin_response()
