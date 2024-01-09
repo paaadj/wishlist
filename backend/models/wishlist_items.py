@@ -4,7 +4,7 @@ from pydantic import BaseModel, AnyHttpUrl
 from typing import Optional
 from tortoise import fields, Model
 from tortoise.validators import RegexValidator
-from models.user import User
+from models.user import User, UserResponseAdmin
 import re
 
 
@@ -25,6 +25,15 @@ class WishlistItemResponse(BaseModel):
     link: Optional[AnyHttpUrl] = None
     image_url: Optional[str] = None
     reserved_user: ReservationStatusEnum
+
+
+class WishlistItemAdminResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    link: Optional[AnyHttpUrl] = None
+    image_url: Optional[str] = None
+    reserved_user: Optional[UserResponseAdmin] = None
 
 
 class WishlistItem(Model):
@@ -74,3 +83,19 @@ class WishlistItem(Model):
             image_url=self.image_url,
             reserved_user=reserved_user_response,
         )
+
+    async def to_admin_response(self) -> WishlistItemAdminResponse:
+        user: User = await self.reserved_user
+        reserved_user = None
+        if user is not None:
+            reserved_user = user.to_admin_response()
+        item = WishlistItemAdminResponse(
+            id=self.id,
+            title=self.title,
+            description=self.description,
+            link=self.link,
+            image_url=self.image_url,
+            reserved_user=reserved_user,
+        )
+        return item
+

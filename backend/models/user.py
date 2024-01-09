@@ -125,6 +125,14 @@ class UserResponse(BaseModel):
     image_url: Optional[str] = None
 
 
+class UsersListAdminResponse(BaseModel):
+    users: list[UserResponseAdmin]
+    per_page: int
+    page: int
+    total_item: int
+    total_pages: int
+
+
 class UserJWT(BaseModel):
     """
     user's data for jwt token
