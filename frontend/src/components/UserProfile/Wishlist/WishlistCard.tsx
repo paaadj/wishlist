@@ -47,7 +47,6 @@ interface IWishlistCard {
 }
 
 function WishlistCard(props: IWishlistCard) {
-  console.log("WishCardRerender");
   const {
     self,
     authUserId,
@@ -64,7 +63,6 @@ function WishlistCard(props: IWishlistCard) {
     handleChatOpen,
   } = props;
   const { getAccessCookie } = useContext(UserContext) as UserContextType;
-  const [popUp, setPopUp] = useState(false);
 
   const baseImageUrl =
     "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
@@ -72,7 +70,7 @@ function WishlistCard(props: IWishlistCard) {
     return url ? url.replace("/", "%2F") : url;
   };
   const fixedImageUrl = imgUrl
-    ? baseImageUrl + fixImageUrl(imgUrl) + "?alt=media"
+    ? baseImageUrl + fixImageUrl(imgUrl)
     : "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media";
   const deleteWishlistItem = () => {
     handleDeleteItem(wishItemId);

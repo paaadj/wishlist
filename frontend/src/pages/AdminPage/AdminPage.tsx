@@ -208,11 +208,10 @@ function AdminPage() {
   const handleSideMenuToggle = () => {
     setIsSideMenuActive((prev) => !prev);
   };
-  
+
   React.useEffect(() => {
     const fetchCurrentData = async () => {
       try {
-        
         let response: Response | undefined = undefined;
         if (currentTable === "users") {
           const requestParams = {
@@ -236,14 +235,14 @@ function AdminPage() {
         }
         if (currentTable === "wishes") {
           const requestParams = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: getAccessCookie()
-              ? "Bearer " + getAccessCookie()
-              : "",
-          },
-        };
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: getAccessCookie()
+                ? "Bearer " + getAccessCookie()
+                : "",
+            },
+          };
           response = await requestProvider(
             fetch,
             `/backend/api/admin/wishlists?page=${page}&per_page=${AMOUNT_AT_THE_PAGE}`,
@@ -251,6 +250,14 @@ function AdminPage() {
           );
           if (response) {
             const data = await response.json();
+            console.log("object");
+            console.log(data);
+            data.forEach((item:WishData)=>{
+              if (item.image_url) {
+                item.image_url += "?alt=media" + `&t=${new Date().getTime()}`;
+              }
+            });
+            console.log(data);
             setCurrentWishes(data);
           }
         }
@@ -447,20 +454,26 @@ function AdminPage() {
     title?: string,
     description?: string,
     linkToSite?: string,
-    imgBinary?: File
+    imgBinary?: File,
+    deleteImage?: boolean
   ) => {
     const formData = new FormData();
+    let formIsEmpty = true;
     if (title) {
       formData.append("title", title);
+      formIsEmpty = false;
     }
     if (description) {
       formData.append("description", description);
+      formIsEmpty = false;
     }
     if (linkToSite) {
       formData.append("link", linkToSite);
+      formIsEmpty = false;
     }
-    if (imgBinary) {
+    if (imgBinary && !deleteImage) {
       formData.append("image", imgBinary, imgBinary.name);
+      formIsEmpty = false;
     }
 
     const requestParams = {
@@ -470,18 +483,28 @@ function AdminPage() {
       },
       body: formData,
     };
-    const response = await fetch(
-      `/backend/api/admin/wishlists/${wishId}/edit`,
-      requestParams
-    );
-    if (response.ok) {
+    let response: Response | undefined = undefined;
+    if (!formIsEmpty) {
+      response = await fetch(
+        `/backend/api/admin/wishlists/${wishId}/edit`,
+        requestParams
+      );
+    }
+    if (deleteImage) {
+      const requestParams = {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + getAccessCookie(),
+        },
+      };
+      response = await fetch(`/backend/api/admin/wishlists/${wishId}/remove_image`, requestParams);
+    }
+    if (response && response.ok) {
       const data = await response.json();
-      console.log("Edit wish item");
-      console.log(data);
       if (currentWishes) {
         const updatedWishes = currentWishes.map((item) => {
           if (item.id === wishId) {
-            return data;
+            return {...data, image_url: data.image_url ? data.image_url  + "?alt=media" + `&t=${new Date().getTime()}` : data.image_url };
           } else {
             return item;
           }
@@ -492,7 +515,7 @@ function AdminPage() {
     } else {
       console.log("Don't edit item");
     }
-  }
+  };
 
   const deleteWishItem = async (item_id: number) => {
     const requestParams = {
@@ -544,7 +567,11 @@ function AdminPage() {
           />
         )}
         {currentTable === "wishes" && currentWishes && (
-          <AdminWishTable currentData={currentWishes} deleteWishItemFunc={deleteWishItem} editWishItemFunc={editWishItem}/>
+          <AdminWishTable
+            currentData={currentWishes}
+            deleteWishItemFunc={deleteWishItem}
+            editWishItemFunc={editWishItem}
+          />
         )}
         {error && (
           <Flex align="center" justifyContent="center" w="100%" padding={50}>

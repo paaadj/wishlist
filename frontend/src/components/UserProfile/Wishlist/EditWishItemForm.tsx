@@ -11,6 +11,7 @@ import {
 import { UserContext, UserContextType } from "../../../context/UserContext";
 import {
   Button,
+  Checkbox,
   Flex,
   FormControl,
   FormLabel,
@@ -25,13 +26,14 @@ interface IEditWishItemForm {
   prevWishName?: string;
   prevWishDesc?: string;
   prevWishImg?: string;
-  closeWishItemIsEdit: ()=>void;
+  closeWishItemIsEdit: () => void;
   editWishItemFunc: (
     wishId: number,
     title?: string,
     description?: string,
     linkToSite?: string,
-    imgBinary?: File
+    imgBinary?: File,
+    deleteImage?:boolean,
   ) => Promise<void>;
 }
 
@@ -39,16 +41,22 @@ interface IEditWishItem {
   wishName: string;
   wishDesc: string;
   wishImg: string;
+  wishImgDelete: boolean;
 }
 
 function EditWishItemForm(props: IEditWishItemForm) {
-  console.log("EditWishFormRerender");
-  const { wishId, prevWishName, prevWishDesc, prevWishImg, closeWishItemIsEdit, editWishItemFunc } =
-    props;
+  const {
+    wishId,
+    prevWishName,
+    prevWishDesc,
+    prevWishImg,
+    closeWishItemIsEdit,
+    editWishItemFunc,
+  } = props;
   const [wishName, setWishName] = useState(prevWishName);
   const [wishDesc, setWishDesc] = useState(prevWishDesc);
   const [wishImgBin, setWishImgBin] = useState<File | undefined>(undefined);
-
+  const [wishImgDelete, setWishImgDelete] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -66,7 +74,9 @@ function EditWishItemForm(props: IEditWishItemForm) {
 
   const onSubmitHandler = async (values: IEditWishItem) => {
     if (wishId) {
-      editWishItemFunc(wishId, wishName, wishDesc, undefined, wishImgBin);
+      console.table(values);
+      console.log(wishImgDelete);
+      editWishItemFunc(wishId, wishName, wishDesc, undefined, wishImgBin, wishImgDelete);
       setWishName("");
       setWishDesc("");
       setWishImgBin(undefined);
@@ -149,12 +159,23 @@ function EditWishItemForm(props: IEditWishItemForm) {
         <FormControl>
           <FormLabel htmlFor="wishImg">Wish image</FormLabel>
           <Input
+            isDisabled={wishImgDelete}
             type="file"
             id="wishImg"
             placeholder="Wish image"
             {...register("wishImg", { onChange: handleFileChange })}
           />
         </FormControl>
+        <Checkbox
+          id="wishImgDelete"
+          {...register("wishImgDelete", {
+            onChange: (e) => {
+              setWishImgDelete(e.target.checked);
+            },
+          })}
+        >
+          Delete image
+        </Checkbox>
         {/* <UserInput
           type="file"
           id="wishImg"
