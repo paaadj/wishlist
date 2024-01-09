@@ -28,7 +28,8 @@ export type WishData = {
   description: string;
   link: string | null;
   image_url: string | null;
-  reserved_user: number | null;
+  reserved_user: UserData | null;
+  owner: UserData;
 };
 
 export const wishesData = [
@@ -182,7 +183,7 @@ export const usersData = [
   },
 ];
 
-const AMOUNT_AT_THE_PAGE = 10;
+const AMOUNT_AT_THE_PAGE = 20;
 
 function AdminPage() {
   const { user, getAccessCookie, requestProvider } = React.useContext(
@@ -207,21 +208,22 @@ function AdminPage() {
   const handleSideMenuToggle = () => {
     setIsSideMenuActive((prev) => !prev);
   };
-
+  
   React.useEffect(() => {
     const fetchCurrentData = async () => {
       try {
-        const requestParams = {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: getAccessCookie()
-              ? "Bearer " + getAccessCookie()
-              : "",
-          },
-        };
+        
         let response: Response | undefined = undefined;
         if (currentTable === "users") {
+          const requestParams = {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: getAccessCookie()
+                ? "Bearer " + getAccessCookie()
+                : "",
+            },
+          };
           response = await requestProvider(
             fetch,
             `/backend/api/admin/users?page=${page}&per_page=${AMOUNT_AT_THE_PAGE}`,
@@ -233,6 +235,24 @@ function AdminPage() {
           }
         }
         if (currentTable === "wishes") {
+          const requestParams = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: getAccessCookie()
+              ? "Bearer " + getAccessCookie()
+              : "",
+          },
+        };
+          response = await requestProvider(
+            fetch,
+            `/backend/api/admin/wishlists?page=${page}&per_page=${AMOUNT_AT_THE_PAGE}`,
+            requestParams
+          );
+          if (response) {
+            const data = await response.json();
+            setCurrentWishes(data);
+          }
         }
       } catch (err) {
         setError(
@@ -245,6 +265,7 @@ function AdminPage() {
         setLoading(false);
       }
     };
+    console.log(currentTable);
     fetchCurrentData();
   }, [currentTable, page, updateTableState]);
 
@@ -380,9 +401,11 @@ function AdminPage() {
           Authorization: "Bearer " + getAccessCookie(),
         },
       };
-      response = await fetch(`/backend/api/admin/users/${username}/remove_image`, requestParams);
-    } 
-    else {
+      response = await fetch(
+        `/backend/api/admin/users/${username}/remove_image`,
+        requestParams
+      );
+    } else {
       if (!imgBinary) {
         return;
       }
@@ -398,7 +421,10 @@ function AdminPage() {
         },
         body: formData,
       };
-      response = await fetch(`/backend/api/admin/users/${username}/edit`, requestParams);
+      response = await fetch(
+        `/backend/api/admin/users/${username}/edit`,
+        requestParams
+      );
     }
     if (response.ok) {
       const data = await response.json();
@@ -413,8 +439,79 @@ function AdminPage() {
         setCurrentUsers(updatedUsers);
       }
     } else {
-
     }
+  };
+
+  const editWishItem = async (
+    wishId: number,
+    title?: string,
+    description?: string,
+    linkToSite?: string,
+    imgBinary?: File
+  ) => {
+    const formData = new FormData();
+    if (title) {
+      formData.append("title", title);
+    }
+    if (description) {
+      formData.append("description", description);
+    }
+    if (linkToSite) {
+      formData.append("link", linkToSite);
+    }
+    if (imgBinary) {
+      formData.append("image", imgBinary, imgBinary.name);
+    }
+
+    const requestParams = {
+      method: "PUT",
+      headers: {
+        Authorization: "Bearer " + getAccessCookie(),
+      },
+      body: formData,
+    };
+    const response = await fetch(
+      `/backend/api/admin/wishlists/${wishId}/edit`,
+      requestParams
+    );
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Edit wish item");
+      console.log(data);
+      if (currentWishes) {
+        const updatedWishes = currentWishes.map((item) => {
+          if (item.id === wishId) {
+            return data;
+          } else {
+            return item;
+          }
+        });
+        setCurrentWishes(updatedWishes);
+      }
+      // setUpdateWishlist((prevState) => !prevState);
+    } else {
+      console.log("Don't edit item");
+    }
+  }
+
+  const deleteWishItem = async (item_id: number) => {
+    const requestParams = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + getAccessCookie(),
+      },
+    };
+    try {
+      const response = await requestProvider(
+        fetch,
+        `/backend/api/admin/wishlists/${item_id}/delete`,
+        requestParams
+      );
+      if (response.ok) {
+        setUpdateTableState((prev) => !prev);
+      }
+    } catch (err) {}
   };
 
   return (
@@ -446,7 +543,9 @@ function AdminPage() {
             editUserAvatarFunc={editUserAvatar}
           />
         )}
-        {currentTable === "wishes" && <AdminWishTable />}
+        {currentTable === "wishes" && currentWishes && (
+          <AdminWishTable currentData={currentWishes} deleteWishItemFunc={deleteWishItem} editWishItemFunc={editWishItem}/>
+        )}
         {error && (
           <Flex align="center" justifyContent="center" w="100%" padding={50}>
             <WarningIcon color="red" />
