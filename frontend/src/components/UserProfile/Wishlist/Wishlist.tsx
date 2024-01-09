@@ -44,7 +44,9 @@ const ROWS_PER_PAGE = 6;
 function Wishlist(props: IWishlistProps) {
   console.log("WishlistRerender");
   const { self, curUser } = props;
-  const { user, getAccessCookie } = useContext(UserContext) as UserContextType;
+  const { user, getAccessCookie, requestProvider } = useContext(
+    UserContext
+  ) as UserContextType;
   const [wishlist, setWishlist] = useState<WishList | undefined>(undefined);
   const [updateWishlist, setUpdateWishlist] = useState<boolean>(false);
   const [activeModalAdd, setActiveModalAdd] = useState(false);
@@ -78,16 +80,20 @@ function Wishlist(props: IWishlistProps) {
               : "",
           },
         };
-        const response = await fetch(
+        const response = await requestProvider(
+          fetch,
           `/backend/api/get_wishlist?page=${page}&per_page=${ROWS_PER_PAGE}&username=${curUser.username}`,
           requestParams
         );
-        if (!response.ok) {
-          throw new Error("Cannot fetch wishlist");
-        }
-        const data = await response.json();
+        let data = await response.json();
+        data.items.forEach((item: WishItem) => {
+          if (item.image_url) {
+            item.image_url += "?alt=media" + `&t=${new Date().getTime()}`;
+          }
+        });
         setWishlist(data);
       } catch (err) {
+        console.log("object");
         setError(
           "Error wishlist fetch" +
             (err instanceof Error ? ": " + err.message : "")
@@ -299,20 +305,26 @@ function Wishlist(props: IWishlistProps) {
       title?: string,
       description?: string,
       linkToSite?: string,
-      imgBinary?: File
+      imgBinary?: File,
+      deleteImage?: boolean
     ) => {
       const formData = new FormData();
+      let formIsEmpty = true;
       if (title) {
         formData.append("title", title);
+        formIsEmpty = false;
       }
       if (description) {
         formData.append("description", description);
+        formIsEmpty = false;
       }
       if (linkToSite) {
         formData.append("link", linkToSite);
+        formIsEmpty = false;
       }
-      if (imgBinary) {
+      if (imgBinary && !deleteImage) {
         formData.append("image", imgBinary, imgBinary.name);
+        formIsEmpty = false;
       }
 
       const requestParams = {
@@ -322,27 +334,38 @@ function Wishlist(props: IWishlistProps) {
         },
         body: formData,
       };
-      const response = await fetch(
-        `/backend/api/update_item?item_id=${wishId}`,
-        requestParams
-      );
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Edit item");
-        console.log(data);
-        if (wishlist) {
-          let updatedWishList = wishlist.items.map((item) => {
-            if (item.id === data.id) {
-              return data;
-            } else {
-              return item;
-            }
-          });
-          setWishlist((prev) => {
-            return prev ? { ...prev, items: updatedWishList } : prev;
-          });
-        }
-        // setUpdateWishlist((prevState) => !prevState);
+      let response: Response | undefined = undefined;
+      if (!formIsEmpty) {
+        response = await fetch(
+          `/backend/api/update_item?item_id=${wishId}`,
+          requestParams
+        );
+      }
+      if (deleteImage) {
+        console.log("object");
+        const requestParams = {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + getAccessCookie(),
+          },
+        };
+        response = await fetch(`/backend/api/${wishId}/delete_image`, requestParams);
+      }
+      if (response && response.ok) {
+        // const data = await response.json();
+        // if (wishlist) {
+        //   let updatedWishList = wishlist.items.map((item) => {
+        //     if (item.id === data.id) {
+        //       return {...data, image_url: data.image_url + "?alt=media" + `&t=${new Date().getTime()}`};
+        //     } else {
+        //       return item;
+        //     }
+        //   });
+        //   setWishlist((prev) => {
+        //     return prev ? { ...prev, items: updatedWishList } : prev;
+        //   });
+        // }
+        setUpdateWishlist((prevState) => !prevState);
       } else {
         console.log("Don't edit item");
       }
@@ -391,7 +414,9 @@ function Wishlist(props: IWishlistProps) {
                   ...prev,
                   items: wishlist.items,
                   total_items: prev.total_items + 1,
-                  total_pages: Math.ceil((prev.total_items + 1) / prev.per_page)
+                  total_pages: Math.ceil(
+                    (prev.total_items + 1) / prev.per_page
+                  ),
                 }
               : prev;
           });

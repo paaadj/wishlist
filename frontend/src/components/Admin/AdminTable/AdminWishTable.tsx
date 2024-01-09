@@ -76,7 +76,7 @@ const columns = [
     enableSorting: false,
     cell: (props: any) => {
       const url = props.getValue()
-        ? baseImageUrl + fixImageUrl(props.getValue()) + "?alt=media"
+        ? baseImageUrl + fixImageUrl(props.getValue())
         : "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media";
       return <Image src={url} />;
     },
