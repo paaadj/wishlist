@@ -200,7 +200,7 @@ async def get_wishlist_items(
             query = query.filter(description__icontains=description)
         if reserved_user:
             query = query.filter(~Q(reserved_user=None))
-        items = await query.offset((page - 1)*per_page).limit(per_page)
+        items = await query.offset((page - 1)*per_page).limit(per_page).prefetch_related("wishlist__user")
         response = [await item.to_admin_response() for item in items]
         return response
     except ValidationError as exc:
@@ -221,7 +221,7 @@ async def edit_wishlist_item(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid format item_id must be > 0",
         )
-    item = await WishlistItem.get_or_none(id=item_id)
+    item = await WishlistItem.get_or_none(id=item_id).prefetch_related("wishlist__user")
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
@@ -237,7 +237,7 @@ async def edit_wishlist_item(
 
     await item.save()
 
-    return item.to_admin_response()
+    return await item.to_admin_response()
 
 
 @router.get("/wishlists/{item_id}/remove_image", response_model=WishlistItemAdminResponse, tags=["admin"])
@@ -245,14 +245,14 @@ async def remove_item_image(
         item_id: int,
         admin: User = Depends(get_current_admin),
 ):
-    item = await WishlistItem.get_or_none(id=item_id)
+    item = await WishlistItem.get_or_none(id=item_id).prefetch_related("wishlist__user")
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
     if item.image_url:
         await delete_item_image(item.image_url)
         item.image_url = None
     await item.save()
-    return item.to_admin_response()
+    return await item.to_admin_response()
 
 
 @router.delete("/wishlists/{item_id}/delete", response_model=WishlistItemAdminResponse, tags=["admin"])
@@ -260,8 +260,8 @@ async def delete_item(
         item_id: int,
         admin: User = Depends(get_current_admin),
 ):
-    item = await WishlistItem.get_or_none(id=item_id)
+    item = await WishlistItem.get_or_none(id=item_id).prefetch_related("wishlist__user")
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
     await item.delete()
-    return item.to_admin_response()
+    return await item.to_admin_response()

@@ -34,6 +34,7 @@ class WishlistItemAdminResponse(BaseModel):
     link: Optional[AnyHttpUrl] = None
     image_url: Optional[str] = None
     reserved_user: Optional[UserResponseAdmin] = None
+    owner: UserResponseAdmin
 
 
 class WishlistItem(Model):
@@ -86,6 +87,7 @@ class WishlistItem(Model):
 
     async def to_admin_response(self) -> WishlistItemAdminResponse:
         user: User = await self.reserved_user
+        owner: User = self.wishlist.user.to_admin_response()
         reserved_user = None
         if user is not None:
             reserved_user = user.to_admin_response()
@@ -96,6 +98,7 @@ class WishlistItem(Model):
             link=self.link,
             image_url=self.image_url,
             reserved_user=reserved_user,
+            owner=owner,
         )
         return item
 
