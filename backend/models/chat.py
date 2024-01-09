@@ -29,7 +29,7 @@ class ChatMessage(Model):
         "models.Chat", related_name="messages", on_delete=fields.CASCADE
     )
     text = fields.CharField(max_length=255)
-    timestamp = fields.DatetimeField(auto_now=True)
+    timestamp = fields.DatetimeField(auto_now_add=True)
     reply_to = fields.ForeignKeyField(
         "models.ChatMessage",
         related_name='replies',
