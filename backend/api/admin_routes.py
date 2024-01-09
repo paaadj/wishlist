@@ -9,9 +9,10 @@ from models.wishlist import Wishlist
 from models.wishlist_items import WishlistItem, WishlistItemAdminResponse
 from auth.services import (
     create_user, get_current_admin, get_current_user,
-    upload_image as upload_user_image, authenticate_user
+    upload_image as upload_user_image, authenticate_user,
+    delete_image as delete_user_image,
 )
-from api.wishlist_services import upload_image as upload_item_image
+from api.wishlist_services import upload_image as upload_item_image, remove_image as delete_item_image
 from auth.routes import check_username, check_email
 from typing import Annotated
 from pydantic import EmailStr, AnyHttpUrl
@@ -52,9 +53,6 @@ async def get_users(
                               title="Sort users by field name(- for descending order) in format *field1,field2*"
                               )
 ):
-    """
-
-    """
     query = User.all()
     if username:
         query = query.filter(username__icontains=username)
@@ -84,8 +82,9 @@ async def get_users(
     users = await query.offset((page - 1) * per_page).limit(per_page)
     total_users = await User.all().count()
     total_pages = math.ceil(total_users / per_page)
+    users_response = [user.to_admin_response() for user in users]
     response = {
-        "users": [user.to_admin_response() for user in users],
+        "users": users_response,
         "per_page": per_page,
         "page": page,
         "total_items": total_users,
@@ -142,6 +141,21 @@ async def edit_user(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
         )
+
+
+@router.get("/users/{user_username}/remove_image", response_model=UserResponseAdmin)
+async def remove_user_image(
+        user_username: str,
+        admin: User = Depends(get_current_admin),
+):
+    user = await User.get_or_none(username=user_username)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if user.image_url:
+        await delete_user_image(user.image_url)
+        user.image_url = None
+    await user.save()
+    return user
 
 
 @router.post("/users/delete", response_model=UserResponseAdmin)
@@ -223,6 +237,21 @@ async def edit_wishlist_item(
 
     await item.save()
 
+    return item
+
+
+@router.get("/wishlists/{item_id}/remove_image", response_model=WishlistItemAdminResponse)
+async def remove_item_image(
+        item_id: int,
+        admin: User = Depends(get_current_admin),
+):
+    item = await WishlistItem.get_or_none(id=item_id)
+    if item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+    if item.image_url:
+        await delete_item_image(item.image_url)
+        item.image_url = None
+    await item.save()
     return item
 
 
