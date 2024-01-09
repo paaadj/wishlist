@@ -157,7 +157,7 @@ async def edit_item(
     return item
 
 
-async def remove_item_image(item_id: int, user: User) -> WishlistItem:
+async def delete_item_image(item_id: int, user: User) -> WishlistItem:
     wishlist = await user.wishlist
     item = await fetch_item_in_wishlist(item_id=item_id, wishlist=wishlist)
     if item.image_url is None:
