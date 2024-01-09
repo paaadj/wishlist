@@ -25,7 +25,7 @@ from datetime import datetime
 router = APIRouter(prefix="/admin")
 
 
-@router.post("/create_admin", response_model=UserResponseAdmin)
+@router.post("/create_admin", response_model=UserResponseAdmin, tags=["admin"])
 async def create_admin(
         user: UserCreate,
 ):
@@ -38,7 +38,7 @@ async def create_admin(
     return user.to_admin_response()
 
 
-@router.get("/users", response_model=UsersListAdminResponse)
+@router.get("/users", response_model=UsersListAdminResponse, tags=["admin"])
 async def get_users(
         admin: User = Depends(get_current_admin),
         page: int = Query(1, title="Number of page"),
@@ -93,7 +93,7 @@ async def get_users(
     return response
 
 
-@router.post("/users/{user_username}/edit", response_model=UserResponseAdmin)
+@router.put("/users/{user_username}/edit", response_model=UserResponseAdmin, tags=["admin"])
 async def edit_user(
         user_username: str,
         username: Annotated[str, Form()] = None,
@@ -143,7 +143,7 @@ async def edit_user(
         )
 
 
-@router.get("/users/{user_username}/remove_image", response_model=UserResponseAdmin)
+@router.get("/users/{user_username}/remove_image", response_model=UserResponseAdmin, tags=["admin"])
 async def remove_user_image(
         user_username: str,
         admin: User = Depends(get_current_admin),
@@ -155,10 +155,10 @@ async def remove_user_image(
         await delete_user_image(user.image_url)
         user.image_url = None
     await user.save()
-    return user
+    return user.to_admin_response()
 
 
-@router.post("/users/delete", response_model=UserResponseAdmin)
+@router.delete("/users/delete", response_model=UserResponseAdmin, tags=["admin"])
 async def delete_user(
         user_username: Annotated[str, Form()],
         admin: User = Depends(get_current_admin),
@@ -173,7 +173,7 @@ async def delete_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
 
 
-@router.post("/wishlists", response_model=list[WishlistItemAdminResponse])
+@router.post("/wishlists", response_model=list[WishlistItemAdminResponse], tags=["admin"])
 async def get_wishlist_items(
         page: int = 1,
         per_page: int = 10,
@@ -207,7 +207,7 @@ async def get_wishlist_items(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
 
 
-@router.post("/wishlists/{item_id}/edit", response_model=WishlistItemAdminResponse)
+@router.put("/wishlists/{item_id}/edit", response_model=WishlistItemAdminResponse, tags=["admin"])
 async def edit_wishlist_item(
         item_id: int,
         title: Annotated[str, Form()] = None,
@@ -237,10 +237,10 @@ async def edit_wishlist_item(
 
     await item.save()
 
-    return item
+    return item.to_admin_response()
 
 
-@router.get("/wishlists/{item_id}/remove_image", response_model=WishlistItemAdminResponse)
+@router.get("/wishlists/{item_id}/remove_image", response_model=WishlistItemAdminResponse, tags=["admin"])
 async def remove_item_image(
         item_id: int,
         admin: User = Depends(get_current_admin),
@@ -252,10 +252,10 @@ async def remove_item_image(
         await delete_item_image(item.image_url)
         item.image_url = None
     await item.save()
-    return item
+    return item.to_admin_response()
 
 
-@router.post("/wishlists/{item_id}/delete")
+@router.delete("/wishlists/{item_id}/delete", response_model=WishlistItemAdminResponse, tags=["admin"])
 async def delete_item(
         item_id: int,
         admin: User = Depends(get_current_admin),
@@ -264,4 +264,4 @@ async def delete_item(
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
     await item.delete()
-    return item
+    return item.to_admin_response()

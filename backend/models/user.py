@@ -56,7 +56,7 @@ class User(Model):
         max_length=150,
         null=True,
     )
-    created_at = fields.DatetimeField(auto_now=True, null=True)
+    created_at = fields.DatetimeField(auto_now_add=True, null=True)
     is_admin = fields.BooleanField(default=False)
 
     def to_admin_response(self) -> UserResponseAdmin:

@@ -113,7 +113,7 @@ async def get_chat_message(chat_id: int, chat_message: int, user: User = Depends
     return final_msg
 
 
-@router.post("/chats/{chat_id}/{chat_message}/edit", response_model=MessageResponse, tags=["chat"])
+@router.put("/chats/{chat_id}/{chat_message}/edit", response_model=MessageResponse, tags=["chat"])
 async def edit_chat_message(
         chat_id: int,
         chat_message: int,
