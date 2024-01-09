@@ -38,7 +38,8 @@ class Notification(Model):
             read=self.read,
             type=self.type,
             data=self.data,
-            date=self.date.__str__(),)
+            date=self.date.__str__(),
+        )
 
 
 class DeferredNotifications(Model):

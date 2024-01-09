@@ -12,6 +12,20 @@ from tortoise.validators import RegexValidator, MinLengthValidator
 from tortoise.models import Model
 
 
+class UserResponseAdmin(BaseModel):
+    """
+    User response for admins model
+    """
+    id: int
+    username: str
+    email: Optional[EmailStr] = None
+    first_name: str
+    last_name: Optional[str] = None
+    image_url: Optional[str] = None
+    created_at: str
+    is_admin: bool
+
+
 class User(Model):
     """
     User model
@@ -44,6 +58,19 @@ class User(Model):
     )
     created_at = fields.DatetimeField(auto_now=True, null=True)
     is_admin = fields.BooleanField(default=False)
+
+    def to_admin_response(self) -> UserResponseAdmin:
+        response = UserResponseAdmin(
+            id=self.id,
+            username=self.username,
+            email=self.email,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            image_url=self.image_url,
+            created_at=self.created_at.__str__(),
+            is_admin=self.is_admin,
+        )
+        return response
 
     def __str__(self):
         return self.username
