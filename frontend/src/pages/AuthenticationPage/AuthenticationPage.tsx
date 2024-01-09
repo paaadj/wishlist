@@ -1,8 +1,49 @@
 import { Navigate, Outlet, useNavigate, useOutlet } from "react-router-dom";
 import "./authenticationPage.css";
-function AuthenticationPage() {
-  const outlet = useOutlet();
+import LoginForm from "../../components/Authentication/LoginForm";
+import RegistrationForm from "../../components/Authentication/RegistrationForm";
+interface IAuthenticationPage{
+  login: boolean;
+  registraion: boolean;
+}
+function AuthenticationPage(props: IAuthenticationPage) {
+  const {login, registraion} = props;
   const navigate = useNavigate();
+
+  const registerUser = async (
+    firstName: string,
+    username: string,
+    email: string,
+    password: string,
+    lastName?: string
+  ) => {
+    const requestParams = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        username: username,
+        email: email,
+        password: password,
+      }),
+    };
+    console.log(lastName);
+    const response = await fetch("/backend/register", requestParams);
+    // const data = await response.json();
+
+    if (!response.ok) {
+      console.log("DB error");
+    } else {
+      // setToken(data.access_token);
+
+      console.log("Registration successful");
+      navigate("/");
+    }
+  };
+
   return (
     <div className="auth-wrapper">
       {/* <img src="/img/auth_bg.jpg" alt="BG" className="auth-background" />
@@ -60,7 +101,8 @@ function AuthenticationPage() {
             </button>
           </nav>
         </div> */}
-        {outlet ? <Outlet /> : <Navigate to="/" />}
+      {login && <LoginForm />}
+      {registraion && <RegistrationForm registerUser={registerUser}/>}
       {/* </div> */}
     </div>
   );

@@ -31,7 +31,7 @@ function MainPage() {
                 Admin
               </Link>
               <Link
-                to="/authentication/login"
+                to="/login"
                 className="title__button page-text page-reg-text white-color white-button-text"
               >
                 Login
@@ -168,7 +168,7 @@ function MainPage() {
             </p>
             <div className="get_started__controlls">
               <Link
-                to="/authentication/registration"
+                to="/registration"
                 className="get-started__button white-color white-button-text"
               >
                 Sign Up Now

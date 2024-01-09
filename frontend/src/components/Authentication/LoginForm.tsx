@@ -33,7 +33,7 @@ const registrationValidationSchema = yup.object().shape({
   password: yup.string().required("Password is required"),
 });
 
-const Login = () => {
+const LoginForm = () => {
   const { setAuthorizationTokens } = useContext(UserContext) as UserContextType;
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -218,4 +218,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginForm;

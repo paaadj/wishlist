@@ -16,11 +16,16 @@ import {
   Heading,
   Input,
 } from "@chakra-ui/react";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, DeleteIcon } from "@chakra-ui/icons";
 
 interface IUserEditAvatarForm {
-  updateUserAvatarUrl: Dispatch<SetStateAction<string>>;
+  editUserAvatar: (
+    deleteUserAvatar: boolean,
+    imgBinary?: File,
+    username?: string,
+  ) => Promise<void>;
   setActiveModal: React.Dispatch<React.SetStateAction<boolean>>;
+  username?: string;
 }
 
 interface IEditAvatar {
@@ -29,7 +34,7 @@ interface IEditAvatar {
 
 function UserEditAvatarForm(props: IUserEditAvatarForm) {
   console.log("UserEditAvatarFormRerender");
-  const { updateUserAvatarUrl, setActiveModal } = props;
+  const { editUserAvatar, setActiveModal, username } = props;
   const [userAvatar, setUserAvatar] = useState<File | undefined>(undefined);
   const {
     register,
@@ -45,48 +50,16 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
   const fixImageUrl = (url: string | undefined) => {
     return url ? url.replace("/", "%2F") : url;
   };
-  const editUserAvatar = async (imgBinary?: File) => {
-    if (!imgBinary) {
-      return;
-    }
-    const formData = new FormData();
-    if (imgBinary) {
-      formData.append("image", imgBinary, imgBinary.name);
-    }
-
-    const requestParams = {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-      body: formData,
-    };
-    const response = await fetch(`/backend/edit_info`, requestParams);
-    if (response.ok) {
-      const data = await response.json();
-      if (user && data) {
-        // user.imgUrl = baseImageUrl + fixImageUrl(data.image_url) + "?alt=media";
-        setUser((prev) => {
-          if (prev) {
-            return {
-              ...prev,
-              imgUrl: baseImageUrl + fixImageUrl(data.image_url) + "?alt=media",
-            };
-          }
-          return prev;
-        });
-        updateUserAvatarUrl(
-          user.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png"
-        );
-        
-      }
-    } else {
-      console.log("dont Edit avatar");
-    }
-  };
 
   const onSubmitHandler = async (values: IEditAvatar) => {
-    editUserAvatar(userAvatar);
+    editUserAvatar(false, userAvatar, username);
+    setUserAvatar(undefined);
+    reset();
+    setActiveModal(false);
+  };
+
+  const onDeleteHandler = async () => {
+    editUserAvatar(true);
     setUserAvatar(undefined);
     reset();
     setActiveModal(false);
@@ -134,7 +107,16 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
             isLoading={isSubmitting}
             rightIcon={<ArrowForwardIcon />}
           >
-            Submit
+            Edit Image
+          </Button>
+          <Button
+            mt={4}
+            colorScheme="teal"
+            type="button"
+            rightIcon={<DeleteIcon />}
+            onClick={onDeleteHandler}
+          >
+            Delete Image
           </Button>
         </Flex>
       </form>
