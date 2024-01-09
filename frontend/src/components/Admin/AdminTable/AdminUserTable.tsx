@@ -8,6 +8,8 @@ import {
   Th,
   Thead,
   Tr,
+  Image,
+  Icon,
 } from "@chakra-ui/react";
 import {
   flexRender,
@@ -22,9 +24,47 @@ import React from "react";
 import styles from "../tableStyles.module.css";
 import classNames from "classnames";
 import { DeleteIcon, EditIcon, UpDownIcon, ViewIcon } from "@chakra-ui/icons";
-
+import { RiImageEditLine } from "react-icons/ri";
 import Pagination from "../../Pagination/Pagination";
 import Filter from "./Filter";
+import ModalWindow from "../../ModalWindow/ModalWindow";
+import RegistrationForm from "../../Authentication/RegistrationForm";
+import AdminUserEditForm from "../AdminForms/AdminUserEditForm";
+import UserEditAvatarForm from "../../UserProfile/UserEditAvatarForm";
+
+const baseImageUrl =
+  "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+const fixImageUrl = (url: string | undefined) => {
+  return url ? url.replace("/", "%2F") : url;
+};
+
+interface IAdminUserTable {
+  currentData: UserData[];
+  registerNewUserFunc: (
+    firstName: string,
+    username: string,
+    email: string,
+    password: string,
+    lastName?: string
+  ) => Promise<void>;
+  deleteUserFunc: (username: string) => Promise<void>;
+  editUserFunc: (
+    prevFirstName: string,
+    prevLastName: string | undefined,
+    prevUsername: string,
+    prevEmail: string,
+    firstName: string,
+    lastName: string,
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
+  editUserAvatarFunc: (
+    deleteUserAvatar: boolean,
+    imgBinary?: File,
+    username?: string
+  ) => Promise<void>;
+}
 
 const columns = [
   {
@@ -43,6 +83,17 @@ const columns = [
     cell: (props: any) => <p>{props.getValue()}</p>,
   },
   {
+    accessorKey: "image_url",
+    header: "Image",
+    enableSorting: false,
+    cell: (props: any) => {
+      const url = props.getValue()
+        ? baseImageUrl + fixImageUrl(props.getValue()) + "?alt=media"
+        : "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media";
+      return <Image src={url} />;
+    },
+  },
+  {
     accessorKey: "username",
     header: "Username",
     cell: (props: any) => <p>{props.getValue()}</p>,
@@ -54,11 +105,43 @@ const columns = [
   },
 ];
 
-function AdminUserTable() {
-  const [data, setData] = React.useState(usersData);
+function AdminUserTable(props: IAdminUserTable) {
+  const {
+    currentData,
+    registerNewUserFunc,
+    deleteUserFunc,
+    editUserFunc,
+    editUserAvatarFunc,
+  } = props;
+  const [data, setData] = React.useState(currentData);
+  const [addNewUserIsActive, setAddNewUserIsActive] =
+    React.useState<boolean>(false);
   const [columnFilters, setColumnFilters] = React.useState<
     { id: string; value: string }[]
   >([]);
+  const [currentEditUser, setCurrentEditUser] = React.useState<
+    UserData | undefined
+  >(undefined);
+  const editForm = React.useRef("");
+  const [editFormIsActive, setEditFormIsActive] =
+    React.useState<boolean>(false);
+  const [imageEditFormIsActive, setImageEditFormIsActive] =
+    React.useState<boolean>(false);
+  React.useEffect(() => {
+    setData(currentData);
+  }, [currentData]);
+
+  React.useEffect(() => {
+    if (currentEditUser && editForm.current === "profileData") {
+      setEditFormIsActive(true);
+    } else if (currentEditUser && editForm.current === "image") {
+      setImageEditFormIsActive(true);
+    } else {
+      setImageEditFormIsActive(false);
+      setEditFormIsActive(false);
+    }
+  }, [currentEditUser]);
+
   const table = useReactTable({
     data,
     columns,
@@ -88,8 +171,43 @@ function AdminUserTable() {
 
   return (
     <>
-      <Filter columnFilters = {columnFilters} setColumnFilters={setColumnFilters}/>
-      <TableContainer minHeight="70vh" mb={4}>
+      <ModalWindow
+        active={addNewUserIsActive}
+        setActive={setAddNewUserIsActive}
+      >
+        {addNewUserIsActive && (
+          <RegistrationForm registerUser={registerNewUserFunc} />
+        )}
+      </ModalWindow>
+      <ModalWindow active={editFormIsActive} setActive={setEditFormIsActive}>
+        {editFormIsActive && currentEditUser && (
+          <AdminUserEditForm
+            prevFirstName={currentEditUser.first_name}
+            prevLastName={currentEditUser.last_name}
+            prevUsername={currentEditUser.username}
+            prevEmail={currentEditUser.email}
+            editUserFunc={editUserFunc}
+            setActiveModal={setCurrentEditUser}
+          />
+        )}
+      </ModalWindow>
+      <ModalWindow
+        active={imageEditFormIsActive}
+        setActive={setImageEditFormIsActive}
+      >
+        {imageEditFormIsActive && currentEditUser && (
+          <UserEditAvatarForm
+            editUserAvatar={editUserAvatarFunc}
+            username={currentEditUser.username}
+            setActiveModal={setImageEditFormIsActive}
+          />
+        )}
+      </ModalWindow>
+      <Filter
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+      />
+      <TableContainer minHeight="70vh" maxHeight="80%" mb={4} overflowY="auto">
         <Table w={"100%"}>
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -116,6 +234,9 @@ function AdminUserTable() {
                     bg="#34C924"
                     color="white"
                     size="sm"
+                    onClick={() => {
+                      setAddNewUserIsActive(true);
+                    }}
                   >
                     Add new user
                   </Button>
@@ -145,11 +266,21 @@ function AdminUserTable() {
                     }}
                   />
                   <IconButton
-                    aria-label="Edit row"
+                    aria-label="Edit user data"
                     bg={"transparent"}
                     icon={<EditIcon />}
                     onClick={() => {
-                      handleRowEdit(row.original);
+                      editForm.current = "profileData";
+                      setCurrentEditUser(row.original);
+                    }}
+                  />
+                  <IconButton
+                    aria-label="Edit user data"
+                    bg={"transparent"}
+                    icon={<Icon as={RiImageEditLine} />}
+                    onClick={() => {
+                      editForm.current = "image";
+                      setCurrentEditUser(row.original);
                     }}
                   />
                   <IconButton
@@ -157,7 +288,7 @@ function AdminUserTable() {
                     bg={"transparent"}
                     icon={<DeleteIcon color={"#E32636"} />}
                     onClick={() => {
-                      handleRowEdit(row.original);
+                      deleteUserFunc(row.original.username);
                     }}
                   />
                 </Td>

@@ -1,10 +1,14 @@
 import { Button, Image } from "@chakra-ui/react";
-import { userData } from "../../context/UserContext";
+import {
+  UserContext,
+  UserContextType,
+  userData,
+} from "../../context/UserContext";
 import ModalWindow from "../ModalWindow/ModalWindow";
 import UserEditAvatarForm from "./UserEditAvatarForm";
 import UserEditProfileDataForm from "./UserEditProfileDataForm";
 import "./user.css";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { EditIcon } from "@chakra-ui/icons";
 
 interface IUser {
@@ -16,6 +20,9 @@ function User(props: IUser) {
   console.log("UserRerender");
 
   const { self, user } = props;
+  const { getAccessCookie, setUser } = useContext(
+    UserContext
+  ) as UserContextType;
   const [userImgUrl, setUserImgUrl] = useState(
     user.imgUrl
       ? user.imgUrl + `&t=${new Date().getTime()}`
@@ -23,6 +30,12 @@ function User(props: IUser) {
   );
   const [avatarIsEdit, setAvatarIsEdit] = useState<boolean>(false);
   const [userDataIsEdit, setUserDataIsEdit] = useState<boolean>(false);
+
+  const baseImageUrl =
+    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url: string | undefined) => {
+    return url ? url.replace("/", "%2F") : "mqdefault.jpeg";
+  };
 
   const handleEditAvatar = () => {
     setAvatarIsEdit(true);
@@ -38,6 +51,60 @@ function User(props: IUser) {
         : "/img/username.png"
     );
   }, [user]);
+
+  const editUserAvatar = async (
+    deleteUserAvatar: boolean,
+    imgBinary?: File,
+    username?: string
+  ) => {
+    let response: Response;
+    if (deleteUserAvatar) {
+      const requestParams = {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + getAccessCookie(),
+        },
+      };
+      response = await fetch(`/backend/delete_image`, requestParams);
+    } 
+    else {
+      if (!imgBinary) {
+        return;
+      }
+      const formData = new FormData();
+      if (imgBinary) {
+        formData.append("image", imgBinary, imgBinary.name);
+      }
+
+      const requestParams = {
+        method: "PUT",
+        headers: {
+          Authorization: "Bearer " + getAccessCookie(),
+        },
+        body: formData,
+      };
+      response = await fetch(`/backend/edit_info`, requestParams);
+    }
+    if (response.ok) {
+      const data = await response.json();
+      if (user && data) {
+        setUser((prev) => {
+          if (prev) {
+            return {
+              ...prev,
+              imgUrl: baseImageUrl + fixImageUrl(data.image_url) + "?alt=media",
+            };
+          }
+          return prev;
+        });
+        setUserImgUrl(
+          user.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png"
+        );
+      }
+    } else {
+      console.log("dont Edit avatar");
+    }
+  };
 
   return (
     <>
@@ -84,7 +151,7 @@ function User(props: IUser) {
         <ModalWindow active={avatarIsEdit} setActive={setAvatarIsEdit}>
           {avatarIsEdit && (
             <UserEditAvatarForm
-              updateUserAvatarUrl={setUserImgUrl}
+              editUserAvatar={editUserAvatar}
               setActiveModal={setAvatarIsEdit}
             />
           )}

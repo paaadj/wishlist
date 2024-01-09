@@ -18,6 +18,17 @@ import {
 } from "@chakra-ui/react";
 import { ArrowLeftIcon } from "@chakra-ui/icons";
 
+interface IRegistration {
+  registerUser: (
+    firstName: string,
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    lastName?: string,
+  ) => Promise<void>;
+}
+
 interface IRegistrationInput {
   username: string;
   firstName: string;
@@ -91,7 +102,8 @@ const registrationValidationSchema = yup.object().shape({
     .required("Confirm password is required"),
 });
 
-const Registration = () => {
+const RegistrationForm = (props : IRegistration) => {
+  const {registerUser} = props;
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -115,32 +127,7 @@ const Registration = () => {
     mode: "onBlur",
   });
   const onSubmitHandler = async (values: IRegistrationInput) => {
-    const requestParams = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        first_name: firstName,
-        last_name: lastName,
-        username: username,
-        email: email,
-        password: password,
-      }),
-    };
-    console.log(lastName);
-    const response = await fetch("/backend/register", requestParams);
-    // const data = await response.json();
-
-    if (!response.ok) {
-      console.log("DB error");
-    } else {
-      // setToken(data.access_token);
-
-      console.log("Registration successful");
-      navigate("/");
-    }
-    console.table(values);
+    registerUser(firstName, username, email, password, lastName);
   };
 
   return (
@@ -370,4 +357,4 @@ const Registration = () => {
   );
 };
 
-export default Registration;
+export default RegistrationForm;
