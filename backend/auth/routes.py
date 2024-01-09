@@ -98,7 +98,6 @@ async def edit_info(
     **All parameters are optional**
     """
     try:
-        print(user)
         if username:
             if not await check_username(username):
                 raise HTTPException(
@@ -120,7 +119,7 @@ async def edit_info(
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong password"
                 )
-            user.password = bcrypt.hash(user.password)
+            user.password = bcrypt.hash(new_password)
         if first_name:
             user.first_name = first_name
         if last_name:
