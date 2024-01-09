@@ -113,7 +113,7 @@ async def update_item(
     return item.to_response(user=None)
 
 
-@router.get("{item_id}/delete_image", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.get("/{item_id}/delete_image", response_model=WishlistItemResponse, tags=["wishlist"])
 async def remove_image(
         item_id: int,
         user: User = Depends(get_current_user),
