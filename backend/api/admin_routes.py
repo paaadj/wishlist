@@ -93,7 +93,7 @@ async def get_users(
     return response
 
 
-@router.post("/users/{user_username}/edit", response_model=UserResponseAdmin, tags=["admin"])
+@router.put("/users/{user_username}/edit", response_model=UserResponseAdmin, tags=["admin"])
 async def edit_user(
         user_username: str,
         username: Annotated[str, Form()] = None,
@@ -158,7 +158,7 @@ async def remove_user_image(
     return user.to_admin_response()
 
 
-@router.post("/users/delete", response_model=UserResponseAdmin, tags=["admin"])
+@router.delete("/users/delete", response_model=UserResponseAdmin, tags=["admin"])
 async def delete_user(
         user_username: Annotated[str, Form()],
         admin: User = Depends(get_current_admin),
@@ -207,7 +207,7 @@ async def get_wishlist_items(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
 
 
-@router.post("/wishlists/{item_id}/edit", response_model=WishlistItemAdminResponse, tags=["admin"])
+@router.put("/wishlists/{item_id}/edit", response_model=WishlistItemAdminResponse, tags=["admin"])
 async def edit_wishlist_item(
         item_id: int,
         title: Annotated[str, Form()] = None,
@@ -255,7 +255,7 @@ async def remove_item_image(
     return item.to_admin_response()
 
 
-@router.post("/wishlists/{item_id}/delete", response_model=WishlistItemAdminResponse, tags=["admin"])
+@router.delete("/wishlists/{item_id}/delete", response_model=WishlistItemAdminResponse, tags=["admin"])
 async def delete_item(
         item_id: int,
         admin: User = Depends(get_current_admin),
