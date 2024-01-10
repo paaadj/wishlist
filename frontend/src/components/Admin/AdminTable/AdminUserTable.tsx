@@ -64,6 +64,7 @@ interface IAdminUserTable {
     imgBinary?: File,
     username?: string
   ) => Promise<void>;
+  goToUserWishes: (username: string) => void;
 }
 
 const columns = [
@@ -112,6 +113,7 @@ function AdminUserTable(props: IAdminUserTable) {
     deleteUserFunc,
     editUserFunc,
     editUserAvatarFunc,
+    goToUserWishes,
   } = props;
   const [data, setData] = React.useState(currentData);
   const [addNewUserIsActive, setAddNewUserIsActive] =
@@ -262,7 +264,7 @@ function AdminUserTable(props: IAdminUserTable) {
                     bg={"transparent"}
                     icon={<ViewIcon color={"#a2d2ff"} />}
                     onClick={() => {
-                      handleRowEdit(row.original);
+                      goToUserWishes(row.original.username);
                     }}
                   />
                   <IconButton

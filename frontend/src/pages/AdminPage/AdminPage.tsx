@@ -207,7 +207,7 @@ function AdminPage() {
   const [currentTable, setCurrentTable] = React.useState<string>("users");
   const [updateTableState, setUpdateTableState] =
     React.useState<boolean>(false);
-
+  const [tableFilter, setTableFilter] = React.useState<string>("");
   const [isLoading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [page, setPage] = React.useState<pageData | undefined>(undefined);
@@ -231,7 +231,6 @@ function AdminPage() {
   const handlePrevPageClick = React.useCallback(() => {
     const current = page ? page.currentPage : 1;
     const previous = current - 1;
-    console.log(page);
     setPage((prev) => {
       return prev
         ? { ...prev, currentPage: previous > 0 ? previous : current }
@@ -259,7 +258,7 @@ function AdminPage() {
             fetch,
             `/backend/api/admin/users?page=${
               page ? page.currentPage : 1
-            }&per_page=${AMOUNT_AT_THE_PAGE}`,
+            }&per_page=${AMOUNT_AT_THE_PAGE}` ,
             requestParams
           );
           if (response) {
@@ -288,7 +287,7 @@ function AdminPage() {
             fetch,
             `/backend/api/admin/wishlists?page=${
               page ? page.currentPage : 1
-            }&per_page=${AMOUNT_AT_THE_PAGE}`,
+            }&per_page=${AMOUNT_AT_THE_PAGE}`+ (tableFilter ? `&username=${tableFilter}` : ""),
             requestParams
           );
           if (response) {
@@ -573,6 +572,11 @@ function AdminPage() {
     }
   };
 
+  const goToUserWishes = (username: string) => {
+    setTableFilter(username);
+    setCurrentTable("wishes");
+    
+  }
   const deleteWishItem = async (item_id: number) => {
     const requestParams = {
       method: "DELETE",
@@ -601,6 +605,7 @@ function AdminPage() {
           icon={FaUser}
           text="Users"
           onClick={() => {
+            setTableFilter("");
             setCurrentTable("users");
           }}
         />
@@ -608,7 +613,9 @@ function AdminPage() {
           icon={BsCardChecklist}
           text="Items"
           onClick={() => {
-            setCurrentTable("wishes");
+            setTableFilter("");
+            if(currentTable !== "wishes"){setCurrentTable("wishes");}
+            if(currentTable === "wishes"){setUpdateTableState(prev => !prev)}
           }}
         />
       </AdminSideMenu>
@@ -620,6 +627,7 @@ function AdminPage() {
             deleteUserFunc={deleteUser}
             editUserFunc={editUser}
             editUserAvatarFunc={editUserAvatar}
+            goToUserWishes={goToUserWishes}
           />
         )}
         {currentTable === "wishes" && !isLoading && currentWishes && (
