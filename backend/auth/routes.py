@@ -3,37 +3,22 @@ Module containing routes and handlers for auth
 """
 
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    Header,
-    HTTPException,
-    status,
-    UploadFile,
-    File,
-    Form,
-)
-from fastapi.security import OAuth2PasswordRequestForm
-
-from config import settings
-from models.user import User, UserResponse, UserCreate
-from auth.services import (
-    upload_image,
-    delete_image,
-    get_user_by_username,
-)
-from tortoise.exceptions import ValidationError
-from passlib.hash import bcrypt
 from typing import Annotated
-from pydantic import EmailStr
 
-from .services import authenticate_user, get_current_user, create_user
-from .token import (
-    TokenResponse,
-    refresh_tokens,
-    create_tokens,
-    clear_refresh_tokens,
-)
+from fastapi import (APIRouter, Depends, File, Form, Header, HTTPException,
+                     UploadFile, status)
+from fastapi.security import OAuth2PasswordRequestForm
+from passlib.hash import bcrypt
+from pydantic import EmailStr
+from tortoise.exceptions import ValidationError
+
+from auth.services import delete_image, get_user_by_username, upload_image
+from config import settings
+from models.user import User, UserCreate, UserResponse
+
+from .services import authenticate_user, create_user, get_current_user
+from .token import (TokenResponse, clear_refresh_tokens, create_tokens,
+                    refresh_tokens)
 
 auth_router = APIRouter()
 JWT_SECRET = settings.SECRET_KEY
@@ -56,7 +41,9 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     return await create_tokens(user)
 
 
-@auth_router.post("/refresh_token", tags=["auth"], response_model=TokenResponse)
+@auth_router.post("/refresh_token",
+                  tags=["auth"],
+                  response_model=TokenResponse)
 async def get_new_tokens(token: str = Header(...)):
     """
     Refresh tokens \n
@@ -124,8 +111,8 @@ async def edit_info(
                 user.username, current_password
             ):
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong password"
-                )
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Wrong password")
             user.password = bcrypt.hash(new_password)
         if first_name:
             user.first_name = first_name
@@ -137,16 +124,16 @@ async def edit_info(
         return user.__dict__
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/delete_image", response_model=UserResponse, tags=["auth"])
 async def remove_image(user: User = Depends(get_current_user)):
     if user.image_url is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"You have no image"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"You have no image")
     await delete_image(user.image_url)
     user.image_url = None
     await user.save()
@@ -163,7 +150,8 @@ async def get_user(user: User = Depends(get_current_user)):
     return user
 
 
-@auth_router.get("/users/username/{username}", response_model=bool, tags=["auth"])
+@auth_router.get("/users/username/{username}",
+                 response_model=bool, tags=["auth"])
 async def check_username(username: str):
     """
     Check availability of username \n
@@ -175,8 +163,8 @@ async def check_username(username: str):
         return not bool(user)
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/users/email/{email}", response_model=bool, tags=["auth"])
@@ -191,8 +179,8 @@ async def check_email(email: str):
         return not bool(user)
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/users", response_model=UserResponse, tags=["users"])
@@ -204,7 +192,9 @@ async def get_user(username: str):
     return user.__dict__
 
 
-@auth_router.get("/users/like", response_model=list[UserResponse], tags=["users"])
+@auth_router.get("/users/like",
+                 response_model=list[UserResponse],
+                 tags=["users"])
 async def get_users_with_username_like(
     username: str, per_page: int = 10, page: int = 1
 ):

@@ -1,7 +1,9 @@
-from tortoise.models import Model
-from tortoise import fields
 from pydantic import BaseModel
-from models.wishlist_items import WishlistItemResponse, WishlistItemAdminResponse
+from tortoise import fields
+from tortoise.models import Model
+
+from models.wishlist_items import (WishlistItemAdminResponse,
+                                   WishlistItemResponse)
 
 
 class Wishlist(Model):

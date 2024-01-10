@@ -8,8 +8,8 @@ from typing import Optional
 from passlib.hash import bcrypt
 from pydantic import BaseModel, EmailStr
 from tortoise import fields
-from tortoise.validators import RegexValidator, MinLengthValidator
 from tortoise.models import Model
+from tortoise.validators import MinLengthValidator, RegexValidator
 
 
 class UserResponseAdmin(BaseModel):

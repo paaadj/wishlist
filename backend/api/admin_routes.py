@@ -1,36 +1,25 @@
 import math
-
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    status,
-    Depends,
-    UploadFile,
-    Form,
-    File,
-    Query,
-)
-from models.user import UserCreate, User, UserResponseAdmin, UsersListAdminResponse
-from models.wishlist import WishlistsAdminResponse
-from models.wishlist_items import WishlistItem, WishlistItemAdminResponse
-from auth.services import (
-    create_user,
-    get_current_admin,
-    upload_image as upload_user_image,
-    delete_image as delete_user_image,
-)
-from api.wishlist_services import (
-    upload_image as upload_item_image,
-    remove_image as delete_item_image,
-)
-from auth.routes import check_username, check_email
+from datetime import datetime
 from typing import Annotated
-from pydantic import EmailStr, AnyHttpUrl
+
+from fastapi import (APIRouter, Depends, File, Form, HTTPException, Query,
+                     UploadFile, status)
 from passlib.hash import bcrypt
+from pydantic import AnyHttpUrl, EmailStr
 from tortoise.exceptions import ValidationError
 from tortoise.expressions import Q
-from datetime import datetime
 
+from api.wishlist_services import remove_image as delete_item_image
+from api.wishlist_services import upload_image as upload_item_image
+from auth.routes import check_email, check_username
+from auth.services import create_user
+from auth.services import delete_image as delete_user_image
+from auth.services import get_current_admin
+from auth.services import upload_image as upload_user_image
+from models.user import (User, UserCreate, UserResponseAdmin,
+                         UsersListAdminResponse)
+from models.wishlist import WishlistsAdminResponse
+from models.wishlist_items import WishlistItem, WishlistItemAdminResponse
 
 router = APIRouter(prefix="/admin")
 
@@ -45,8 +34,8 @@ async def create_admin(
     users = await User.exists(is_admin=1)
     if users:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin already exists"
-        )
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin already exists")
     user = await create_user(user)
     user.is_admin = True
     await user.save()
@@ -65,7 +54,8 @@ async def get_users(
     created_before: datetime = Query(
         None, title="Filter users created before the date"
     ),
-    created_after: datetime = Query(None, title="Filter users created after the date"),
+    created_after: datetime = Query(
+        None, title="Filter users created after the date"),
     order_by: str = Query(
         None,
         title="Sort users by field name(- for descending order) in format *field1,field2*",
@@ -122,9 +112,8 @@ async def get_users(
     return response
 
 
-@router.put(
-    "/users/{user_username}/edit", response_model=UserResponseAdmin, tags=["admin"]
-)
+@router.put("/users/{user_username}/edit",
+            response_model=UserResponseAdmin, tags=["admin"])
 async def edit_user(
     user_username: str,
     username: Annotated[str, Form()] = None,
@@ -173,8 +162,8 @@ async def edit_user(
         return user.to_admin_response()
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}") from exc
 
 
 @router.get(
@@ -201,7 +190,9 @@ async def remove_user_image(
     return user.to_admin_response()
 
 
-@router.delete("/users/delete", response_model=UserResponseAdmin, tags=["admin"])
+@router.delete("/users/delete",
+               response_model=UserResponseAdmin,
+               tags=["admin"])
 async def delete_user(
     user_username: Annotated[str, Form()],
     admin: User = Depends(get_current_admin),
@@ -218,10 +209,13 @@ async def delete_user(
         await user.delete()
         return user.to_admin_response()
     except ValidationError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}") from exc
 
 
-@router.post("/wishlists", response_model=WishlistsAdminResponse, tags=["admin"])
+@router.post("/wishlists",
+             response_model=WishlistsAdminResponse,
+             tags=["admin"])
 async def get_wishlist_items(
     page: int = 1,
     per_page: int = 10,
@@ -274,7 +268,8 @@ async def get_wishlist_items(
             "total_pages": total_pages,
         }
     except ValidationError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}") from exc
 
 
 @router.put(

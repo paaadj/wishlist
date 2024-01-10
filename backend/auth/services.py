@@ -4,14 +4,16 @@ Module containing handlers for retrieving a user using an access token.
 import uuid
 
 import jwt
-from fastapi import Depends, HTTPException, status, UploadFile, WebSocket, Request
+from fastapi import (Depends, HTTPException, Request, UploadFile, WebSocket,
+                     status)
 from fastapi.security import OAuth2PasswordBearer
-from tortoise.exceptions import ValidationError, DoesNotExist
+from passlib.hash import bcrypt
+from tortoise.exceptions import DoesNotExist, ValidationError
 from tortoise.expressions import Q
+
 from config import settings
 from firebase_config import storage
 from models.user import User, UserCreate
-from passlib.hash import bcrypt
 from models.wishlist import Wishlist
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
@@ -49,8 +51,8 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
     try:
         if access_token is None:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
-            )
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated")
         payload = jwt.decode(access_token, JWT_SECRET, algorithms=[ALGORITHM])
         if payload.get("scope") != "access":
             raise jwt.exceptions.InvalidSignatureError
@@ -66,8 +68,8 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         ) from exc
     except DoesNotExist as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"User doesn't exists"
-        ) from exc
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User doesn't exists") from exc
     return user
 
 
@@ -115,8 +117,8 @@ async def create_user(user: UserCreate):
         return user_obj
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        ) from exc
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}") from exc
 
 
 async def upload_image(image: UploadFile, filename: str = None):
@@ -127,8 +129,8 @@ async def upload_image(image: UploadFile, filename: str = None):
     """
     if image.content_type not in settings.ALLOWED_CONTENT_TYPES:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Not allowed content type"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Not allowed content type")
     content = await image.read()
     if len(content) > settings.IMAGE_MAX_SIZE:
         raise HTTPException(
@@ -156,10 +158,10 @@ async def get_user_by_username(username: str):
         user = await User.get_or_none(username=username)
         if user is None:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="User doesn't exists"
-            )
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User doesn't exists")
         return user
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        ) from exc
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}") from exc

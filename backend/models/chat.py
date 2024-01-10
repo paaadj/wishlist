@@ -1,6 +1,7 @@
-from tortoise import Model, fields
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
+from tortoise import Model, fields
 
 
 class Chat(Model):

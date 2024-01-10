@@ -2,19 +2,20 @@
 Entry point
 """
 
+from aerich import Command
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise import Tortoise
-from scheduler import scheduler, clear_refresh_tokens, check_deferred_notifications
-from auth.routes import auth_router
-from api.wishlist_routes import router as wishlist_router
+
+from aerich_cfg import TORTOISE_ORM
+from api.admin_routes import router as admin_router
 from api.chat_routes import router as chat_router
 from api.notification_routes import router as notification_router
-from api.admin_routes import router as admin_router
+from api.wishlist_routes import router as wishlist_router
+from auth.routes import auth_router
 from config import settings
-from aerich import Command
-from aerich_cfg import TORTOISE_ORM
-
+from scheduler import (check_deferred_notifications, clear_refresh_tokens,
+                       scheduler)
 
 app = FastAPI()
 

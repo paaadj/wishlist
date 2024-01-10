@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from auth.services import get_current_user
 from models.notification import Notification, NotificationResponse
 
@@ -28,8 +29,8 @@ async def read_notification(notification_id: int, user=Depends(get_current_user)
     )
     if notification is None or notification.user_id != user.id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Notification doesn't exists"
-        )
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification doesn't exists")
     notification.read = True
     await notification.save()
     return notification.to_response()

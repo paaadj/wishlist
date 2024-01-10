@@ -1,26 +1,21 @@
-from typing import Dict, Annotated
-from fastapi import (
-    APIRouter,
-    WebSocket,
-    HTTPException,
-    status,
-    Depends,
-    WebSocketDisconnect,
-    Form,
-)
-from auth.services import get_current_user, get_current_user_or_none
-from models.chat import Chat, ChatMessage, MessageResponse, ChatResponse
-from models.user import User
-from api.chat_services import send_message, send_message_to_connection
 from json import JSONDecodeError
+from typing import Annotated
+
+from fastapi import (APIRouter, Depends, Form, HTTPException, WebSocket,
+                     WebSocketDisconnect, status)
+
+from api.chat_services import send_message, send_message_to_connection
+from auth.services import get_current_user, get_current_user_or_none
+from models.chat import Chat, ChatMessage, ChatResponse, MessageResponse
+from models.user import User
 
 router = APIRouter()
 
-connections: Dict[int, set[(WebSocket, User | None)]] = {}
+connections: dict[int, set[(WebSocket, User | None)]] = {}
 
 
 @router.websocket("/chats/{chat_id}/ws")
-async def chat_endpoint(websocket: WebSocket, chat_id: int):
+async def chat_websocket(websocket: WebSocket, chat_id: int):
     await websocket.accept()
 
     chat = await Chat.get_or_none(id=chat_id).prefetch_related(
@@ -88,8 +83,8 @@ async def get_chat_messages(
     )
     if chat is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Chat is not exists"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Chat is not exists")
     owner: User = chat.wishlist_item.wishlist.user
     messages_data = []
     for msg in await chat.messages:
@@ -114,11 +109,10 @@ async def get_chat_messages(
     }
 
 
-@router.get(
-    "/chats/{chat_id}/{chat_message}", response_model=MessageResponse, tags=["chat"]
-)
+@router.get("/chats/{chat_id}/{chat_message}",
+            response_model=MessageResponse, tags=["chat"])
 async def get_chat_message(
-    chat_id: int, chat_message: int, user: User = Depends(get_current_user_or_none)
+    chat_message: int, user: User = Depends(get_current_user_or_none)
 ):
     """
     Get chat message with **chat_message id (int)**
@@ -128,8 +122,8 @@ async def get_chat_message(
     ).prefetch_related("chat__wishlist_item__wishlist__user")
     if chat_message is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Message doesn't exists"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Message doesn't exists")
     owner: User = chat_message.chat.wishlist_item.wishlist.user
     final_msg: MessageResponse = await chat_message.to_response()
     final_msg.user = (
@@ -153,7 +147,6 @@ async def get_chat_message(
     tags=["chat"],
 )
 async def edit_chat_message(
-    chat_id: int,
     chat_message: int,
     message: Annotated[str, Form()],
     user=Depends(get_current_user),
@@ -166,12 +159,12 @@ async def edit_chat_message(
     chat_message = await ChatMessage.get_or_none(id=chat_message)
     if chat_message is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Message doesn't exists"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Message doesn't exists")
     if chat_message.user_id != user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Cant edit not yours message"
-        )
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cant edit not yours message")
     chat_message.text = message
     await chat_message.save()
     return await chat_message.to_response()

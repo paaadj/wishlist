@@ -1,11 +1,12 @@
 import enum
-
-from pydantic import BaseModel, AnyHttpUrl
-from typing import Optional
-from tortoise import fields, Model
-from tortoise.validators import RegexValidator
-from models.user import User, UserResponseAdmin
 import re
+from typing import Optional
+
+from pydantic import AnyHttpUrl, BaseModel
+from tortoise import Model, fields
+from tortoise.validators import RegexValidator
+
+from models.user import User, UserResponseAdmin
 
 
 class ReservationStatusEnum(int, enum.Enum):

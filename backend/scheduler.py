@@ -1,8 +1,9 @@
 import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+from models.notification import DeferredNotifications, Notification
 from models.user import RefreshToken
-from models.notification import Notification, DeferredNotifications
 
 
 async def clear_refresh_tokens():
