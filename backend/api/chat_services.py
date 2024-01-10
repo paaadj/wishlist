@@ -1,4 +1,4 @@
-from fastapi import WebSocket, HTTPException, status
+from fastapi import WebSocket, HTTPException, status, WebSocketException
 
 from models.chat import Chat, ChatMessage, MessageResponse
 from models.user import User
@@ -19,7 +19,10 @@ async def send_message(
     if reply_to:
         reply_message = await ChatMessage.get_or_none(id=reply_to)
         if reply_message is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reply message not found")
+            raise WebSocketException(
+                code=status.WS_1003_UNSUPPORTED_DATA,
+                reason="Reply message doesn't exist"
+            )
     message = await ChatMessage.create(
         user=user,
         chat=chat,
