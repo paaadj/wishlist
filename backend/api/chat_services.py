@@ -15,9 +15,11 @@ async def send_message(
     :param reply_to: id of message to reply else None
     """
     chat = await Chat.get(id=chat_id)
-    reply_message = await ChatMessage.get_or_none(id=reply_to)
-    if reply_message is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reply message not found")
+    reply_message = None
+    if reply_to:
+        reply_message = await ChatMessage.get_or_none(id=reply_to)
+        if reply_message is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reply message not found")
     message = await ChatMessage.create(
         user=user,
         chat=chat,
@@ -40,7 +42,7 @@ async def send_message_to_connection(
                 None
                 if (
                     (user is None and msg.user.id != owner.id)
-                    or msg.user not in (owner.id, user.id)
+                    or (msg.user != owner.id and msg.user != user.id)
                 )
                 else msg.user
             )
