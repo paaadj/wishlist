@@ -1,0 +1,37 @@
+.container{
+    position: relative;
+    min-height: 100vh;
+    /* background-color: #A3E7FC; */
+
+    /* background-color: #E4DFDA; */
+
+}
+.container::before{
+    position: absolute;
+    content: '';
+    /* background-color: #C3DAC3; */
+    /* background-color: #26C485; */
+    background-color: #EAFFFD;
+
+
+    inset: 0;
+    z-index: -1;
+}
+.container::after{
+    position: absolute;
+    content: '';
+    /* background-color: #C3DAC3; */
+    /* background-color: #26C485; */
+    background-color: #C9F0FF;
+
+
+    inset: 0;
+    z-index: -1;
+    clip-path: polygon(
+        85% 0%,
+        100% 0%,
+        100% 100%,
+        0% 100%
+        
+    );
+}

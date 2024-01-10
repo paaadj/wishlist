@@ -3,30 +3,22 @@ Module containing routes and handlers for auth
 """
 
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status, UploadFile, File, Form
+from typing import Annotated
+
+from fastapi import (APIRouter, Depends, File, Form, Header, HTTPException,
+                     UploadFile, status)
 from fastapi.security import OAuth2PasswordRequestForm
-
-from config import settings
-from models.user import User, UserResponse, UserCreate
-from auth.services import (
-    authenticate_user,
-    upload_image,
-    delete_image,
-    get_user_by_username,
-)
-from tortoise.exceptions import ValidationError
 from passlib.hash import bcrypt
-from tortoise.expressions import Q
-from typing import List, Optional, Annotated
 from pydantic import EmailStr
+from tortoise.exceptions import ValidationError
 
-from .services import authenticate_user, get_current_user, create_user
-from .token import (
-    TokenResponse,
-    refresh_tokens,
-    create_tokens,
-    clear_refresh_tokens,
-)
+from auth.services import delete_image, get_user_by_username, upload_image
+from config import settings
+from models.user import User, UserCreate, UserResponse
+
+from .services import authenticate_user, create_user, get_current_user
+from .token import (TokenResponse, clear_refresh_tokens, create_tokens,
+                    refresh_tokens)
 
 auth_router = APIRouter()
 JWT_SECRET = settings.SECRET_KEY
@@ -35,9 +27,9 @@ JWT_SECRET = settings.SECRET_KEY
 @auth_router.post("/token", tags=["auth"], response_model=TokenResponse)
 async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     """
-    Authenticate user
-    :param form_data: username and password
-    :return: access and refresh tokens and token type
+    Authenticate user \n
+    **form_data** Form with username and password fields \n
+    **return** access and refresh tokens and token type
     """
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -49,35 +41,44 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     return await create_tokens(user)
 
 
-@auth_router.post("/refresh_token", tags=["auth"], response_model=TokenResponse)
+@auth_router.post("/refresh_token",
+                  tags=["auth"],
+                  response_model=TokenResponse)
 async def get_new_tokens(token: str = Header(...)):
     """
-    Refresh tokens
-    :param token: refresh token
-    :return: new access and refresh tokens
+    Refresh tokens \n
+    **token** existing refresh token \n
+    **return** new access and new refresh tokens
     """
     return await refresh_tokens(token)
 
 
 @auth_router.post("/reset_auth", tags=["auth"], response_model=bool)
 async def reset_auth(token: str = Header(...)):
+    """
+    Reset auth on other devices \n
+    **Require existing refresh_token in header**
+    Delete all refresh tokens from db \n
+
+    """
     return await clear_refresh_tokens(token)
 
 
 @auth_router.post("/register", response_model=UserResponse, tags=["auth"])
 async def register_user(user: UserCreate):
     """
-    Create new user
+    Create new user \n
 
-    :param user: user info for create
-    :return: new user if created or error
+    **user** user info for create \n
+    **return** new user if created else error
     """
     user = await create_user(user)
     return user.__dict__
 
 
-@auth_router.post("/edit_info", response_model=UserResponse, tags=["auth"])
+@auth_router.put("/edit_info", response_model=UserResponse, tags=["auth"])
 async def edit_info(
+    username: Annotated[str, Form()] = None,
     email: Annotated[EmailStr, Form()] = None,
     current_password: Annotated[str, Form()] = None,
     new_password: Annotated[str, Form()] = None,
@@ -87,79 +88,99 @@ async def edit_info(
     image: UploadFile = File(None),
 ):
     """
-    Edit user info
+    Edit user info \n
+    **All parameters are optional**
     """
     try:
+        if username:
+            if not await check_username(username):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"User with username {username} already exists",
+                )
+            user.username = username
         if email:
+            if not await check_email(email):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"User with email {email} already exists",
+                )
             user.email = email
         if new_password:
             if not current_password or not await authenticate_user(
                 user.username, current_password
             ):
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong password"
-                )
-            user.password = bcrypt.hash(user.password)
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Wrong password")
+            user.password = bcrypt.hash(new_password)
         if first_name:
             user.first_name = first_name
         if last_name:
             user.last_name = last_name
         if image:
-            user.image_filename, user.image_url = await upload_image(
-                image, user.image_filename
-            )
-        elif user.image_filename:
-            await delete_image(user.image_filename)
-            user.image_filename = None
-            user.image_url = None
+            user.image_url = await upload_image(image, user.image_url)
         await user.save()
         return user.__dict__
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}")
+
+
+@auth_router.get("/delete_image", response_model=UserResponse, tags=["auth"])
+async def remove_image(user: User = Depends(get_current_user)):
+    if user.image_url is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"You have no image")
+    await delete_image(user.image_url)
+    user.image_url = None
+    await user.save()
+    return user
 
 
 @auth_router.get("/users/me", response_model=UserResponse, tags=["auth"])
-async def get_user(user: UserResponse = Depends(get_current_user)):
+async def get_user(user: User = Depends(get_current_user)):
     """
-    get user
-    :param user: user
-    :return: user
+    Get user by token \n
+    **Require access_token in header** \n
+    **return** user info
     """
-    return user.__dict__
+    return user
 
 
-@auth_router.get("/users/username/{username}", response_model=bool, tags=["auth"])
+@auth_router.get("/users/username/{username}",
+                 response_model=bool, tags=["auth"])
 async def check_username(username: str):
     """
-    Check availability of username
-    :param username: to check
-    :return: True if username is available else False
+    Check availability of username \n
+    **username** to check \n
+    **return** True if username is available else False
     """
     try:
         user = await User.filter(username=username).first()
         return not bool(user)
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/users/email/{email}", response_model=bool, tags=["auth"])
 async def check_email(email: str):
     """
-    Check availability of email
-    :param email: to check
-    :return: True if email is available else False
+    Check availability of email \n
+    **email** to check \n
+    **return** True if email is available else False
     """
     try:
         user = await User.filter(email=email).first()
         return not bool(user)
     except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format: {exc}"
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format: {exc}")
 
 
 @auth_router.get("/users", response_model=UserResponse, tags=["users"])
@@ -171,7 +192,9 @@ async def get_user(username: str):
     return user.__dict__
 
 
-@auth_router.get("/users/like", response_model=list[UserResponse], tags=["users"])
+@auth_router.get("/users/like",
+                 response_model=list[UserResponse],
+                 tags=["users"])
 async def get_users_with_username_like(
     username: str, per_page: int = 10, page: int = 1
 ):

@@ -1,16 +1,13 @@
 import { createContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
-// export type userAuth = {
-//   username: string;
-//   email: string;
-// };
-
 export type userData = {
-  firstName: string,
-  lastName?: string,
-  username: string,
-  email: string
+  id: number;
+  firstName: string;
+  lastName?: string;
+  username: string;
+  email: string;
+  imgUrl?: string;
 };
 
 export type UserContextType = {
@@ -20,9 +17,18 @@ export type UserContextType = {
   ) => void;
   isAuthenticated: boolean;
   getAccessCookie: () => string | undefined;
-  tryRefreshToken: () => Promise<boolean>
-  setAuthentication: (value: boolean) => void
+  tryRefreshToken: () => Promise<boolean>;
+  setAuthentication: (value: boolean) => void;
   user: userData | undefined;
+  setUser: React.Dispatch<React.SetStateAction<userData | undefined>>;
+  requestProvider: (
+    func: (
+      input: RequestInfo | URL,
+      init?: RequestInit | undefined
+    ) => Promise<Response>,
+    path: string,
+    requestParams: object
+  ) => Promise<Response>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -32,6 +38,51 @@ export const UserProvider = (props: any) => {
   const [accessToken, setAccessToken] = useState(Cookies.get("accessToken"));
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<userData | undefined>(undefined);
+  const baseImageUrl =
+    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url: string | undefined) => {
+    return url ? url.replace("/", "%2F") : url;
+  };
+
+  const requestProvider = async (
+    func: (
+      input: RequestInfo | URL,
+      init?: RequestInit | undefined
+    ) => Promise<Response>,
+    path: string,
+    requestParams: object
+  ) => {
+    try {
+      const response = await func(path, requestParams);
+      if (response.status === 403) {
+        const refreshState = await tryRefreshToken();
+        if (refreshState === true) {
+          try {
+            const response = await func(path, requestParams);
+            if (response.ok) {
+              return response;
+            } else {
+              setAuthorizationTokens(undefined, undefined);
+              throw new Error("Cannot refresh user");
+            }
+          } catch (err) {
+            setAuthorizationTokens(undefined, undefined);
+            throw new Error("Cannot fetch request");
+          }
+        }
+      }
+      if (response.ok) {
+        return response;
+      } else {
+        setAuthorizationTokens(undefined, undefined);
+        throw new Error("Cannot fetch request");
+      }
+    } catch (err) {
+      setAuthorizationTokens(undefined, undefined);
+      throw new Error("Cannot fetch request");
+    }
+  };
+
   const tryRefreshToken = async () => {
     if (refreshToken === undefined) {
       return false;
@@ -40,10 +91,8 @@ export const UserProvider = (props: any) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Token: `${refreshToken}`
+        Token: `${refreshToken}`,
       },
-      // body: JSON.stringify({ token : refreshToken }),
-      // body: `token=${refreshToken}`
     };
     const refreshResponse = await fetch(
       "http://127.0.0.1:8000/refresh_token",
@@ -62,8 +111,8 @@ export const UserProvider = (props: any) => {
     }
   };
 
-  const fetchUser = async()=> {
-    if(!getAccessCookie()){
+  const fetchUser = async () => {
+    if (!getAccessCookie()) {
       setUser(undefined);
       return;
     }
@@ -74,42 +123,40 @@ export const UserProvider = (props: any) => {
         Authorization: "Bearer " + getAccessCookie(),
       },
     };
-    const response = await fetch("/backend/users/me", requestParams);
-    const data = await response.json()
-    setUser( {
-      firstName: data.first_name,
-      lastName: data?.first_name ?? "",
-      username: data.username,
-      email: data.email,
-    });
-  }
+    try {
+      const response = await fetch("/backend/users/me", requestParams);
+      if (!response.ok) {
+        throw new Error("Cannot fetch user");
+      }
+      const data = await response.json();
+      setUser({
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data?.last_name ?? "",
+        username: data.username,
+        email: data.email,
+        imgUrl: baseImageUrl +
+        (data.image_url
+          ? fixImageUrl(data.image_url)
+          : "mqdefault.jpeg") +
+        "?alt=media",
+      });
+    } catch (err) {
+      try {
+        const refreshResponse = await tryRefreshToken();
+        if (!refreshResponse) {
+          throw new Error("Cannot refresh user");
+        }
+      } catch (err) {
+        return;
+      }
+    }
+  };
 
-  // const fetchUser = async () => {
-  //   if (accessToken === undefined && refreshToken === undefined) {
-  //     return false;
-  //   }
-  //   const requestParams = {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + accessToken,
-  //     },
-  //   };
-
-  //   const response = await fetch("/backend/users/me", requestParams);
-  //   if (response.ok) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
-
-  const setAuthorizationTokens = async(
+  const setAuthorizationTokens = async (
     access_token: string | undefined,
     refresh_token: string | undefined
   ) => {
-
-
     if (access_token === undefined && refresh_token === undefined) {
       removeCookies();
     } else {
@@ -117,16 +164,16 @@ export const UserProvider = (props: any) => {
     }
     await setAccessToken(access_token);
     await setRefreshToken(refresh_token);
-    
-    
   };
 
-  const getAccessCookie = ()=>{
-    return Cookies.get('accessToken')
-  }
+  const getAccessCookie = () => {
+    return Cookies.get("accessToken");
+  };
 
-  const setCookies = (access_token: string | undefined,
-    refresh_token: string | undefined) => {
+  const setCookies = (
+    access_token: string | undefined,
+    refresh_token: string | undefined
+  ) => {
     Cookies.set("accessToken", access_token ?? "undefined", { path: "/" });
     Cookies.set("refreshToken", refresh_token ?? "undefined", { path: "/" });
   };
@@ -135,11 +182,9 @@ export const UserProvider = (props: any) => {
     Cookies.remove("accessToken", { path: "/" });
   };
 
-  
-  const setAuthentication = (value: boolean)=>{
+  const setAuthentication = (value: boolean) => {
     setIsAuthenticated(value);
-  }
-
+  };
 
   /*Check the token */
   useEffect(() => {
@@ -154,7 +199,9 @@ export const UserProvider = (props: any) => {
         getAccessCookie,
         tryRefreshToken,
         setAuthentication,
-        user
+        user,
+        setUser,
+        requestProvider,
       }}
     >
       {props.children}

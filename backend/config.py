@@ -4,7 +4,9 @@ Configuration file
 
 
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 # pylint: disable=too-few-public-methods
 class Settings:
@@ -15,6 +17,9 @@ class Settings:
     MODULE_LIST: list = [
         "models.user",
         "models.wishlist",
+        "models.notification",
+        "models.chat",
+        "models.wishlist_items",
     ]
 
     ALLOWED_CONTENT_TYPES: list = [

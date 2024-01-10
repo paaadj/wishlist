@@ -1,30 +1,28 @@
 """
 Module containing API routes and handlers
 """
+import datetime
+from typing import Annotated
 
-
-from fastapi import APIRouter, Depends, UploadFile, Form, File, HTTPException, status
-from models.wishlist import WishlistItemResponse, WishlistResponse
-from auth.services import get_current_user
-from auth.services import get_user_by_username
-from models.user import UserResponse, User
-from typing import Annotated, Optional
+from fastapi import (APIRouter, Depends, File, Form, HTTPException, UploadFile,
+                     status)
 from pydantic import AnyHttpUrl
-from api.wishlist_services import (
-    create_item,
-    fetch_wishlist,
-    fetch_item,
-    edit_item,
-    remove_item,
-    reserve,
-    cancel_reservation,
-)
+
+from api.wishlist_services import (cancel_reservation, create_item,
+                                   delete_item_image, edit_item, fetch_item,
+                                   fetch_wishlist, remove_item, reserve)
+from auth.services import (get_current_user, get_current_user_or_none,
+                           get_user_by_username)
+from models.user import User, UserResponse
+from models.wishlist import WishlistResponse
+from models.wishlist_items import WishlistItemResponse
+
+router = APIRouter()
 
 
-api_router = APIRouter()
-
-
-@api_router.post("/add_item", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.post("/add_item",
+             response_model=WishlistItemResponse,
+             tags=["wishlist"])
 async def add_item(
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
@@ -32,27 +30,38 @@ async def add_item(
     user: User = Depends(get_current_user),
     image: UploadFile = File(None),
 ):
-    return await create_item(
+    """
+    Add item to wishlist \n
+    **title** str in Form \n
+    **description** str in Form \n
+    **link** (Optional) link to item in HttpUrl format \n
+    **image** - Image file \n
+    **Require access token in header** \n
+    """
+    item = await create_item(
         title=title,
         description=description,
         link=link,
         user=user,
         image=image,
     )
+    return item.to_response(None)
 
 
-@api_router.get("/get_wishlist", response_model=WishlistResponse, tags=["wishlist"])
+@router.get("/get_wishlist",
+            response_model=WishlistResponse,
+            tags=["wishlist"])
 async def get_wishlist(
     page: int = 1,
     per_page: int = 3,
-    user: User = Depends(get_user_by_username),
+    wishlist_owner: User = Depends(get_user_by_username),
+    current_user: User | None = Depends(get_current_user_or_none),
 ):
-    """
-    Get wishlist item on page
-    :param page: starts with 1
-    :param per_page: count of items per page
-    :param user:
-    :return: list of items on page, current page, per_page value, total_items, total_pages
+    """Get wishlist item on page \n
+    **page** starts with 1 \n
+    **per_page** count of items per page \n
+    **current_user** if access_token is not None \n
+    **return** list of items on page, current page, per_page value, total_items, total_pages
     """
     if page < 1:
         raise HTTPException(
@@ -60,23 +69,36 @@ async def get_wishlist(
         )
     if per_page < 1:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="per_page must be > 0"
-        )
-    return await fetch_wishlist(page=page - 1, per_page=per_page, user=user)
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="per_page must be > 0")
+    return await fetch_wishlist(
+        page=page - 1,
+        per_page=per_page,
+        wishlist_owner=wishlist_owner,
+        user=current_user,
+    )
 
 
-@api_router.get("/get_item", response_model=WishlistItemResponse, tags=["wishlist"])
-async def get_item_via_id(item_id: int):
+@router.get("/get_item",
+            response_model=WishlistItemResponse,
+            tags=["wishlist"])
+async def get_item_via_id(
+    item_id: int, user: User | None = Depends(get_current_user_or_none)
+):
     """
     Get item via id
 
-    :param item_id: id of item to get
-    :return: item if exists  or error
+    **item_id** id of item to get \n
+    **user** user if access_token is not None \n
+    **return** item if exists or error \n
     """
-    return await fetch_item(item_id)
+    item = await fetch_item(item_id=item_id)
+    return item.to_response(user=user)
 
 
-@api_router.put("/update_item", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.put("/update_item",
+            response_model=WishlistItemResponse,
+            tags=["wishlist"])
 async def update_item(
     item_id: int,
     title: Annotated[str, Form()] = None,
@@ -86,9 +108,10 @@ async def update_item(
     image: UploadFile = File(None),
 ):
     """
-    Update user info
+    Update user info \n
+    **All parameters are optional instead of item_id**
     """
-    return await edit_item(
+    item = await edit_item(
         item_id=item_id,
         title=title,
         description=description,
@@ -96,25 +119,55 @@ async def update_item(
         user=user,
         image=image,
     )
+    return item.to_response(user=None)
 
 
-@api_router.delete(
+@router.get("/{item_id}/delete_image",
+            response_model=WishlistItemResponse,
+            tags=["wishlist"])
+async def remove_image(
+    item_id: int,
+    user: User = Depends(get_current_user),
+):
+    item = await delete_item_image(item_id=item_id, user=user)
+    return item.to_response(user)
+
+
+@router.delete(
     "/delete/{item_id}", response_model=WishlistItemResponse, tags=["wishlist"]
 )
 async def delete_item(item_id: int, user=Depends(get_current_user)):
     """
-    Delete item with item_id
-    require access token in header
-    return item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized
+    Delete item with **item_id** \n
+    **require access token in header** \n
+    **return** item if deleted, HTTP 400 if item_id < 1 and 401 if unauthorized \n
     """
-    return await remove_item(item_id, user)
+    item = await remove_item(item_id, user)
+    return item.to_response(user=None)
 
 
-@api_router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
-async def reserve_item(item_id: int, user=Depends(get_current_user)):
-    return await reserve(item_id, user)
+@router.post("/reserve",
+             response_model=WishlistItemResponse,
+             tags=["wishlist"])
+async def reserve_item(
+    item_id: int, date: datetime.datetime = None, user=Depends(get_current_user)
+):
+    """
+    Reserve item with **item_id(int)** \n
+    **require access token in header**
+    **date (Optional)** - date to remind about reservation if needed
+    """
+    item = await reserve(item_id, user, date)
+    return item.to_response(user=user)
 
 
-@api_router.post("/unreserve", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.post("/unreserve",
+             response_model=WishlistItemResponse,
+             tags=["wishlist"])
 async def cancel_reservation_item(item_id: int, user=Depends(get_current_user)):
-    return await cancel_reservation(item_id, user)
+    """
+    Cancel item reservation with **item_id** \n
+    Require access token in header \n
+    """
+    item = await cancel_reservation(item_id, user)
+    return item.to_response(user=user)
