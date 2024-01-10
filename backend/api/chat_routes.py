@@ -2,7 +2,7 @@ from json import JSONDecodeError
 from typing import Annotated
 
 from fastapi import (APIRouter, Depends, Form, HTTPException, WebSocket,
-                     WebSocketDisconnect, status)
+                     WebSocketDisconnect, status, WebSocketException)
 
 from api.chat_services import send_message, send_message_to_connection
 from auth.services import get_current_user, get_current_user_or_none
@@ -40,7 +40,7 @@ async def chat_websocket(websocket: WebSocket, chat_id: int):
         try:
             user = await get_current_user(token)
             await websocket.send_text("Success")
-        except HTTPException as exc:
+        except WebSocketException as exc:
             await websocket.close(
                 code=status.WS_1008_POLICY_VIOLATION,
                 reason=f"Invalid token. INFO: {exc}",
@@ -54,13 +54,14 @@ async def chat_websocket(websocket: WebSocket, chat_id: int):
             data = await websocket.receive_json()
             text = data["text"]
             reply_to = data.get("reply_to", None)
-            message = await send_message(
-                text=text, chat_id=chat_id, user=user, reply_to=reply_to
-            )
-            message = await message.to_response()
-            await send_message_to_connection(
-                chat_id=chat_id, msg=message, owner=owner, connections=connections
-            )
+            if user:
+                message = await send_message(
+                    text=text, chat_id=chat_id, user=user, reply_to=reply_to
+                )
+                message = await message.to_response()
+                await send_message_to_connection(
+                    chat_id=chat_id, msg=message, owner=owner, connections=connections
+                )
     except KeyError as exc:
         await websocket.send_text(f"Unsupported data. INFO: {exc}")
     except WebSocketDisconnect:
