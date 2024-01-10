@@ -1,7 +1,7 @@
 from tortoise.models import Model
 from tortoise import fields
 from pydantic import BaseModel
-from models.wishlist_items import WishlistItemResponse
+from models.wishlist_items import WishlistItemResponse, WishlistItemAdminResponse
 
 
 class Wishlist(Model):
@@ -16,6 +16,14 @@ class Wishlist(Model):
 
 class WishlistResponse(BaseModel):
     items: list[WishlistItemResponse]
+    page: int
+    per_page: int
+    total_items: int
+    total_pages: int
+
+
+class WishlistsAdminResponse(BaseModel):
+    items: list[WishlistItemAdminResponse]
     page: int
     per_page: int
     total_items: int

@@ -5,7 +5,7 @@ from fastapi import (
     File, Query
 )
 from models.user import UserCreate, User, UserResponseAdmin, UsersListAdminResponse
-from models.wishlist import Wishlist
+from models.wishlist import Wishlist, WishlistsAdminResponse
 from models.wishlist_items import WishlistItem, WishlistItemAdminResponse
 from auth.services import (
     create_user, get_current_admin, get_current_user,
@@ -80,7 +80,7 @@ async def get_users(
         query = query.order_by(*order_fields)
 
     users = await query.offset((page - 1) * per_page).limit(per_page)
-    total_users = await User.all().count()
+    total_users = await query.all().count()
     total_pages = math.ceil(total_users / per_page)
     users_response = [user.to_admin_response() for user in users]
     response = {
@@ -173,7 +173,7 @@ async def delete_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
 
 
-@router.post("/wishlists", response_model=list[WishlistItemAdminResponse], tags=["admin"])
+@router.post("/wishlists", response_model=WishlistsAdminResponse, tags=["admin"])
 async def get_wishlist_items(
         page: int = 1,
         per_page: int = 10,
@@ -202,7 +202,16 @@ async def get_wishlist_items(
             query = query.filter(~Q(reserved_user=None))
         items = await query.offset((page - 1)*per_page).limit(per_page).prefetch_related("wishlist__user")
         response = [await item.to_admin_response() for item in items]
-        return response
+        total_items = await query.all().count()
+        total_pages = math.ceil(total_items / per_page)
+        print(response)
+        return {
+            "items": response,
+            "page": page,
+            "per_page": per_page,
+            "total_items": total_items,
+            "total_pages": total_pages,
+        }
     except ValidationError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
 
