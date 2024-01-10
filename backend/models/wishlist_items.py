@@ -67,7 +67,7 @@ class WishlistItem(Model):
     )
 
     def __str__(self):
-        print(self.title, self.image_url)
+        return self.title, self.image_url
 
     def to_response(self, user: User | None) -> WishlistItemResponse:
         reserved_user_response = ReservationStatusEnum.NOT_RESERVED

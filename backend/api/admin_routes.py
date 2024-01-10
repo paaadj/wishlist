@@ -5,7 +5,7 @@ from fastapi import (
     File, Query
 )
 from models.user import UserCreate, User, UserResponseAdmin, UsersListAdminResponse
-from models.wishlist import Wishlist
+from models.wishlist import Wishlist, WishlistsAdminResponse
 from models.wishlist_items import WishlistItem, WishlistItemAdminResponse
 from auth.services import (
     create_user, get_current_admin, get_current_user,
@@ -29,6 +29,9 @@ router = APIRouter(prefix="/admin")
 async def create_admin(
         user: UserCreate,
 ):
+    """
+    Create first admin in db if it's not exists
+    """
     users = await User.exists(is_admin=1)
     if users:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin already exists")
@@ -53,6 +56,11 @@ async def get_users(
                               title="Sort users by field name(- for descending order) in format *field1,field2*"
                               )
 ):
+    """
+    Get list of users
+    """
+    if page < 1 or per_page < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="page and per_page must be >= 1")
     query = User.all()
     if username:
         query = query.filter(username__icontains=username)
@@ -80,7 +88,7 @@ async def get_users(
         query = query.order_by(*order_fields)
 
     users = await query.offset((page - 1) * per_page).limit(per_page)
-    total_users = await User.all().count()
+    total_users = await query.all().count()
     total_pages = math.ceil(total_users / per_page)
     users_response = [user.to_admin_response() for user in users]
     response = {
@@ -105,6 +113,9 @@ async def edit_user(
         is_admin: Annotated[bool, Form()] = None,
         admin: User = Depends(get_current_admin)
 ):
+    """
+    Edit info about user
+    """
     try:
         user = await User.get_or_none(username=user_username)
         if user is None:
@@ -148,6 +159,9 @@ async def remove_user_image(
         user_username: str,
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Remove user image
+    """
     user = await User.get_or_none(username=user_username)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -163,6 +177,9 @@ async def delete_user(
         user_username: Annotated[str, Form()],
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Delete user
+    """
     try:
         user = await User.get_or_none(username=user_username)
         if user is None:
@@ -173,7 +190,7 @@ async def delete_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
 
 
-@router.post("/wishlists", response_model=list[WishlistItemAdminResponse], tags=["admin"])
+@router.post("/wishlists", response_model=WishlistsAdminResponse, tags=["admin"])
 async def get_wishlist_items(
         page: int = 1,
         per_page: int = 10,
@@ -183,6 +200,11 @@ async def get_wishlist_items(
         reserved_user: bool = None,
         admin: User = Depends(get_current_admin)
 ):
+    """
+    Get wishlist items
+    """
+    if page < 1 or per_page < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="page and per_page must be >= 1")
     try:
         query = WishlistItem.all()
         user_wishlist = None
@@ -202,7 +224,15 @@ async def get_wishlist_items(
             query = query.filter(~Q(reserved_user=None))
         items = await query.offset((page - 1)*per_page).limit(per_page).prefetch_related("wishlist__user")
         response = [await item.to_admin_response() for item in items]
-        return response
+        total_items = await query.all().count()
+        total_pages = math.ceil(total_items / per_page)
+        return {
+            "items": response,
+            "page": page,
+            "per_page": per_page,
+            "total_items": total_items,
+            "total_pages": total_pages,
+        }
     except ValidationError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{exc}")
 
@@ -216,6 +246,9 @@ async def edit_wishlist_item(
         image: UploadFile = File(None),
         admin: User = Depends(get_current_admin)
 ):
+    """
+    Edit wishlist item
+    """
     if item_id < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -245,6 +278,9 @@ async def remove_item_image(
         item_id: int,
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Remove item image
+    """
     item = await WishlistItem.get_or_none(id=item_id).prefetch_related("wishlist__user")
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
@@ -260,6 +296,9 @@ async def delete_item(
         item_id: int,
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Delete item
+    """
     item = await WishlistItem.get_or_none(id=item_id).prefetch_related("wishlist__user")
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
