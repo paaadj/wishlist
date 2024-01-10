@@ -9,7 +9,7 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel
 
 from config import settings
-from models.user import RefreshToken, User, UserResponse, UserJWT
+from models.user import RefreshToken, User, UserJWT
 
 JWT_SECRET = settings.SECRET_KEY
 ALGORITHM = "HS256"
@@ -60,7 +60,7 @@ async def create_refresh_token(user: User) -> RefreshToken:
     refresh_token = RefreshToken(
         user=user,
         token=refresh_token,
-        expires_at=datetime.datetime.fromtimestamp(expires_at)
+        expires_at=datetime.datetime.fromtimestamp(expires_at),
     )
     return refresh_token
 
@@ -73,7 +73,9 @@ async def clear_refresh_tokens(token: str):
     try:
         refresh_token = await RefreshToken.get_or_none(token=token)
         if refresh_token is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token doesn't exist")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Token doesn't exist")
         user = await refresh_token.user
         await refresh_token.filter(user=user).delete()
         return True
@@ -95,8 +97,8 @@ async def refresh_tokens(token: str):
         refresh_token_db = await RefreshToken.get_or_none(user=user, token=token)
         if refresh_token_db is None:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-            )
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token")
         access_token = await create_access_token(user)
         new_refresh_token = await create_refresh_token(user)
         refresh_token_db.token = new_refresh_token.token

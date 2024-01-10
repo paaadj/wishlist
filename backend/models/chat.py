@@ -1,8 +1,7 @@
-from tortoise import Model, fields
+from typing import Optional
+
 from pydantic import BaseModel
-from models.user import UserResponse
-from datetime import datetime
-from typing import Optional, List
+from tortoise import Model, fields
 
 
 class Chat(Model):
@@ -32,7 +31,7 @@ class ChatMessage(Model):
     timestamp = fields.DatetimeField(auto_now_add=True)
     reply_to = fields.ForeignKeyField(
         "models.ChatMessage",
-        related_name='replies',
+        related_name="replies",
         null=True,
         on_delete=fields.SET_NULL,
     )
