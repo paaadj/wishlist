@@ -6,7 +6,7 @@ interface INotification {
 }
 
 function Notification(props: INotification) {
-  const { id, read, type, data, date } = props.notification;
+  const { id, read, type, data } = props.notification;
   const { readNotification } = props;
   const onHoverNotification = () => {
     if (read) {

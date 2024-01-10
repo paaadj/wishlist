@@ -1,11 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
-// export type userAuth = {
-//   username: string;
-//   email: string;
-// };
-
 export type userData = {
   id: number;
   firstName: string;
@@ -59,7 +54,7 @@ export const UserProvider = (props: any) => {
   ) => {
     try {
       const response = await func(path, requestParams);
-      if (response.status == 403) {
+      if (response.status === 403) {
         const refreshState = await tryRefreshToken();
         if (refreshState === true) {
           try {
@@ -98,8 +93,6 @@ export const UserProvider = (props: any) => {
         "Content-Type": "application/json",
         Token: `${refreshToken}`,
       },
-      // body: JSON.stringify({ token : refreshToken }),
-      // body: `token=${refreshToken}`
     };
     const refreshResponse = await fetch(
       "http://127.0.0.1:8000/refresh_token",

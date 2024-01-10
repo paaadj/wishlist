@@ -1,13 +1,8 @@
 import { useForm } from "react-hook-form";
-import UserInput from "../UserInput/UserInput";
 import {
   ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useContext,
   useState,
 } from "react";
-import { UserContext, UserContextType } from "../../context/UserContext";
 import {
   Button,
   Flex,
@@ -33,7 +28,6 @@ interface IEditAvatar {
 }
 
 function UserEditAvatarForm(props: IUserEditAvatarForm) {
-  console.log("UserEditAvatarFormRerender");
   const { editUserAvatar, setActiveModal, username } = props;
   const [userAvatar, setUserAvatar] = useState<File | undefined>(undefined);
   const {
@@ -42,14 +36,7 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
     reset,
     formState: { isSubmitting },
   } = useForm<IEditAvatar>();
-  const { user, getAccessCookie, setUser } = useContext(
-    UserContext
-  ) as UserContextType;
-  const baseImageUrl =
-    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
-  const fixImageUrl = (url: string | undefined) => {
-    return url ? url.replace("/", "%2F") : url;
-  };
+
 
   const onSubmitHandler = async (values: IEditAvatar) => {
     editUserAvatar(false, userAvatar, username);
@@ -91,14 +78,7 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
             {...register("userAvatar", { onChange: handleFileChange })}
           />
         </FormControl>
-        {/* <UserInput
-          type="file"
-          id="userAvatar"
-          {...register("userAvatar", { onChange: handleFileChange })}
-          className="user-input edit-form-input"
-          placeholder="Wish image"
-          fieldClassName="edit-form-field"
-        /> */}
+
         <Flex justifyContent="center" alignItems="center" mt={5}>
           <Button
             mt={4}
@@ -120,14 +100,6 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
           </Button>
         </Flex>
       </form>
-
-      {/* <button
-        type="submit"
-        form="editAvatarForm"
-        className="modal-user-form-button"
-      >
-        Submit
-      </button> */}
     </>
   );
 }

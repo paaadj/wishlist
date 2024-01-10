@@ -3,9 +3,7 @@ import styles from "./admin.module.css";
 import React from "react";
 import { Icon, IconButton } from "@chakra-ui/react";
 import {
-  ArrowForwardIcon,
-  ArrowRightIcon,
-  HamburgerIcon,
+  HamburgerIcon
 } from "@chakra-ui/icons";
 import { FaUser } from "react-icons/fa";
 import { IoExitSharp } from "react-icons/io5";

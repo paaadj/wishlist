@@ -20,7 +20,6 @@ interface IReserveWishItem {
 }
 
 function ReserveWishItemForm(props: IReserveWishItemForm) {
-  console.log("ReserveWishFormRerender");
   const { updateReservation, wishId } = props;
   const [date, setDate] = React.useState<string>("");
   const {
@@ -31,9 +30,7 @@ function ReserveWishItemForm(props: IReserveWishItemForm) {
   } = useForm<IReserveWishItem>();
 
   const onSubmitHandler = async (values: IReserveWishItem) => {
-    console.log(values);
     const parsedDate = date?.replace("T", " ");
-    //addItemToWishlist(wishName, wishDesc, undefined, wishImgBin);
     if (wishId) {
       updateReservation(wishId, parsedDate);
     }

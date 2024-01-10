@@ -2,14 +2,10 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext, UserContextType } from "../../context/UserContext";
 import "./header.css";
-import useDebounce from "../../hooks/useDebounce";
 import useDebounceUserSearch from "../../hooks/useDebounceUserSearch";
-import UserInput from "../UserInput/UserInput";
-// import IconButton from "../IconButton/IconButton";
 import Notification from "./Notification";
 import {
   Flex,
-  HStack,
   Heading,
   Icon,
   IconButton,
@@ -24,10 +20,8 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-  Stack,
   StackDivider,
   VStack,
-  background,
 } from "@chakra-ui/react";
 import { LuBell, LuBellDot } from "react-icons/lu";
 import { IoExitSharp } from "react-icons/io5";
@@ -58,8 +52,6 @@ function Header() {
   const [notifications, setNotifications] = useState<ParsedNotificationType[] | []>(
     []
   );
-  const [notificationIsActive, setNotificationIsActive] =
-    useState<boolean>(false);
   const [notificationsUnread, setNotificationsUnread] =
     useState<boolean>(false);
   const intervalRef = useRef<number | null>(null);
@@ -97,10 +89,8 @@ function Header() {
       });
       setNotificationsUnread(hasUnreadNotification(parsedNotifications));
       setNotifications(parsedNotifications);
-      // setNotifications(data);
     } catch (err) {
       if (err instanceof Error) {
-        console.log(err.message);
       }
     }
   };
@@ -113,7 +103,7 @@ function Header() {
       },
     };
     try {
-      const response = await requestProvider(
+       await requestProvider(
         fetch,
         `/backend/my_notifications/${id}/read`,
         requestParams
@@ -124,10 +114,8 @@ function Header() {
       }
     } catch (err) {
       if (err instanceof Error) {
-        console.log(err.message);
       }
     }
-    //
   };
   useEffect(() => {
     setUserAvatar(
@@ -147,6 +135,7 @@ function Header() {
         clearInterval(intervalRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   return (
@@ -183,7 +172,6 @@ function Header() {
                 }}
               />
             </InputGroup>
-            {/* #d6d5d5 */}
             {debounceInput && (
               <VStack
                 bg="white"
@@ -249,12 +237,6 @@ function Header() {
                         }
                         boxSize={6}
                         bg="transparent"
-                        // onClick={() => {
-                        //   setNotificationIsActive(
-                        //     (prevNotificationIsActive) =>
-                        //       !prevNotificationIsActive
-                        //   );
-                        // }}
                       />
                     </PopoverTrigger>
                     <PopoverContent>

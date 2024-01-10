@@ -1,4 +1,4 @@
-import { Button, Icon, Image } from "@chakra-ui/react";
+import { Button, Icon } from "@chakra-ui/react";
 import {
   UserContext,
   UserContextType,
@@ -104,7 +104,6 @@ function User(props: IUser) {
         );
       }
     } else {
-      console.log("dont Edit avatar");
     }
   };
 
@@ -123,15 +122,14 @@ function User(props: IUser) {
       body: formData,
     };
     try {
-      const response = await requestProvider(
+      await requestProvider(
         fetch,
         `/backend/edit_info`,
         requestParams
       );
-      console.log("Password changed");
+
     } catch (err) {
-      console.log("Password doesnt changed");
-      console.log(err instanceof Error ? " : " + err.message : "");
+
     }
   };
 

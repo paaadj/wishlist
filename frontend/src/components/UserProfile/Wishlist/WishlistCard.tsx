@@ -1,22 +1,12 @@
-import { Dispatch, SetStateAction, useContext, useState } from "react";
-import {
-  UserContext,
-  UserContextType,
-  userData,
-} from "../../../context/UserContext";
 import "../user.css";
 import styles from "./wishlistStyles.module.css";
-import ModalWindow from "../../ModalWindow/ModalWindow";
 import classNames from "classnames";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import {
   CiBookmarkMinus,
   CiBookmarkPlus,
-  CiBookmarkCheck,
 } from "react-icons/ci";
 import {
-  Box,
-  Button,
   Icon,
   IconButton,
   Image,
@@ -26,8 +16,6 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { ChatIcon, DeleteIcon, EditIcon, LinkIcon } from "@chakra-ui/icons";
-import ReserveWishItemForm from "./ReserveWishItemForm";
-import { WishItem } from "./Wishlist";
 import React from "react";
 
 interface IWishlistCard {
@@ -50,21 +38,18 @@ interface IWishlistCard {
 function WishlistCard(props: IWishlistCard) {
   const {
     self,
-    authUserId,
     wishItemId,
     title,
     description,
     link,
     imgUrl,
     reservedUser,
-    updateWishlistFunction,
     setEditWishItem,
     handleDeleteItem,
     handleSetReserveItem,
     handleUnreserveItem,
     handleChatOpen,
   } = props;
-  const { getAccessCookie } = useContext(UserContext) as UserContextType;
 
   const baseImageUrl =
     "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
@@ -86,10 +71,6 @@ function WishlistCard(props: IWishlistCard) {
     handleSetReserveItem(wishItemId);
   };
 
-  // const handleReserveButtonClick = () => {
-  //   handleReserveItem(wishItemId);
-  //   setPopUp(false);
-  // };
 
   const handleUnreserveButtonClick = () => {
     handleUnreserveItem(wishItemId);
@@ -108,7 +89,7 @@ function WishlistCard(props: IWishlistCard) {
         })}
       >
         <div className={styles.card_data_header_buttons}>
-          {reservedUser == 2 && (
+          {reservedUser === 2 && (
             <IconButton
               aria-label="Unreserve wish"
               isRound={true}
@@ -174,7 +155,6 @@ function WishlistCard(props: IWishlistCard) {
               )}
 
               <MenuItem onClick={() => {
-                // console.log(link);
                 window.open(link, '_blank');
               }} fontWeight="500" icon={<LinkIcon /> }>
                 Check external link

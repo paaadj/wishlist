@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import UserInput from "../UserInput/UserInput";
 import { useContext, useState } from "react";
 import { UserContext, UserContextType } from "../../context/UserContext";
 import {
@@ -29,7 +28,6 @@ interface IUserEditProfileDataForm {
 }
 
 function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
-  console.log("UserEditDataRerender");
   const {
     prevFirstName,
     prevLastName,
@@ -86,7 +84,7 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
     };
     try {
       if (!formDataIsEmpty) {
-        const response = await requestProvider(
+        await requestProvider(
           fetch,
           "/backend/edit_info",
           requestParams
@@ -131,20 +129,6 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="text"
-          id="firstName"
-          placeholder="First name"
-          className="user-input edit-form-input"
-          imgSource="/img/username.png"
-          required={false}
-          fieldClassName="edit-form-field"
-          {...register("firstName", {
-            onChange: (e) => {
-              setFirstName(e.target.value);
-            },
-          })}
-        /> */}
         <FormControl>
           <FormLabel htmlFor="lastName">Last name</FormLabel>
           <Input
@@ -158,20 +142,7 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="text"
-          id="lastName"
-          placeholder="Last name"
-          className="user-input edit-form-input"
-          imgSource="/img/username.png"
-          required={false}
-          fieldClassName="edit-form-field"
-          {...register("lastName", {
-            onChange: (e) => {
-              setLastName(e.target.value);
-            },
-          })}
-        /> */}
+
         <FormControl>
           <FormLabel htmlFor="username">Username</FormLabel>
           <Input
@@ -185,20 +156,7 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="text"
-          id="username"
-          placeholder="Username"
-          className="user-input edit-form-input"
-          imgSource="/img/username.png"
-          required={false}
-          fieldClassName="edit-form-field"
-          {...register("username", {
-            onChange: (e) => {
-              setUsername(e.target.value);
-            },
-          })}
-        /> */}
+
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <Input
@@ -212,20 +170,7 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="email"
-          id="email"
-          placeholder="Email"
-          className="user-input edit-form-input"
-          imgSource="/img/email.png"
-          required={false}
-          fieldClassName="edit-form-field"
-          {...register("email", {
-            onChange: (e) => {
-              setEmail(e.target.value);
-            },
-          })}
-        /> */}
+
         <Flex justifyContent="center" alignItems="center" mt={5}>
           <Button
             mt={4}
@@ -238,14 +183,6 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
           </Button>
         </Flex>
       </form>
-
-      {/* <button
-        type="submit"
-        form="profileDataEditForm"
-        className="modal-user-form-button"
-      >
-        Submit
-      </button> */}
     </>
   );
 }

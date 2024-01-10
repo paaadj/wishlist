@@ -1,17 +1,12 @@
 import { useForm } from "react-hook-form";
-import UserInput from "../../UserInput/UserInput";
 import {
   ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useContext,
   useEffect,
   useState,
 } from "react";
-import { UserContext, UserContextType } from "../../../context/UserContext";
-import { Box, Button, Flex, FormControl, FormLabel, Heading, Icon, Input } from "@chakra-ui/react";
+import {  Button, Flex, FormControl, FormLabel, Heading, Input } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import React from "react";
+
 
 interface IAddWishItemForm {
   addWishItemToWishlistFunc: (title: string, description: string, linkToSite?: string, imgBinary?: File) => Promise<void>;
@@ -38,10 +33,6 @@ function AddWishItemForm(props: IAddWishItemForm) {
     formState: { isSubmitting },
   } = useForm<IAddWishItem>();
 
-  const { getAccessCookie } = useContext(UserContext) as UserContextType;
-
-  
-
   const onSubmitHandler = async (values: IAddWishItem) => {
     addWishItemToWishlistFunc(wishName, wishDesc, wishLink, wishImgBin);
     setWishName("");
@@ -64,6 +55,7 @@ function AddWishItemForm(props: IAddWishItemForm) {
       setWishDesc("");
       setWishImgBin(undefined);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -91,7 +83,6 @@ function AddWishItemForm(props: IAddWishItemForm) {
             placeholder="Wish description"
             {...register("wishDesc", {
               onChange: (e) => {
-                console.log(e.target.value);
                 setWishDesc(e.target.value);
               },
             })}
@@ -110,17 +101,6 @@ function AddWishItemForm(props: IAddWishItemForm) {
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="text"
-          id="wishDesc"
-          {...register("wishDesc", {
-            onChange: (e) => {
-              setWishDesc(e.target.value);
-            },
-          })}
-          className="user-input"
-          placeholder="Wish description"
-        /> */}
         <FormControl>
           <FormLabel htmlFor="wishImg">Wish image</FormLabel>
           <Input
@@ -130,13 +110,6 @@ function AddWishItemForm(props: IAddWishItemForm) {
             {...register("wishImg", { onChange: handleFileChange })}
           />
         </FormControl>
-        {/* <UserInput
-          type="file"
-          id="wishImg"
-          {...register("wishImg", { onChange: handleFileChange })}
-          className="user-input"
-          placeholder="Wish image"
-        /> */}
         <Flex justifyContent="center" alignItems="center" mt={5}>
           <Button
             mt={4}

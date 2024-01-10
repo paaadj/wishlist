@@ -1,5 +1,4 @@
 import {
-  Button,
   IconButton,
   Link,
   Table,
@@ -21,17 +20,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  UserData,
-  WishData,
-  wishesData,
+  WishData
 } from "../../../pages/AdminPage/AdminPage";
 import React from "react";
 import styles from "../tableStyles.module.css";
 import classNames from "classnames";
-import { DeleteIcon, EditIcon, UpDownIcon, ViewIcon } from "@chakra-ui/icons";
-
-import Pagination from "../../Pagination/Pagination";
-import Filter from "./Filter";
+import { DeleteIcon, EditIcon, UpDownIcon } from "@chakra-ui/icons";
 import ModalWindow from "../../ModalWindow/ModalWindow";
 import EditWishItemForm from "../../UserProfile/Wishlist/EditWishItemForm";
 
@@ -108,7 +102,7 @@ function AdminWishTable(props: IAdminWishTable) {
   >(undefined);
   const [editFormIsActive, setEditFormIsActive] =
     React.useState<boolean>(false);
-  const [columnFilters, setColumnFilters] = React.useState<
+  const [columnFilters, ] = React.useState<
     { id: string; value: string }[]
   >([]);
   const table = useReactTable({
@@ -137,11 +131,6 @@ function AdminWishTable(props: IAdminWishTable) {
   const handleCloseWishItemIsEdit = React.useCallback(() => {
     setEditFormIsActive(false);
   }, []);
-  const updateData = async (rowId: number, value: Omit<WishData, "id">) => {
-    setData((prev) =>
-      prev.map((row) => (row.id === rowId ? { id: row.id, ...value } : row))
-    );
-  };
 
   return (
     <>
@@ -215,18 +204,7 @@ function AdminWishTable(props: IAdminWishTable) {
           </Tbody>
         </Table>
       </TableContainer>
-      {/* <Pagination
-        onNextPageClick={() => table.nextPage()}
-        onPrevPageClick={() => table.previousPage()}
-        disable={{
-          left: !table.getCanPreviousPage(),
-          right: !table.getCanNextPage(),
-        }}
-        nav={{
-          current: table.getState().pagination.pageIndex + 1,
-          total: table.getPageCount(),
-        }}
-      /> */}
+
     </>
   );
 }
