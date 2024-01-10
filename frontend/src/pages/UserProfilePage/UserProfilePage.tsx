@@ -68,6 +68,7 @@ function UserProfilePage(props: IUserProfilePage) {
         fetchAnotherUser();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [self, user, username]);
   return (
     <>

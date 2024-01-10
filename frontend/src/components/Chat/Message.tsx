@@ -69,6 +69,7 @@ function Message(props: IMessage) {
     if (replyId) {
       fetchReplyMessage();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const handleMessageClick = () => {
     onClick(id, text);
