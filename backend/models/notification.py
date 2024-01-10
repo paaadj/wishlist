@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 
 class NotificationResponse(BaseModel):
-
     id: int
     read: bool
     type: str
@@ -17,11 +16,10 @@ class Notification(Model):
     """
     Notifications model
     """
+
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField(
-        "models.User",
-        on_delete=fields.CASCADE,
-        related_name="notifications"
+        "models.User", on_delete=fields.CASCADE, related_name="notifications"
     )
     read = fields.BooleanField(default=False)
     type = fields.CharField(max_length=255)
@@ -46,11 +44,10 @@ class DeferredNotifications(Model):
     """
     Deferred notifications model
     """
+
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField(
-        "models.User",
-        on_delete=fields.CASCADE,
-        related_name="deferred_notifications"
+        "models.User", on_delete=fields.CASCADE, related_name="deferred_notifications"
     )
     type = fields.CharField(max_length=255)
 

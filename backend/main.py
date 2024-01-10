@@ -27,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def init():
     """
@@ -34,9 +35,9 @@ async def init():
     Migrate db then connect to it
     Start scheduler then run all schedule jobs
     """
-    command = Command(tortoise_config=TORTOISE_ORM, app='models')
+    command = Command(tortoise_config=TORTOISE_ORM, app="models")
     await command.init()
-    await command.migrate('update')
+    await command.migrate("update")
     await command.upgrade(False)
     await Tortoise.init(
         db_url=settings.DATABASE_URL, modules={"models": settings.MODULE_LIST}

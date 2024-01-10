@@ -34,7 +34,10 @@ async def authenticate_user(username: str, password: str):
             return False
         return user
     except ValidationError as validation_error:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid format, {validation_error}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid format, {validation_error}",
+        )
 
 
 async def get_current_user(access_token: str = Depends(oauth2_scheme)):
@@ -45,7 +48,9 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
     """
     try:
         if access_token is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+            )
         payload = jwt.decode(access_token, JWT_SECRET, algorithms=[ALGORITHM])
         if payload.get("scope") != "access":
             raise jwt.exceptions.InvalidSignatureError
@@ -61,11 +66,14 @@ async def get_current_user(access_token: str = Depends(oauth2_scheme)):
         ) from exc
     except DoesNotExist as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"User doesn't exists") from exc
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"User doesn't exists"
+        ) from exc
     return user
 
 
-async def get_current_user_or_none(access_token: str = Depends(oauth2_scheme)) -> User | None:
+async def get_current_user_or_none(
+    access_token: str = Depends(oauth2_scheme),
+) -> User | None:
     """
     Return user if exists else none
     """
@@ -129,9 +137,7 @@ async def upload_image(image: UploadFile, filename: str = None):
         )
     if not filename:
         filename = "user_images/" + str(uuid.uuid4())
-    storage.child(filename).put(
-        content, content_type=image.content_type
-    )
+    storage.child(filename).put(content, content_type=image.content_type)
     return filename
 
 

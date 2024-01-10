@@ -6,7 +6,7 @@ import re
 from typing import Optional
 
 from passlib.hash import bcrypt
-from pydantic import BaseModel, EmailStr, AnyHttpUrl
+from pydantic import BaseModel, EmailStr
 from tortoise import fields
 from tortoise.validators import RegexValidator, MinLengthValidator
 from tortoise.models import Model
@@ -16,6 +16,7 @@ class UserResponseAdmin(BaseModel):
     """
     User response for admins model
     """
+
     id: int
     username: str
     email: Optional[EmailStr] = None
@@ -47,8 +48,7 @@ class User(Model):
         ],
     )
     password = fields.CharField(max_length=255)
-    first_name = fields.CharField(
-        max_length=30, validators=[MinLengthValidator(2)])
+    first_name = fields.CharField(max_length=30, validators=[MinLengthValidator(2)])
     last_name = fields.CharField(
         max_length=30, null=True, validators=[MinLengthValidator(2)]
     )
@@ -137,5 +137,6 @@ class UserJWT(BaseModel):
     """
     user's data for jwt token
     """
+
     id: int
     username: str

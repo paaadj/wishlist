@@ -9,7 +9,7 @@ from models.wishlist_items import WishlistItemResponse
 from auth.services import get_current_user, get_current_user_or_none
 from auth.services import get_user_by_username
 from models.user import UserResponse, User
-from typing import Annotated, Optional
+from typing import Annotated
 from pydantic import AnyHttpUrl
 from api.wishlist_services import (
     create_item,
@@ -59,7 +59,7 @@ async def get_wishlist(
     wishlist_owner: User = Depends(get_user_by_username),
     current_user: User | None = Depends(get_current_user_or_none),
 ):
-    """ Get wishlist item on page \n
+    """Get wishlist item on page \n
     **page** starts with 1 \n
     **per_page** count of items per page \n
     **current_user** if access_token is not None \n
@@ -73,11 +73,18 @@ async def get_wishlist(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="per_page must be > 0"
         )
-    return await fetch_wishlist(page=page - 1, per_page=per_page, wishlist_owner=wishlist_owner, user=current_user)
+    return await fetch_wishlist(
+        page=page - 1,
+        per_page=per_page,
+        wishlist_owner=wishlist_owner,
+        user=current_user,
+    )
 
 
 @router.get("/get_item", response_model=WishlistItemResponse, tags=["wishlist"])
-async def get_item_via_id(item_id: int, user: User | None = Depends(get_current_user_or_none)):
+async def get_item_via_id(
+    item_id: int, user: User | None = Depends(get_current_user_or_none)
+):
     """
     Get item via id
 
@@ -113,10 +120,12 @@ async def update_item(
     return item.to_response(user=None)
 
 
-@router.get("/{item_id}/delete_image", response_model=WishlistItemResponse, tags=["wishlist"])
+@router.get(
+    "/{item_id}/delete_image", response_model=WishlistItemResponse, tags=["wishlist"]
+)
 async def remove_image(
-        item_id: int,
-        user: User = Depends(get_current_user),
+    item_id: int,
+    user: User = Depends(get_current_user),
 ):
     item = await delete_item_image(item_id=item_id, user=user)
     return item.to_response(user)
@@ -136,7 +145,9 @@ async def delete_item(item_id: int, user=Depends(get_current_user)):
 
 
 @router.post("/reserve", response_model=WishlistItemResponse, tags=["wishlist"])
-async def reserve_item(item_id: int, date: datetime.datetime = None, user=Depends(get_current_user)):
+async def reserve_item(
+    item_id: int, date: datetime.datetime = None, user=Depends(get_current_user)
+):
     """
     Reserve item with **item_id(int)** \n
     **require access token in header**

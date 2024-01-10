@@ -101,4 +101,3 @@ class WishlistItem(Model):
             owner=owner,
         )
         return item
-

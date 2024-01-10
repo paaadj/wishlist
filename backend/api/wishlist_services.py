@@ -1,21 +1,20 @@
 import json
 import math
+import uuid
 
 from fastapi import HTTPException, UploadFile, Form, File, status
 
-from models.wishlist import Wishlist, WishlistResponse
+from models.wishlist import Wishlist
 from models.wishlist_items import WishlistItem, WishlistItemResponse
 from models.chat import Chat
 from models.user import User
 from models.user import UserResponse
-from models.notification import Notification, DeferredNotifications
-from tortoise.expressions import Q
-from typing import Annotated, Optional
+from models.notification import DeferredNotifications
+from typing import Annotated
 from pydantic import AnyHttpUrl
 from config import settings
 from firebase_config import storage
 from datetime import datetime
-import uuid
 
 
 async def upload_image(
@@ -31,9 +30,7 @@ async def upload_image(
         raise HTTPException(status_code=413, detail="File too large")
     if not filename:
         filename = "item_images/" + str(uuid.uuid4())
-    storage.child(filename).put(
-        content, content_type=image.content_type
-    )
+    storage.child(filename).put(content, content_type=image.content_type)
     return filename
 
 
@@ -70,7 +67,9 @@ async def create_item(
         ) from exc
 
 
-async def fetch_wishlist(page: int, per_page: int, wishlist_owner: User, user: User | None):
+async def fetch_wishlist(
+    page: int, per_page: int, wishlist_owner: User, user: User | None
+):
     """
     fetch user's wishlist
     Return WishlistResponse in dict format
@@ -163,7 +162,7 @@ async def delete_item_image(item_id: int, user: User) -> WishlistItem:
     if item.image_url is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Item with id {item_id} have no image"
+            detail=f"Item with id {item_id} have no image",
         )
     await remove_image(item.image_url)
     item.image_url = None
@@ -191,17 +190,20 @@ async def remove_item(item_id: int, user: User) -> WishlistItem:
 
 
 async def create_reminder(
-        item_id: int,
-        user: User,
-        date_to_remind: datetime,
+    item_id: int,
+    user: User,
+    date_to_remind: datetime,
 ):
     """
     Create deferred notification about reservation
     """
-    data = {
-        "item_id": item_id
-    }
-    new_date = datetime(date_to_remind.year, date_to_remind.month, date_to_remind.day, date_to_remind.hour)
+    data = {"item_id": item_id}
+    new_date = datetime(
+        date_to_remind.year,
+        date_to_remind.month,
+        date_to_remind.day,
+        date_to_remind.hour,
+    )
     await DeferredNotifications.create(
         user=user,
         type="reserve reminder",
@@ -252,10 +254,10 @@ async def cancel_reservation(
             status_code=status.HTTP_403_FORBIDDEN, detail="You didn't reserve this item"
         )
     item.reserved_user = None
-    data = json.dumps({
-        "item_id": item_id
-    })
-    reservation = await DeferredNotifications.filter(data__contains=data, type="reserve reminder").first()
+    data = json.dumps({"item_id": item_id})
+    reservation = await DeferredNotifications.filter(
+        data__contains=data, type="reserve reminder"
+    ).first()
     if reservation is not None:
         await reservation.delete()
     await item.save()

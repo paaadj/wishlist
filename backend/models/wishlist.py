@@ -28,6 +28,3 @@ class WishlistsAdminResponse(BaseModel):
     per_page: int
     total_items: int
     total_pages: int
-
-
-

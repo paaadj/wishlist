@@ -3,21 +3,28 @@ Module containing routes and handlers for auth
 """
 
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status, UploadFile, File, Form
+from fastapi import (
+    APIRouter,
+    Depends,
+    Header,
+    HTTPException,
+    status,
+    UploadFile,
+    File,
+    Form,
+)
 from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
 from models.user import User, UserResponse, UserCreate
 from auth.services import (
-    authenticate_user,
     upload_image,
     delete_image,
     get_user_by_username,
 )
 from tortoise.exceptions import ValidationError
 from passlib.hash import bcrypt
-from tortoise.expressions import Q
-from typing import List, Optional, Annotated
+from typing import Annotated
 from pydantic import EmailStr
 
 from .services import authenticate_user, get_current_user, create_user
@@ -102,14 +109,14 @@ async def edit_info(
             if not await check_username(username):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"User with username {username} already exists"
+                    detail=f"User with username {username} already exists",
                 )
             user.username = username
         if email:
             if not await check_email(email):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"User with email {email} already exists"
+                    detail=f"User with email {email} already exists",
                 )
             user.email = email
         if new_password:
@@ -125,9 +132,7 @@ async def edit_info(
         if last_name:
             user.last_name = last_name
         if image:
-            user.image_url = await upload_image(
-                image, user.image_url
-            )
+            user.image_url = await upload_image(image, user.image_url)
         await user.save()
         return user.__dict__
     except ValidationError as exc:
@@ -139,7 +144,9 @@ async def edit_info(
 @auth_router.get("/delete_image", response_model=UserResponse, tags=["auth"])
 async def remove_image(user: User = Depends(get_current_user)):
     if user.image_url is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"You have no image")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"You have no image"
+        )
     await delete_image(user.image_url)
     user.image_url = None
     await user.save()
