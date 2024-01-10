@@ -215,9 +215,7 @@ function Wishlist(props: IWishlistProps) {
           setWishItemReserved(undefined);
           setReserveFormActive(false);
         }
-      } catch (err) {
-
-      }
+      } catch (err) {}
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [wishlist]
@@ -252,8 +250,7 @@ function Wishlist(props: IWishlistProps) {
             return prev ? { ...prev, items: updatedWishList } : prev;
           });
         }
-      } catch (err) {
-      }
+      } catch (err) {}
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [wishlist]
@@ -337,7 +334,10 @@ function Wishlist(props: IWishlistProps) {
             Authorization: "Bearer " + getAccessCookie(),
           },
         };
-        response = await fetch(`/backend/api/${wishId}/delete_image`, requestParams);
+        response = await fetch(
+          `/backend/api/${wishId}/delete_image`,
+          requestParams
+        );
       }
       if (response && response.ok) {
         setUpdateWishlist((prevState) => !prevState);
@@ -348,56 +348,50 @@ function Wishlist(props: IWishlistProps) {
     []
   );
 
-  const handleAddWishItemToWishlist = useCallback(
-    async (
-      title: string,
-      description: string,
-      linkToSite?: string,
-      imgBinary?: File
-    ) => {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      if (linkToSite) {
-        formData.append("link", linkToSite);
-      }
-      if (imgBinary) {
-        formData.append("image", imgBinary, imgBinary.name);
-      }
-      const requestParams = {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + getAccessCookie(),
-        },
-        body: formData,
-      };
-      const response = await fetch(`/backend/api/add_item`, requestParams);
-      if (response.ok) {
-
-        if (wishlist) {
-          if (wishlist.total_items - wishlist.page * wishlist.per_page < 0) {
-            const data = await response.json();
-            wishlist.items.push(data);
-          }
-          setWishlist((prev) => {
-            return prev
-              ? {
-                  ...prev,
-                  items: wishlist.items,
-                  total_items: prev.total_items + 1,
-                  total_pages: Math.ceil(
-                    (prev.total_items + 1) / prev.per_page
-                  ),
-                }
-              : prev;
-          });
+  const handleAddWishItemToWishlist = async (
+    title: string,
+    description: string,
+    linkToSite?: string,
+    imgBinary?: File
+  ) => {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    if (linkToSite) {
+      formData.append("link", linkToSite);
+    }
+    if (imgBinary) {
+      formData.append("image", imgBinary, imgBinary.name);
+    }
+    const requestParams = {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + getAccessCookie(),
+      },
+      body: formData,
+    };
+    const response = await fetch(`/backend/api/add_item`, requestParams);
+    if (response.ok) {
+      if (wishlist) {
+        if (wishlist.total_items - wishlist.page * wishlist.per_page < 0) {
+          const data = await response.json();
+          data.image_url += `?alt=media&t=${new Date().getTime()}`;
+          wishlist.items.push(data);
         }
-      } else {
+        setWishlist((prev) => {
+          return prev
+            ? {
+                ...prev,
+                items: wishlist.items,
+                total_items: prev.total_items + 1,
+                total_pages: Math.ceil((prev.total_items + 1) / prev.per_page),
+              }
+            : prev;
+        });
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [wishlist]
-  );
+    } else {
+    }
+  };
 
   return (
     <>
@@ -498,7 +492,16 @@ function Wishlist(props: IWishlistProps) {
                   />
                 );
               })}
-            {wishlist && wishlist.items.length === 0 && <h3>No data</h3>}
+            {wishlist && wishlist.items.length === 0 && (
+              <Flex
+                justifyContent="center"
+                h="100%"
+                w="100%"
+                className="page-text page-reg-text"
+              >
+                No data
+              </Flex>
+            )}
             {isLoading && (
               <Flex
                 align="center"

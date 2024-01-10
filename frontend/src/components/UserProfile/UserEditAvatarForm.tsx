@@ -70,7 +70,7 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
       </Heading>
       <form id="editAvatarForm" onSubmit={handleSubmit(onSubmitHandler)}>
         <FormControl>
-          <FormLabel htmlFor="userAvatar">Wish image</FormLabel>
+          <FormLabel htmlFor="userAvatar">Avatar image</FormLabel>
           <Input
             type="file"
             id="userAvatar"
@@ -79,7 +79,7 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
           />
         </FormControl>
 
-        <Flex justifyContent="center" alignItems="center" mt={5}>
+        <Flex justifyContent="center" alignItems="center" mt={5} columnGap={3}>
           <Button
             mt={4}
             colorScheme="teal"

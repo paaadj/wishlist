@@ -43,7 +43,7 @@ function MainPage() {
               )}
               {!user && (
                 <Link
-                  to="/login"
+                  to="/registration"
                   className="title__button page-text page-reg-text white-color white-button-text"
                 >
                   Sign Up

@@ -25,6 +25,7 @@ interface IRegistration {
     confirmPassword: string,
     lastName?: string,
   ) => Promise<void>;
+  isModule?: boolean;
 }
 
 interface IRegistrationInput {
@@ -100,7 +101,7 @@ const registrationValidationSchema = yup.object().shape({
 });
 
 const RegistrationForm = (props : IRegistration) => {
-  const {registerUser} = props;
+  const {registerUser, isModule} = props;
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -140,12 +141,13 @@ const RegistrationForm = (props : IRegistration) => {
       p={8}
     >
       <Flex align="center" mb={5}>
-        <IconButton
+        {!isModule && <IconButton
           onClick={() => navigate("/")}
           aria-label="Go back"
           icon={<ArrowLeftIcon />}
           bg="transparent"
-        />
+        />}
+        
         <Heading
           textAlign="center"
           as="h3"

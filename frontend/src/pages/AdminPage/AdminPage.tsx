@@ -39,8 +39,7 @@ type pageData = {
   totalPages: number;
 };
 
-
-const AMOUNT_AT_THE_PAGE = 5;
+const AMOUNT_AT_THE_PAGE = 8;
 
 function AdminPage() {
   const { getAccessCookie, requestProvider } = React.useContext(
@@ -108,7 +107,7 @@ function AdminPage() {
             fetch,
             `/backend/api/admin/users?page=${
               page ? page.currentPage : 1
-            }&per_page=${AMOUNT_AT_THE_PAGE}` ,
+            }&per_page=${AMOUNT_AT_THE_PAGE}`,
             requestParams
           );
           if (response) {
@@ -125,7 +124,7 @@ function AdminPage() {
         }
         if (currentTable === "wishes") {
           const requestParams = {
-            method: "POST",
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: getAccessCookie()
@@ -137,7 +136,8 @@ function AdminPage() {
             fetch,
             `/backend/api/admin/wishlists?page=${
               page ? page.currentPage : 1
-            }&per_page=${AMOUNT_AT_THE_PAGE}`+ (tableFilter ? `&username=${tableFilter}` : ""),
+            }&per_page=${AMOUNT_AT_THE_PAGE}` +
+              (tableFilter ? `&username=${tableFilter}` : ""),
             requestParams
           );
           if (response) {
@@ -201,7 +201,7 @@ function AdminPage() {
   };
   const deleteUser = async (username: string) => {
     const requestParams = {
-      method: "POST",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: "Bearer " + getAccessCookie(),
@@ -257,7 +257,7 @@ function AdminPage() {
     }
 
     const requestParams = {
-      method: "POST",
+      method: "PUT",
       headers: {
         Authorization: "Bearer " + getAccessCookie(),
       },
@@ -394,7 +394,7 @@ function AdminPage() {
     }
     if (response && response.ok) {
       const data = await response.json();
-  
+
       if (currentWishes) {
         const updatedWishes = currentWishes.map((item) => {
           if (item.id === wishId) {
@@ -417,8 +417,7 @@ function AdminPage() {
   const goToUserWishes = (username: string) => {
     setTableFilter(username);
     setCurrentTable("wishes");
-    
-  }
+  };
   const deleteWishItem = async (item_id: number) => {
     const requestParams = {
       method: "DELETE",
@@ -447,6 +446,7 @@ function AdminPage() {
           icon={FaUser}
           text="Users"
           onClick={() => {
+            setPage(undefined);
             setTableFilter("");
             setCurrentTable("users");
           }}
@@ -455,9 +455,14 @@ function AdminPage() {
           icon={BsCardChecklist}
           text="Items"
           onClick={() => {
+            setPage(undefined);
             setTableFilter("");
-            if(currentTable !== "wishes"){setCurrentTable("wishes");}
-            if(currentTable === "wishes"){setUpdateTableState(prev => !prev)}
+            if (currentTable !== "wishes") {
+              setCurrentTable("wishes");
+            }
+            if (currentTable === "wishes") {
+              setUpdateTableState((prev) => !prev);
+            }
           }}
         />
       </AdminSideMenu>
@@ -480,7 +485,13 @@ function AdminPage() {
           />
         )}
         {isLoading && (
-          <Flex align="center" minHeight="100%" justifyContent="center" w="100%" padding={50}>
+          <Flex
+            align="center"
+            minHeight="100%"
+            justifyContent="center"
+            w="100%"
+            padding={50}
+          >
             <Spinner />
           </Flex>
         )}
@@ -492,18 +503,25 @@ function AdminPage() {
             </Text>
           </Flex>
         )}
-        <Pagination
-          onNextPageClick={handleNextPageClick}
-          onPrevPageClick={handlePrevPageClick}
-          disable={{
-            left: page?.currentPage === 1,
-            right: page?.currentPage === page?.totalPages,
-          }}
-          nav={{
-            current: page ? page.currentPage : 1,
-            total: page ? page.totalPages : 1,
-          }}
-        />
+        {((currentTable === "users" &&
+          currentUsers &&
+          currentUsers.length > 0) ||
+          (currentTable === "wishes" &&
+            currentWishes &&
+            currentWishes.length > 0)) && (
+              <Pagination
+                onNextPageClick={handleNextPageClick}
+                onPrevPageClick={handlePrevPageClick}
+                disable={{
+                  left: page?.currentPage === 1,
+                  right: page?.currentPage === page?.totalPages,
+                }}
+                nav={{
+                  current: page ? page.currentPage : 1,
+                  total: page ? page.totalPages : 1,
+                }}
+              />
+            )}
       </AdminMainView>
     </div>
   );

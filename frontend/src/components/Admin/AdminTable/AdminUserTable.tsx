@@ -10,6 +10,7 @@ import {
   Tr,
   Image,
   Icon,
+  Flex,
 } from "@chakra-ui/react";
 import {
   flexRender,
@@ -163,7 +164,7 @@ function AdminUserTable(props: IAdminUserTable) {
         setActive={setAddNewUserIsActive}
       >
         {addNewUserIsActive && (
-          <RegistrationForm registerUser={registerNewUserFunc} />
+          <RegistrationForm registerUser={registerNewUserFunc} isModule={true}/>
         )}
       </ModalWindow>
       <ModalWindow active={editFormIsActive} setActive={setEditFormIsActive}>
@@ -190,6 +191,7 @@ function AdminUserTable(props: IAdminUserTable) {
           />
         )}
       </ModalWindow>
+      {currentData.length > 0 ? 
       <TableContainer minHeight="70vh" maxHeight="80%" mb={4} overflowY="auto">
         <Table w={"100%"}>
           <Thead>
@@ -254,7 +256,11 @@ function AdminUserTable(props: IAdminUserTable) {
                     icon={<EditIcon />}
                     onClick={() => {
                       editForm.current = "profileData";
-                      setCurrentEditUser(row.original);
+                      if(currentEditUser && currentEditUser.username === row.original.username){
+                        setEditFormIsActive(true);
+                      }else{
+                        setCurrentEditUser(row.original);
+                      }
                     }}
                   />
                   <IconButton
@@ -263,7 +269,11 @@ function AdminUserTable(props: IAdminUserTable) {
                     icon={<Icon as={RiImageEditLine} />}
                     onClick={() => {
                       editForm.current = "image";
-                      setCurrentEditUser(row.original);
+                      if(currentEditUser && currentEditUser.username === row.original.username){
+                        setImageEditFormIsActive(true);
+                      }else{
+                        setCurrentEditUser(row.original);
+                      }
                     }}
                   />
                   <IconButton
@@ -280,7 +290,7 @@ function AdminUserTable(props: IAdminUserTable) {
           </Tbody>
         </Table>
       </TableContainer>
-      
+      : <Flex className="page-text page-reg-text" w="100%" h="50%" align="center" justifyContent="center">No results</Flex>}
     </>
   );
 }
