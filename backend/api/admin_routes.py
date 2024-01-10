@@ -59,6 +59,8 @@ async def get_users(
     """
     Get list of users
     """
+    if page < 1 or per_page < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="page and per_page must be >= 1")
     query = User.all()
     if username:
         query = query.filter(username__icontains=username)
@@ -201,6 +203,8 @@ async def get_wishlist_items(
     """
     Get wishlist items
     """
+    if page < 1 or per_page < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="page and per_page must be >= 1")
     try:
         query = WishlistItem.all()
         user_wishlist = None
