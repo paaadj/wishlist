@@ -10,12 +10,15 @@ import {
 import { FaUser } from "react-icons/fa";
 import { IoExitSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { UserContext, UserContextType } from "../../context/UserContext";
 interface IAdminHeader {
   toggleSideMenu: () => void;
 }
 
 function AdminHeader(props: IAdminHeader) {
   const { toggleSideMenu } = props;
+  const { setAuthorizationTokens } =
+    React.useContext(UserContext) as UserContextType;
   const [userScreenWidth, setUserScreenWidth] = React.useState(
     window.innerWidth
   );
@@ -52,7 +55,10 @@ function AdminHeader(props: IAdminHeader) {
           mon Seigneur
         </p>
         <IconButton
-          onClick={() => navigate("/")}
+          onClick={() => {
+            setAuthorizationTokens(undefined, undefined);
+            navigate("/");
+          }}
           aria-label="Logout"
           w={"24px"}
           _hover={{ background: "transparent" }}

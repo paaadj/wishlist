@@ -205,10 +205,6 @@ function AdminUserTable(props: IAdminUserTable) {
           />
         )}
       </ModalWindow>
-      <Filter
-        columnFilters={columnFilters}
-        setColumnFilters={setColumnFilters}
-      />
       <TableContainer minHeight="70vh" maxHeight="80%" mb={4} overflowY="auto">
         <Table w={"100%"}>
           <Thead>
