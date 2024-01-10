@@ -297,18 +297,7 @@ function AdminUserTable(props: IAdminUserTable) {
           </Tbody>
         </Table>
       </TableContainer>
-      <Pagination
-        onNextPageClick={() => table.nextPage()}
-        onPrevPageClick={() => table.previousPage()}
-        disable={{
-          left: !table.getCanPreviousPage(),
-          right: !table.getCanNextPage(),
-        }}
-        nav={{
-          current: table.getState().pagination.pageIndex + 1,
-          total: table.getPageCount(),
-        }}
-      />
+      
     </>
   );
 }

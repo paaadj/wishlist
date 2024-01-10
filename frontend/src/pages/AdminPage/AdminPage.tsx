@@ -10,9 +10,10 @@ import { FaUser } from "react-icons/fa";
 import { BsCardChecklist } from "react-icons/bs";
 import AdminWishTable from "../../components/Admin/AdminTable/AdminWishTable";
 import { UserContext, UserContextType } from "../../context/UserContext";
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
+import Pagination from "../../components/Pagination/Pagination";
 export type UserData = {
   id: number;
   first_name: string;
@@ -32,6 +33,11 @@ export type WishData = {
   owner: UserData;
 };
 
+type pageData = {
+  currentPage: number;
+  totalItems: number;
+  totalPages: number;
+};
 export const wishesData = [
   {
     id: 1,
@@ -183,7 +189,7 @@ export const usersData = [
   },
 ];
 
-const AMOUNT_AT_THE_PAGE = 20;
+const AMOUNT_AT_THE_PAGE = 5;
 
 function AdminPage() {
   const { user, getAccessCookie, requestProvider } = React.useContext(
@@ -204,14 +210,39 @@ function AdminPage() {
 
   const [isLoading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [page, setPage] = React.useState<number>(1);
+  const [page, setPage] = React.useState<pageData | undefined>(undefined);
   const handleSideMenuToggle = () => {
     setIsSideMenuActive((prev) => !prev);
   };
 
+  const handleNextPageClick = React.useCallback(() => {
+    const current = page ? page.currentPage : 1;
+    const next = current + 1;
+    const total = page ? page.totalPages : current;
+
+    setPage((prev) => {
+      return prev
+        ? { ...prev, currentPage: next <= total ? next : current }
+        : prev;
+    });
+  }, [page]);
+
+  const handlePrevPageClick = React.useCallback(() => {
+    const current = page ? page.currentPage : 1;
+    const previous = current - 1;
+
+    setPage((prev) => {
+      return prev
+        ? { ...prev, currentPage: previous > 0 ? previous : current }
+        : prev;
+    });
+  }, [page]);
+
   React.useEffect(() => {
     const fetchCurrentData = async () => {
       try {
+        setLoading(true);
+        setError(null);
         let response: Response | undefined = undefined;
         if (currentTable === "users") {
           const requestParams = {
@@ -225,12 +256,21 @@ function AdminPage() {
           };
           response = await requestProvider(
             fetch,
-            `/backend/api/admin/users?page=${page}&per_page=${AMOUNT_AT_THE_PAGE}`,
+            `/backend/api/admin/users?page=${
+              page ? page.currentPage : 1
+            }&per_page=${AMOUNT_AT_THE_PAGE}`,
             requestParams
           );
           if (response) {
             const data = await response.json();
             setCurrentUsers(data.users);
+            if (!page) {
+              setPage({
+                currentPage: data.page,
+                totalItems: data.total_items,
+                totalPages: data.total_pages,
+              });
+            }
           }
         }
         if (currentTable === "wishes") {
@@ -245,20 +285,25 @@ function AdminPage() {
           };
           response = await requestProvider(
             fetch,
-            `/backend/api/admin/wishlists?page=${page}&per_page=${AMOUNT_AT_THE_PAGE}`,
+            `/backend/api/admin/wishlists?page=${
+              page ? page.currentPage : 1
+            }&per_page=${AMOUNT_AT_THE_PAGE}`,
             requestParams
           );
           if (response) {
             const data = await response.json();
             console.log("object");
             console.log(data);
-            data.forEach((item:WishData)=>{
+            data.forEach((item: WishData) => {
               if (item.image_url) {
                 item.image_url += "?alt=media" + `&t=${new Date().getTime()}`;
               }
             });
             console.log(data);
             setCurrentWishes(data);
+            if (!page) {
+              setPage({ currentPage: 1, totalItems: 20, totalPages: 1 });
+            } //Mock
           }
         }
       } catch (err) {
@@ -272,7 +317,6 @@ function AdminPage() {
         setLoading(false);
       }
     };
-    console.log(currentTable);
     fetchCurrentData();
   }, [currentTable, page, updateTableState]);
 
@@ -497,14 +541,22 @@ function AdminPage() {
           Authorization: "Bearer " + getAccessCookie(),
         },
       };
-      response = await fetch(`/backend/api/admin/wishlists/${wishId}/remove_image`, requestParams);
+      response = await fetch(
+        `/backend/api/admin/wishlists/${wishId}/remove_image`,
+        requestParams
+      );
     }
     if (response && response.ok) {
       const data = await response.json();
       if (currentWishes) {
         const updatedWishes = currentWishes.map((item) => {
           if (item.id === wishId) {
-            return {...data, image_url: data.image_url ? data.image_url  + "?alt=media" + `&t=${new Date().getTime()}` : data.image_url };
+            return {
+              ...data,
+              image_url: data.image_url
+                ? data.image_url + "?alt=media" + `&t=${new Date().getTime()}`
+                : data.image_url,
+            };
           } else {
             return item;
           }
@@ -557,7 +609,7 @@ function AdminPage() {
         />
       </AdminSideMenu>
       <AdminMainView>
-        {currentTable === "users" && currentUsers && (
+        {currentTable === "users" && !isLoading && currentUsers && (
           <AdminUserTable
             currentData={currentUsers}
             registerNewUserFunc={registerUser}
@@ -566,12 +618,17 @@ function AdminPage() {
             editUserAvatarFunc={editUserAvatar}
           />
         )}
-        {currentTable === "wishes" && currentWishes && (
+        {currentTable === "wishes" && !isLoading && currentWishes && (
           <AdminWishTable
             currentData={currentWishes}
             deleteWishItemFunc={deleteWishItem}
             editWishItemFunc={editWishItem}
           />
+        )}
+        {isLoading && (
+          <Flex align="center" minHeight="100%" justifyContent="center" w="100%" padding={50}>
+            <Spinner />
+          </Flex>
         )}
         {error && (
           <Flex align="center" justifyContent="center" w="100%" padding={50}>
@@ -581,6 +638,18 @@ function AdminPage() {
             </Text>
           </Flex>
         )}
+        <Pagination
+          onNextPageClick={handleNextPageClick}
+          onPrevPageClick={handlePrevPageClick}
+          disable={{
+            left: page?.currentPage === 1,
+            right: page?.currentPage === page?.totalPages,
+          }}
+          nav={{
+            current: page ? page.currentPage : 1,
+            total: page ? page.totalPages : 1,
+          }}
+        />
       </AdminMainView>
     </div>
   );
