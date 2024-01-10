@@ -29,6 +29,9 @@ router = APIRouter(prefix="/admin")
 async def create_admin(
         user: UserCreate,
 ):
+    """
+    Create first admin in db if it's not exists
+    """
     users = await User.exists(is_admin=1)
     if users:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin already exists")
@@ -53,6 +56,9 @@ async def get_users(
                               title="Sort users by field name(- for descending order) in format *field1,field2*"
                               )
 ):
+    """
+    Get list of users
+    """
     query = User.all()
     if username:
         query = query.filter(username__icontains=username)
@@ -105,6 +111,9 @@ async def edit_user(
         is_admin: Annotated[bool, Form()] = None,
         admin: User = Depends(get_current_admin)
 ):
+    """
+    Edit info about user
+    """
     try:
         user = await User.get_or_none(username=user_username)
         if user is None:
@@ -148,6 +157,9 @@ async def remove_user_image(
         user_username: str,
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Remove user image
+    """
     user = await User.get_or_none(username=user_username)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -163,6 +175,9 @@ async def delete_user(
         user_username: Annotated[str, Form()],
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Delete user
+    """
     try:
         user = await User.get_or_none(username=user_username)
         if user is None:
@@ -183,6 +198,9 @@ async def get_wishlist_items(
         reserved_user: bool = None,
         admin: User = Depends(get_current_admin)
 ):
+    """
+    Get wishlist items
+    """
     try:
         query = WishlistItem.all()
         user_wishlist = None
@@ -204,7 +222,6 @@ async def get_wishlist_items(
         response = [await item.to_admin_response() for item in items]
         total_items = await query.all().count()
         total_pages = math.ceil(total_items / per_page)
-        print(response)
         return {
             "items": response,
             "page": page,
@@ -225,6 +242,9 @@ async def edit_wishlist_item(
         image: UploadFile = File(None),
         admin: User = Depends(get_current_admin)
 ):
+    """
+    Edit wishlist item
+    """
     if item_id < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -254,6 +274,9 @@ async def remove_item_image(
         item_id: int,
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Remove item image
+    """
     item = await WishlistItem.get_or_none(id=item_id).prefetch_related("wishlist__user")
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
@@ -269,6 +292,9 @@ async def delete_item(
         item_id: int,
         admin: User = Depends(get_current_admin),
 ):
+    """
+    Delete item
+    """
     item = await WishlistItem.get_or_none(id=item_id).prefetch_related("wishlist__user")
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
