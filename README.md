@@ -13,4 +13,4 @@ This site is aimed at creating a site where you can create your own wishlist and
 
 ## *How to launch*
 To start the backend part of the project, fill in the .env file and launch the project.
-To start the frontend part of the project, navigate in the terminal to the "frontend" folder and run the command "npm start."
+To start the frontend part of the project, navigate in the terminal to the "frontend" folder and run the command "npm install" and then "npm start"
