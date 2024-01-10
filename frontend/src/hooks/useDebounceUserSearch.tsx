@@ -45,7 +45,7 @@ function useDebounceUserSearch(
   }, [username, delay]);
 
   if(userId && debouncedSearch){
-    return debouncedSearch.filter((item) => item.id != userId);
+    return debouncedSearch.filter((item) => item.id !== userId);
   }
   else{
   return debouncedSearch;}
