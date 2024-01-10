@@ -67,9 +67,11 @@ export const UserProvider = (props: any) => {
             if (response.ok) {
               return response;
             } else {
+              setAuthorizationTokens(undefined, undefined);
               throw new Error("Cannot refresh user");
             }
           } catch (err) {
+            setAuthorizationTokens(undefined, undefined);
             throw new Error("Cannot fetch request");
           }
         }
@@ -77,9 +79,11 @@ export const UserProvider = (props: any) => {
       if (response.ok) {
         return response;
       } else {
+        setAuthorizationTokens(undefined, undefined);
         throw new Error("Cannot fetch request");
       }
     } catch (err) {
+      setAuthorizationTokens(undefined, undefined);
       throw new Error("Cannot fetch request");
     }
   };
@@ -132,7 +136,6 @@ export const UserProvider = (props: any) => {
         throw new Error("Cannot fetch user");
       }
       const data = await response.json();
-      console.log(data.image_url);
       setUser({
         id: data.id,
         firstName: data.first_name,

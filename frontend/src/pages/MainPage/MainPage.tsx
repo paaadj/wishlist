@@ -9,7 +9,9 @@ import { UserContext, UserContextType } from "../../context/UserContext";
 
 function MainPage() {
   const [userScreenWidth, setUserScreenWidth] = useState(0);
-  const {isAuthenticated ,setAuthorizationTokens} = useContext(UserContext)  as UserContextType;
+  const { user, isAuthenticated, setAuthorizationTokens } = useContext(
+    UserContext
+  ) as UserContextType;
   useEffect(() => {
     window.addEventListener("resize", () => {
       setUserScreenWidth(window.innerWidth);
@@ -24,48 +26,37 @@ function MainPage() {
               Unleash Your Wishlist
             </h1>
             <div className="title-controlls">
-            <Link
+              {user && user.username === "username" && <Link
                 to="/admin"
                 className="title__button page-text page-reg-text white-color white-button-text"
               >
                 Admin
-              </Link>
-              <Link
-                to="/login"
-                className="title__button page-text page-reg-text white-color white-button-text"
-              >
-                Login
-              </Link>
-              <Link
+              </Link>}
+              
+              {!user && (
+                <Link
+                  to="/login"
+                  className="title__button page-text page-reg-text white-color white-button-text"
+                >
+                  Sign In
+                </Link>
+              )}
+              {!user && (
+                <Link
+                  to="/login"
+                  className="title__button page-text page-reg-text white-color white-button-text"
+                >
+                  Sign Up
+                </Link>
+              )}
+              {user && <Link
                 to="/user/me"
                 className="title__button page-text page-reg-text white-color white-button-text"
               >
-                User
-              </Link>
-              <button
-                onClick={()=>{setAuthorizationTokens(undefined, undefined)}}
-                className="title__button page-text page-reg-text white-color white-button-text"
-              >
-                exit
-              </button>
-              <button
-                onClick={()=>{console.log(isAuthenticated);}}
-                className="title__button page-text page-reg-text white-color white-button-text"
-              >
-                auth
-              </button>
-              <Link
-                to="#"
-                className="title__button page-text page-reg-text white-color white-button-text"
-              >
-                Create Wishlist
-              </Link>
-              <Link
-                to="#"
-                className="title__button page-text page-reg-text grey-color grey-button-text"
-              >
-                Browse Items
-              </Link>
+                To my page
+              </Link>}
+              
+              
             </div>
           </div>
           <div className="title-imgs">
