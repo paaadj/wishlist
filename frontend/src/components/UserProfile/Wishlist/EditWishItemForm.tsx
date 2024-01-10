@@ -25,6 +25,7 @@ interface IEditWishItemForm {
   wishId?: number;
   prevWishName?: string;
   prevWishDesc?: string;
+  prevWishLink?: string;
   prevWishImg?: string;
   closeWishItemIsEdit: () => void;
   editWishItemFunc: (
@@ -40,6 +41,7 @@ interface IEditWishItemForm {
 interface IEditWishItem {
   wishName: string;
   wishDesc: string;
+  wishLink: string;
   wishImg: string;
   wishImgDelete: boolean;
 }
@@ -49,12 +51,14 @@ function EditWishItemForm(props: IEditWishItemForm) {
     wishId,
     prevWishName,
     prevWishDesc,
+    prevWishLink,
     prevWishImg,
     closeWishItemIsEdit,
     editWishItemFunc,
   } = props;
   const [wishName, setWishName] = useState(prevWishName);
   const [wishDesc, setWishDesc] = useState(prevWishDesc);
+  const [wishLink, setWishLink] = useState(prevWishLink);
   const [wishImgBin, setWishImgBin] = useState<File | undefined>(undefined);
   const [wishImgDelete, setWishImgDelete] = useState<boolean>(false);
   const {
@@ -66,6 +70,7 @@ function EditWishItemForm(props: IEditWishItemForm) {
     defaultValues: {
       wishName: prevWishName,
       wishDesc: prevWishDesc,
+      wishLink: prevWishLink, 
       wishImg: prevWishImg,
     },
   });
@@ -76,7 +81,7 @@ function EditWishItemForm(props: IEditWishItemForm) {
     if (wishId) {
       console.table(values);
       console.log(wishImgDelete);
-      editWishItemFunc(wishId, wishName, wishDesc, undefined, wishImgBin, wishImgDelete);
+      editWishItemFunc(wishId, wishName, wishDesc, wishLink, wishImgBin, wishImgDelete);
       setWishName("");
       setWishDesc("");
       setWishImgBin(undefined);
@@ -141,6 +146,19 @@ function EditWishItemForm(props: IEditWishItemForm) {
             {...register("wishDesc", {
               onChange: (e) => {
                 setWishDesc(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel htmlFor="wishLink">Wish Link</FormLabel>
+          <Input
+            type="text"
+            id="wishLink"
+            placeholder="Wish Link"
+            {...register("wishLink", {
+              onChange: (e) => {
+                setWishLink(e.target.value);
               },
             })}
           />

@@ -20,14 +20,15 @@ interface IAddWishItemForm {
 interface IAddWishItem {
   wishName: string;
   wishDesc: string;
+  wishLink: string;
   wishImg: File;
 }
 
 function AddWishItemForm(props: IAddWishItemForm) {
-  console.log("AddWishFormRerender");
   const { addWishItemToWishlistFunc } = props;
   const [wishName, setWishName] = useState("");
   const [wishDesc, setWishDesc] = useState("");
+  const [wishLink, setWishLink] = useState("");
   const [wishImgBin, setWishImgBin] = useState<File | undefined>(undefined);
 
   const {
@@ -42,9 +43,10 @@ function AddWishItemForm(props: IAddWishItemForm) {
   
 
   const onSubmitHandler = async (values: IAddWishItem) => {
-    addWishItemToWishlistFunc(wishName, wishDesc, undefined, wishImgBin);
+    addWishItemToWishlistFunc(wishName, wishDesc, wishLink, wishImgBin);
     setWishName("");
     setWishDesc("");
+    setWishLink("");
     setWishImgBin(undefined);
     reset();
   };
@@ -76,23 +78,11 @@ function AddWishItemForm(props: IAddWishItemForm) {
             placeholder="Wish name"
             {...register("wishName", {
               onChange: (e) => {
-                console.log("object");
                 setWishName(e.target.value);
               },
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="text"
-          id="wishName"
-          className="user-input"
-          placeholder="Wish name"
-          {...register("wishName", {
-            onChange: (e) => {
-              setWishName(e.target.value);
-            },
-          })}
-        /> */}
         <FormControl>
           <FormLabel htmlFor="wishDesc">Wish description</FormLabel>
           <Input
@@ -103,6 +93,19 @@ function AddWishItemForm(props: IAddWishItemForm) {
               onChange: (e) => {
                 console.log(e.target.value);
                 setWishDesc(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel htmlFor="wishLink">Wish external link</FormLabel>
+          <Input
+            type="text"
+            id="wishLink"
+            placeholder="Wish eternal link"
+            {...register("wishLink", {
+              onChange: (e) => {
+                setWishLink(e.target.value);
               },
             })}
           />

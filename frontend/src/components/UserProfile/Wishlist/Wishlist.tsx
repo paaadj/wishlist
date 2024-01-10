@@ -91,6 +91,7 @@ function Wishlist(props: IWishlistProps) {
             item.image_url += "?alt=media" + `&t=${new Date().getTime()}`;
           }
         });
+        console.log(data);
         setWishlist(data);
       } catch (err) {
         console.log("object");
@@ -515,6 +516,7 @@ function Wishlist(props: IWishlistProps) {
                     wishItemId={item.id}
                     title={item.title}
                     description={item.description}
+                    link={item.link}
                     imgUrl={item.image_url}
                     reservedUser={item.reserved_user}
                     updateWishlistFunction={handleUpdateWishListFunction}
