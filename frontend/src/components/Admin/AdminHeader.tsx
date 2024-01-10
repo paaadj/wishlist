@@ -50,7 +50,7 @@ function AdminHeader(props: IAdminHeader) {
         <p
           className={classNames("page-text", "page-reg-text", styles.username)}
         >
-          mon Seigneur
+          Admin
         </p>
         <IconButton
           onClick={() => {

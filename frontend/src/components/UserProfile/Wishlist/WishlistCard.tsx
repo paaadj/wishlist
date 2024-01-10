@@ -2,10 +2,7 @@ import "../user.css";
 import styles from "./wishlistStyles.module.css";
 import classNames from "classnames";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import {
-  CiBookmarkMinus,
-  CiBookmarkPlus,
-} from "react-icons/ci";
+import { CiBookmarkMinus, CiBookmarkPlus } from "react-icons/ci";
 import {
   Icon,
   IconButton,
@@ -27,10 +24,10 @@ interface IWishlistCard {
   link?: string;
   imgUrl: string;
   reservedUser?: number;
-  updateWishlistFunction: ()=>void;
+  updateWishlistFunction: () => void;
   setEditWishItem: (wishEditItemId: number) => void;
   handleSetReserveItem: (wishEditItemId: number) => void;
-  handleDeleteItem: (wishId: number) => Promise<void>
+  handleDeleteItem: (wishId: number) => Promise<void>;
   handleUnreserveItem: (itemId: number) => Promise<void>;
   handleChatOpen: (chatItem: { id: number; title: string }) => void;
 }
@@ -70,7 +67,6 @@ function WishlistCard(props: IWishlistCard) {
   const handleReserveButtonClick = () => {
     handleSetReserveItem(wishItemId);
   };
-
 
   const handleUnreserveButtonClick = () => {
     handleUnreserveItem(wishItemId);
@@ -153,12 +149,17 @@ function WishlistCard(props: IWishlistCard) {
                   Edit
                 </MenuItem>
               )}
-
-              <MenuItem onClick={() => {
-                window.open(link, '_blank');
-              }} fontWeight="500" icon={<LinkIcon /> }>
-                Check external link
-              </MenuItem>
+              {link && (
+                <MenuItem
+                  onClick={() => {
+                    window.open(link, "_blank");
+                  }}
+                  fontWeight="500"
+                  icon={<LinkIcon />}
+                >
+                  Check external link
+                </MenuItem>
+              )}
             </MenuList>
           </Menu>
         </div>

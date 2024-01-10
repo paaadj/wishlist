@@ -42,7 +42,7 @@ function ReserveWishItemForm(props: IReserveWishItemForm) {
   return (
     <>
       <Heading as="h3" mb={5} textAlign="center" size="lg">
-        Add Wish Item
+        Reserve Wish Item
       </Heading>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <FormControl>

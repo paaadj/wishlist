@@ -10,6 +10,7 @@ import {
   Thead,
   Tr,
   Image,
+  Flex,
 } from "@chakra-ui/react";
 import {
   flexRender,
@@ -19,9 +20,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  WishData
-} from "../../../pages/AdminPage/AdminPage";
+import { WishData } from "../../../pages/AdminPage/AdminPage";
 import React from "react";
 import styles from "../tableStyles.module.css";
 import classNames from "classnames";
@@ -62,7 +61,15 @@ const columns = [
     accessorKey: "link",
     header: "Link",
     enableSorting: false,
-    cell: (props: any) => <Link onClick={()=>{window.open(props.getValue(), "_blank")}}>{props.getValue() ?? ""}</Link>,
+    cell: (props: any) => (
+      <Link
+        onClick={() => {
+          window.open(props.getValue(), "_blank");
+        }}
+      >
+        {props.getValue() ?? ""}
+      </Link>
+    ),
   },
   {
     accessorKey: "image_url",
@@ -102,9 +109,7 @@ function AdminWishTable(props: IAdminWishTable) {
   >(undefined);
   const [editFormIsActive, setEditFormIsActive] =
     React.useState<boolean>(false);
-  const [columnFilters, ] = React.useState<
-    { id: string; value: string }[]
-  >([]);
+  const [columnFilters] = React.useState<{ id: string; value: string }[]>([]);
   const table = useReactTable({
     data,
     columns,
@@ -145,66 +150,75 @@ function AdminWishTable(props: IAdminWishTable) {
           />
         )}
       </ModalWindow>
-      <TableContainer minHeight="70vh" maxHeight="80%" mb={4} overflowY="auto">
-        <Table w={"100%"}>
-          <Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Th
-                    className={classNames(styles.table_header)}
-                    key={header.id}
-                    w={header.getSize()}
-                  >
-                    {header.column.columnDef.header?.toString()}
-                    {header.column.getCanSort() && (
-                      <UpDownIcon
-                        ml={2}
-                        cursor="pointer"
-                        onClick={header.column.getToggleSortingHandler()}
-                      />
-                    )}
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody>
-            {table.getRowModel().rows.map((row) => (
-              <Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <Td
-                    key={cell.id}
-                    w={cell.column.getSize()}
-                    className="page-text page-reg-text"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      {currentData.length > 0 ? (
+        <TableContainer
+          minHeight="70vh"
+          maxHeight="80%"
+          mb={4}
+          overflowY="auto"
+        >
+          <Table w={"100%"}>
+            <Thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <Tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <Th
+                      className={classNames(styles.table_header)}
+                      key={header.id}
+                      w={header.getSize()}
+                    >
+                      {header.column.columnDef.header?.toString()}
+                      {header.column.getCanSort() && (
+                        <UpDownIcon
+                          ml={2}
+                          cursor="pointer"
+                          onClick={header.column.getToggleSortingHandler()}
+                        />
+                      )}
+                    </Th>
+                  ))}
+                </Tr>
+              ))}
+            </Thead>
+            <Tbody>
+              {table.getRowModel().rows.map((row) => (
+                <Tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <Td
+                      key={cell.id}
+                      w={cell.column.getSize()}
+                      className="page-text page-reg-text"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Td>
+                  ))}
+                  <Td w={24}>
+                    <IconButton
+                      aria-label="Edit row"
+                      bg={"transparent"}
+                      icon={<EditIcon />}
+                      onClick={() => {
+                        setCurrentEditWishItem(row.original);
+                      }}
+                    />
+                    <IconButton
+                      aria-label="Delete row"
+                      bg={"transparent"}
+                      icon={<DeleteIcon color={"#E32636"} />}
+                      onClick={() => {
+                        deleteWishItemFunc(row.original.id);
+                      }}
+                    />
                   </Td>
-                ))}
-                <Td w={24}>
-                  <IconButton
-                    aria-label="Edit row"
-                    bg={"transparent"}
-                    icon={<EditIcon />}
-                    onClick={() => {
-                      setCurrentEditWishItem(row.original);
-                    }}
-                  />
-                  <IconButton
-                    aria-label="Delete row"
-                    bg={"transparent"}
-                    icon={<DeleteIcon color={"#E32636"} />}
-                    onClick={() => {
-                      deleteWishItemFunc(row.original.id);
-                    }}
-                  />
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      ) : <Flex className="page-text page-reg-text" w="100%" h="50%" align="center" justifyContent="center">No results</Flex>}
     </>
   );
 }
