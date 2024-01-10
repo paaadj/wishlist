@@ -68,7 +68,7 @@ const columns = [
     accessorKey: "link",
     header: "Link",
     enableSorting: false,
-    cell: (props: any) => <Link>{props.getValue() ?? ""}</Link>,
+    cell: (props: any) => <Link onClick={()=>{window.open(props.getValue(), "_blank")}}>{props.getValue() ?? ""}</Link>,
   },
   {
     accessorKey: "image_url",
@@ -219,7 +219,7 @@ function AdminWishTable(props: IAdminWishTable) {
           </Tbody>
         </Table>
       </TableContainer>
-      <Pagination
+      {/* <Pagination
         onNextPageClick={() => table.nextPage()}
         onPrevPageClick={() => table.previousPage()}
         disable={{
@@ -230,7 +230,7 @@ function AdminWishTable(props: IAdminWishTable) {
           current: table.getState().pagination.pageIndex + 1,
           total: table.getPageCount(),
         }}
-      />
+      /> */}
     </>
   );
 }

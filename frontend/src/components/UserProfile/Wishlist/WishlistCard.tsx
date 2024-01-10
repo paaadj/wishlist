@@ -36,6 +36,7 @@ interface IWishlistCard {
   wishItemId: number;
   title: string;
   description: string;
+  link?: string;
   imgUrl: string;
   reservedUser?: number;
   updateWishlistFunction: ()=>void;
@@ -53,6 +54,7 @@ function WishlistCard(props: IWishlistCard) {
     wishItemId,
     title,
     description,
+    link,
     imgUrl,
     reservedUser,
     updateWishlistFunction,
@@ -171,8 +173,11 @@ function WishlistCard(props: IWishlistCard) {
                 </MenuItem>
               )}
 
-              <MenuItem fontWeight="500" icon={<LinkIcon />}>
-                Check
+              <MenuItem onClick={() => {
+                // console.log(link);
+                window.open(link, '_blank');
+              }} fontWeight="500" icon={<LinkIcon /> }>
+                Check external link
               </MenuItem>
             </MenuList>
           </Menu>

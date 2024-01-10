@@ -1,4 +1,4 @@
-import { Button, Image } from "@chakra-ui/react";
+import { Button, Icon, Image } from "@chakra-ui/react";
 import {
   UserContext,
   UserContextType,
@@ -10,6 +10,8 @@ import UserEditProfileDataForm from "./UserEditProfileDataForm";
 import "./user.css";
 import { useContext, useEffect, useState } from "react";
 import { EditIcon } from "@chakra-ui/icons";
+import { RiEditLine } from "react-icons/ri";
+import UserChangePasswordForm from "./UserChangePasswordForm";
 
 interface IUser {
   self: boolean;
@@ -17,10 +19,8 @@ interface IUser {
 }
 
 function User(props: IUser) {
-  console.log("UserRerender");
-
   const { self, user } = props;
-  const { getAccessCookie, setUser } = useContext(
+  const { getAccessCookie, setUser, requestProvider } = useContext(
     UserContext
   ) as UserContextType;
   const [userImgUrl, setUserImgUrl] = useState(
@@ -30,7 +30,7 @@ function User(props: IUser) {
   );
   const [avatarIsEdit, setAvatarIsEdit] = useState<boolean>(false);
   const [userDataIsEdit, setUserDataIsEdit] = useState<boolean>(false);
-
+  const [userPasswordChange, setUserPasswordChange] = useState<boolean>(false);
   const baseImageUrl =
     "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
   const fixImageUrl = (url: string | undefined) => {
@@ -42,6 +42,9 @@ function User(props: IUser) {
   };
   const handleEditProfileData = () => {
     setUserDataIsEdit(true);
+  };
+  const handleChangeUserPassword = () => {
+    setUserPasswordChange(true);
   };
 
   useEffect(() => {
@@ -66,8 +69,7 @@ function User(props: IUser) {
         },
       };
       response = await fetch(`/backend/delete_image`, requestParams);
-    } 
-    else {
+    } else {
       if (!imgBinary) {
         return;
       }
@@ -106,6 +108,33 @@ function User(props: IUser) {
     }
   };
 
+  const changeUserPassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    const formData = new FormData();
+    formData.append("current_password", currentPassword);
+    formData.append("new_password", newPassword);
+    const requestParams = {
+      method: "PUT",
+      headers: {
+        Authorization: "Bearer " + getAccessCookie(),
+      },
+      body: formData,
+    };
+    try {
+      const response = await requestProvider(
+        fetch,
+        `/backend/edit_info`,
+        requestParams
+      );
+      console.log("Password changed");
+    } catch (err) {
+      console.log("Password doesnt changed");
+      console.log(err instanceof Error ? " : " + err.message : "");
+    }
+  };
+
   return (
     <>
       <section className="personal-data">
@@ -119,14 +148,34 @@ function User(props: IUser) {
           {user ? user.email : "Loading"}
         </h6>
         {self && (
-          <Button
-            leftIcon={<EditIcon />}
-            colorScheme="teal"
-            onClick={handleEditProfileData}
-          >
-            Edit profile
-          </Button>
+          <>
+            <Button
+              leftIcon={<EditIcon />}
+              colorScheme="teal"
+              onClick={handleEditProfileData}
+            >
+              Edit profile
+            </Button>
+            <Button
+              leftIcon={<Icon as={RiEditLine} />}
+              colorScheme="teal"
+              onClick={handleChangeUserPassword}
+            >
+              Change Password
+            </Button>
+          </>
         )}
+        <ModalWindow
+          active={userPasswordChange}
+          setActive={setUserPasswordChange}
+        >
+          {userPasswordChange && (
+            <UserChangePasswordForm
+              editUserPassword={changeUserPassword}
+              setActiveModal={setUserPasswordChange}
+            />
+          )}
+        </ModalWindow>
         <ModalWindow active={userDataIsEdit} setActive={setUserDataIsEdit}>
           {userDataIsEdit && (
             <UserEditProfileDataForm
