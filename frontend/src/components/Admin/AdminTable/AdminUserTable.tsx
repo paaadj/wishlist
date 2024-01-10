@@ -19,14 +19,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { UserData, usersData } from "../../../pages/AdminPage/AdminPage";
+import { UserData } from "../../../pages/AdminPage/AdminPage";
 import React from "react";
 import styles from "../tableStyles.module.css";
 import classNames from "classnames";
 import { DeleteIcon, EditIcon, UpDownIcon, ViewIcon } from "@chakra-ui/icons";
 import { RiImageEditLine } from "react-icons/ri";
-import Pagination from "../../Pagination/Pagination";
-import Filter from "./Filter";
 import ModalWindow from "../../ModalWindow/ModalWindow";
 import RegistrationForm from "../../Authentication/RegistrationForm";
 import AdminUserEditForm from "../AdminForms/AdminUserEditForm";
@@ -118,7 +116,7 @@ function AdminUserTable(props: IAdminUserTable) {
   const [data, setData] = React.useState(currentData);
   const [addNewUserIsActive, setAddNewUserIsActive] =
     React.useState<boolean>(false);
-  const [columnFilters, setColumnFilters] = React.useState<
+  const [columnFilters, ] = React.useState<
     { id: string; value: string }[]
   >([]);
   const [currentEditUser, setCurrentEditUser] = React.useState<
@@ -156,20 +154,7 @@ function AdminUserTable(props: IAdminUserTable) {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  const updateData = async (rowId: number, value: Omit<UserData, "id">) => {
-    setData((prev) =>
-      prev.map((row) => (row.id === rowId ? { id: row.id, ...value } : row))
-    );
-  };
 
-  const handleRowEdit = (row: UserData) => {
-    updateData(row.id, {
-      first_name: "Gleb",
-      last_name: "Glebov",
-      username: "Glebasik",
-      email: "Gleb@gmail.com",
-    });
-  };
 
   return (
     <>

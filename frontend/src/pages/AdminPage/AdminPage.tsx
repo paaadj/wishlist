@@ -3,7 +3,7 @@ import styles from "./adminPage.module.css";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import AdminSideMenu from "../../components/Admin/AdminSideMenu";
 import AdminMainView from "../../components/Admin/AdminMainView";
-import React, { useEffect } from "react";
+import React from "react";
 import SideMenuItem from "../../components/Admin/SideMenuItem";
 import AdminUserTable from "../../components/Admin/AdminTable/AdminUserTable";
 import { FaUser } from "react-icons/fa";
@@ -38,161 +38,12 @@ type pageData = {
   totalItems: number;
   totalPages: number;
 };
-export const wishesData = [
-  {
-    id: 1,
-    title: "Ball",
-    description: "Big ball",
-    link: "#",
-    image_url: null,
-    reserved_user: 0,
-  },
-  {
-    id: 2,
-    title: "Pen",
-    description: "Big Pen",
-    link: "#",
-    image_url: null,
-    reserved_user: 0,
-  },
-  {
-    id: 3,
-    title: "Block",
-    description: "Big Block",
-    link: "#",
-    image_url: null,
-    reserved_user: 0,
-  },
-  {
-    id: 4,
-    title: "Sword",
-    description: "Big Sword",
-    link: "#",
-    image_url: null,
-    reserved_user: 0,
-  },
-  {
-    id: 5,
-    title: "Bottle",
-    description: "Big Bottle",
-    link: "#",
-    image_url: null,
-    reserved_user: 0,
-  },
-];
 
-export const usersData = [
-  {
-    id: 1,
-    first_name: "Ivan",
-    last_name: "Ivanov",
-    username: "Ivvvaannn",
-    email: "ivan@gmail.com",
-  },
-  {
-    id: 2,
-    first_name: "Vasya",
-    last_name: "Vasyaov",
-    username: "Vaee112s4ya",
-    email: "Vasya@gmail.com",
-  },
-  {
-    id: 3,
-    first_name: "Kirill",
-    last_name: "IvKirillanov",
-    username: "Kirrrill1112342",
-    email: "Kirill@gmail.com",
-  },
-  {
-    id: 4,
-    first_name: "Petya",
-    last_name: "Petyaov",
-    username: "Ppettyasadf",
-    email: "Petya@gmail.com",
-  },
-  {
-    id: 5,
-    first_name: "Sasha",
-    last_name: "Sashaov",
-    username: "Ssaasshjan",
-    email: "Sasha@gmail.com",
-  },
-  {
-    id: 6,
-    first_name: "Ivan",
-    last_name: "Ivanov",
-    username: "Ivvvaannn",
-    email: "ivan@gmail.com",
-  },
-  {
-    id: 7,
-    first_name: "Vasya",
-    last_name: "Vasyaov",
-    username: "Vaee112s4ya",
-    email: "Vasya@gmail.com",
-  },
-  {
-    id: 8,
-    first_name: "Kirill",
-    last_name: "IvKirillanov",
-    username: "Kirrrill1112342",
-    email: "Kirill@gmail.com",
-  },
-  {
-    id: 9,
-    first_name: "Petya",
-    last_name: "Petyaov",
-    username: "Ppettyasadf",
-    email: "Petya@gmail.com",
-  },
-  {
-    id: 10,
-    first_name: "Sasha",
-    last_name: "Sashaov",
-    username: "Ssaasshjan",
-    email: "Sasha@gmail.com",
-  },
-  {
-    id: 11,
-    first_name: "Ivan",
-    last_name: "Ivanov",
-    username: "Ivvvaannn",
-    email: "ivan@gmail.com",
-  },
-  {
-    id: 12,
-    first_name: "Vasya",
-    last_name: "Vasyaov",
-    username: "Vaee112s4ya",
-    email: "Vasya@gmail.com",
-  },
-  {
-    id: 13,
-    first_name: "Kirill",
-    last_name: "IvKirillanov",
-    username: "Kirrrill1112342",
-    email: "Kirill@gmail.com",
-  },
-  {
-    id: 14,
-    first_name: "Petya",
-    last_name: "Petyaov",
-    username: "Ppettyasadf",
-    email: "Petya@gmail.com",
-  },
-  {
-    id: 15,
-    first_name: "Sasha",
-    last_name: "Sashaov",
-    username: "Ssaasshjan",
-    email: "Sasha@gmail.com",
-  },
-];
 
 const AMOUNT_AT_THE_PAGE = 5;
 
 function AdminPage() {
-  const { user, getAccessCookie, requestProvider } = React.useContext(
+  const { getAccessCookie, requestProvider } = React.useContext(
     UserContext
   ) as UserContextType;
   const navigate = useNavigate();
@@ -216,7 +67,6 @@ function AdminPage() {
   };
 
   const handleNextPageClick = React.useCallback(() => {
-    console.log(page);
     const current = page ? page.currentPage : 1;
     const next = current + 1;
     const total = page ? page.totalPages : current;
@@ -264,7 +114,7 @@ function AdminPage() {
           if (response) {
             const data = await response.json();
             setCurrentUsers(data.users);
-            if (!page || page && page.totalPages != data.total_pages) {
+            if (!page || (page && page.totalPages !== data.total_pages)) {
               setPage({
                 currentPage: data.page,
                 totalItems: data.total_items,
@@ -294,12 +144,11 @@ function AdminPage() {
             const data = await response.json();
             data.items.forEach((item: WishData) => {
               if (item.image_url) {
-                item.image_url += "?alt=media" + `&t=${new Date().getTime()}`;
+                item.image_url += `?alt=media&t=${new Date().getTime()}`;
               }
             });
-            console.log(data);
             setCurrentWishes(data.items);
-            if (!page || page && page.totalPages != data.total_pages) {
+            if (!page || (page && page.totalPages !== data.total_pages)) {
               setPage({
                 currentPage: data.page,
                 totalItems: data.total_items,
@@ -320,6 +169,7 @@ function AdminPage() {
       }
     };
     fetchCurrentData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTable, page, updateTableState]);
 
   const registerUser = async (
@@ -342,16 +192,10 @@ function AdminPage() {
         password: password,
       }),
     };
-    console.log(lastName);
     const response = await fetch("/backend/register", requestParams);
-    // const data = await response.json();
 
     if (!response.ok) {
-      console.log("DB error");
     } else {
-      // setToken(data.access_token);
-
-      console.log("Registration successful");
       navigate("/admin");
     }
   };
@@ -557,7 +401,7 @@ function AdminPage() {
             return {
               ...data,
               image_url: data.image_url
-                ? data.image_url + "?alt=media" + `&t=${new Date().getTime()}`
+                ? data.image_url + `?alt=media&t=${new Date().getTime()}`
                 : data.image_url,
             };
           } else {
@@ -566,9 +410,7 @@ function AdminPage() {
         });
         setCurrentWishes(updatedWishes);
       }
-      // setUpdateWishlist((prevState) => !prevState);
     } else {
-      console.log("Don't edit item");
     }
   };
 

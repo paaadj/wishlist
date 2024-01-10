@@ -16,11 +16,9 @@ interface IPagination {
 function Pagination(props: IPagination) {
   const { onNextPageClick, onPrevPageClick, disable, nav = null } = props;
   const handleNextPageClick = () => {
-    console.log("Next");
     onNextPageClick();
   };
   const handlePrevPageClick = () => {
-    console.log("Prev");
     onPrevPageClick();
   };
   return (

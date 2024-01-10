@@ -1,7 +1,4 @@
 import React, {
-  Dispatch,
-  RefObject,
-  SetStateAction,
   useContext,
   useEffect,
   useRef,
@@ -37,12 +34,12 @@ type chatHistory = {
 
 function Chat(props: IChat) {
   const socket = useRef<WebSocket>();
-  const { userReciver, chatItem, handleClose } = props;
+  const { chatItem, handleClose } = props;
   const { getAccessCookie, user, tryRefreshToken } = useContext(
     UserContext
   ) as UserContextType;
   const [isLoading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [, setError] = React.useState<string | null>(null);
   const [chatMessages, setChatMessages] = React.useState<
     chatHistory | undefined
   >(undefined);
@@ -95,14 +92,12 @@ function Chat(props: IChat) {
           }
         } catch (err) {
           setError(err instanceof Error ? err.message : "");
-          console.log("Error" + (err instanceof Error ? err.message : ""));
           return;
         }
       }
     };
     if (socket.current?.OPEN) {
       socket.current?.close();
-      console.log("Disconnect");
     }
     socket.current = new WebSocket(
       `ws://127.0.0.1:8000/api/chats/${chatItem.id}/ws`
@@ -117,9 +112,9 @@ function Chat(props: IChat) {
     return () => {
       if (socket.current?.OPEN) {
         socket.current?.close();
-        console.log("Disconnect");
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatItem]);
   /**
    * Update onMessage function to see current chatMessages(fix required maybe, I don't know)
@@ -142,6 +137,7 @@ function Chat(props: IChat) {
         }
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatMessages]);
   /**Handle click on sendMessageButton */
   const handleChat = (message: string) => {
@@ -152,7 +148,6 @@ function Chat(props: IChat) {
           reply_to: currentMessageReplyTo ? currentMessageReplyTo.messageId : 0,
         })
       );
-      console.log("SEND");
     }
   };
 

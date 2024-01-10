@@ -1,14 +1,9 @@
 import { useForm } from "react-hook-form";
-import UserInput from "../../UserInput/UserInput";
 import {
   ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useContext,
   useEffect,
   useState,
 } from "react";
-import { UserContext, UserContextType } from "../../../context/UserContext";
 import {
   Button,
   Checkbox,
@@ -75,12 +70,8 @@ function EditWishItemForm(props: IEditWishItemForm) {
     },
   });
 
-  const { getAccessCookie } = useContext(UserContext) as UserContextType;
-
   const onSubmitHandler = async (values: IEditWishItem) => {
     if (wishId) {
-      console.table(values);
-      console.log(wishImgDelete);
       editWishItemFunc(wishId, wishName, wishDesc, wishLink, wishImgBin, wishImgDelete);
       setWishName("");
       setWishDesc("");
@@ -92,7 +83,6 @@ function EditWishItemForm(props: IEditWishItemForm) {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      console.log(e.target.files[0]);
       setWishImgBin(e.target.files[0]);
     }
   };
@@ -104,6 +94,7 @@ function EditWishItemForm(props: IEditWishItemForm) {
       setWishDesc("");
       setWishImgBin(undefined);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -120,23 +111,11 @@ function EditWishItemForm(props: IEditWishItemForm) {
             placeholder="Wish name"
             {...register("wishName", {
               onChange: (e) => {
-                console.log("asdfasdf");
                 setWishName(e.target.value);
               },
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="text"
-          id="wishName"
-          className="user-input"
-          placeholder="Wish name"
-          {...register("wishName", {
-            onChange: (e) => {
-              setWishName(e.target.value);
-            },
-          })}
-        /> */}
         <FormControl>
           <FormLabel htmlFor="wishDesc">Wish description</FormLabel>
           <Input
@@ -163,17 +142,7 @@ function EditWishItemForm(props: IEditWishItemForm) {
             })}
           />
         </FormControl>
-        {/* <UserInput
-          type="text"
-          id="wishDesc"
-          {...register("wishDesc", {
-            onChange: (e) => {
-              setWishDesc(e.target.value);
-            },
-          })}
-          className="user-input"
-          placeholder="Wish description"
-        /> */}
+
         <FormControl>
           <FormLabel htmlFor="wishImg">Wish image</FormLabel>
           <Input
@@ -194,13 +163,7 @@ function EditWishItemForm(props: IEditWishItemForm) {
         >
           Delete image
         </Checkbox>
-        {/* <UserInput
-          type="file"
-          id="wishImg"
-          {...register("wishImg", { onChange: handleFileChange })}
-          className="user-input"
-          placeholder="Wish image"
-        /> */}
+
         <Flex justifyContent="center" alignItems="center" mt={5}>
           <Button
             mt={4}

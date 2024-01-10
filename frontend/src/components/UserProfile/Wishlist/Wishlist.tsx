@@ -42,7 +42,6 @@ type WishList = {
 const ROWS_PER_PAGE = 6;
 
 function Wishlist(props: IWishlistProps) {
-  console.log("WishlistRerender");
   const { self, curUser } = props;
   const { user, getAccessCookie, requestProvider } = useContext(
     UserContext
@@ -61,7 +60,6 @@ function Wishlist(props: IWishlistProps) {
   const [page, setPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [chatItem, setChatItem] = useState<
     { id: number; title: string } | undefined
   >();
@@ -88,13 +86,11 @@ function Wishlist(props: IWishlistProps) {
         let data = await response.json();
         data.items.forEach((item: WishItem) => {
           if (item.image_url) {
-            item.image_url += "?alt=media" + `&t=${new Date().getTime()}`;
+            item.image_url += `?alt=media&t=${new Date().getTime()}`;
           }
         });
-        console.log(data);
         setWishlist(data);
       } catch (err) {
-        console.log("object");
         setError(
           "Error wishlist fetch" +
             (err instanceof Error ? ": " + err.message : "")
@@ -105,6 +101,7 @@ function Wishlist(props: IWishlistProps) {
       }
     };
     fetchWishlist();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateWishlist, page]);
   /**
    * Update stated for a new current user
@@ -154,7 +151,6 @@ function Wishlist(props: IWishlistProps) {
 
   const handleSetReserveItem = useCallback(
     (wishReserveItemId: number) => {
-      console.log(wishReserveItemId);
       if (wishlist) {
         const wishItem = wishlist.items.find(
           (item) => item.id === wishReserveItemId
@@ -186,7 +182,6 @@ function Wishlist(props: IWishlistProps) {
       requestParams
     );
     if (response.ok) {
-      console.log("delete succsess");
       handleUpdateWishListFunction();
     }
   };
@@ -201,12 +196,11 @@ function Wishlist(props: IWishlistProps) {
         },
       };
       try {
-        const response = await fetch(
+        await fetch(
           `/backend/api/reserve?item_id=${itemId}` +
             (date ? `&date=${date}` : ""),
           requestParams
         );
-        console.log("Reservation successful");
         if (wishlist) {
           let updatedWishList = wishlist.items.map((item) => {
             if (item.id === itemId) {
@@ -222,12 +216,10 @@ function Wishlist(props: IWishlistProps) {
           setReserveFormActive(false);
         }
       } catch (err) {
-        console.log(
-          "Error wishlist fetch" +
-            (err instanceof Error ? ": " + err.message : "")
-        );
+
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [wishlist]
   );
 
@@ -248,7 +240,6 @@ function Wishlist(props: IWishlistProps) {
         if (!response.ok) {
           throw new Error("Cannot unreserve item");
         }
-        console.log("Unreservation successful");
         if (wishlist) {
           let updatedWishList = wishlist.items.map((item) => {
             if (item.id === itemId) {
@@ -262,12 +253,9 @@ function Wishlist(props: IWishlistProps) {
           });
         }
       } catch (err) {
-        console.log(
-          "Error wishlist fetch" +
-            (err instanceof Error ? ": " + err.message : "")
-        );
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [wishlist]
   );
 
@@ -343,7 +331,6 @@ function Wishlist(props: IWishlistProps) {
         );
       }
       if (deleteImage) {
-        console.log("object");
         const requestParams = {
           method: "GET",
           headers: {
@@ -353,24 +340,11 @@ function Wishlist(props: IWishlistProps) {
         response = await fetch(`/backend/api/${wishId}/delete_image`, requestParams);
       }
       if (response && response.ok) {
-        // const data = await response.json();
-        // if (wishlist) {
-        //   let updatedWishList = wishlist.items.map((item) => {
-        //     if (item.id === data.id) {
-        //       return {...data, image_url: data.image_url + "?alt=media" + `&t=${new Date().getTime()}`};
-        //     } else {
-        //       return item;
-        //     }
-        //   });
-        //   setWishlist((prev) => {
-        //     return prev ? { ...prev, items: updatedWishList } : prev;
-        //   });
-        // }
         setUpdateWishlist((prevState) => !prevState);
       } else {
-        console.log("Don't edit item");
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -390,7 +364,6 @@ function Wishlist(props: IWishlistProps) {
       if (imgBinary) {
         formData.append("image", imgBinary, imgBinary.name);
       }
-      console.log(formData);
       const requestParams = {
         method: "POST",
         headers: {
@@ -400,13 +373,10 @@ function Wishlist(props: IWishlistProps) {
       };
       const response = await fetch(`/backend/api/add_item`, requestParams);
       if (response.ok) {
-        console.log("Added item");
-        console.log(wishlist);
+
         if (wishlist) {
           if (wishlist.total_items - wishlist.page * wishlist.per_page < 0) {
-            console.log("menishe");
             const data = await response.json();
-            console.log(data);
             wishlist.items.push(data);
           }
           setWishlist((prev) => {
@@ -423,9 +393,9 @@ function Wishlist(props: IWishlistProps) {
           });
         }
       } else {
-        console.log("Don't added item");
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [wishlist]
   );
 

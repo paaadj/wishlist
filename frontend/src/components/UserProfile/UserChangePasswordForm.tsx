@@ -1,23 +1,16 @@
 import { useForm } from "react-hook-form";
-import UserInput from "../UserInput/UserInput";
 import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useContext,
   useState,
 } from "react";
-import { UserContext, UserContextType } from "../../context/UserContext";
 import {
   Button,
   Flex,
   FormControl,
-  FormHelperText,
   FormLabel,
   Heading,
   Input,
 } from "@chakra-ui/react";
-import { ArrowForwardIcon, DeleteIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 interface IUserChangePasswordForm {
   editUserPassword: (
@@ -34,8 +27,7 @@ interface IChangePassword {
 }
 
 function UserChangePasswordForm(props: IUserChangePasswordForm) {
-  console.log("UserEditAvatarFormRerender");
-  const { editUserPassword, setActiveModal, username } = props;
+  const { editUserPassword, setActiveModal } = props;
   const [currentPassword, setCurrentPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const {
@@ -44,9 +36,6 @@ function UserChangePasswordForm(props: IUserChangePasswordForm) {
     reset,
     formState: { isSubmitting, isSubmitted, isSubmitSuccessful },
   } = useForm<IChangePassword>();
-  const { user, getAccessCookie, setUser } = useContext(
-    UserContext
-  ) as UserContextType;
 
   const onSubmitHandler = async (values: IChangePassword) => {
 

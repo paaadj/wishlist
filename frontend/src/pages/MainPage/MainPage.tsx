@@ -9,7 +9,7 @@ import { UserContext, UserContextType } from "../../context/UserContext";
 
 function MainPage() {
   const [userScreenWidth, setUserScreenWidth] = useState(0);
-  const { user, isAuthenticated, setAuthorizationTokens } = useContext(
+  const { user } = useContext(
     UserContext
   ) as UserContextType;
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Flex,
@@ -9,7 +9,6 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { UserContext, UserContextType } from "../../../context/UserContext";
 import { UserData } from "../../../pages/AdminPage/AdminPage";
 
 interface IUserEditProfileData {
@@ -41,7 +40,6 @@ interface IAdminUserEditForm {
 }
 
 function AdminUserEditForm(props: IAdminUserEditForm) {
-  console.log("UserEditDataRerender");
   const {
     prevFirstName,
     prevLastName,
@@ -55,9 +53,7 @@ function AdminUserEditForm(props: IAdminUserEditForm) {
   const [username, setUsername] = useState<string>(prevUsername);
   const [email, setEmail] = useState<string>(prevEmail);
   const [password, setPassword] = useState<string>("");
-  const { getAccessCookie, requestProvider } = useContext(
-    UserContext
-  ) as UserContextType;
+
   const {
     register,
     handleSubmit,
