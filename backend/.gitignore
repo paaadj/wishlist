@@ -39,3 +39,4 @@ pyvenv.cfg
 /serviceAccount.json
 /dockerfile
 /backend.dockerfile
+/.env
