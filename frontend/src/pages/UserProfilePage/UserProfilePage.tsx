@@ -8,7 +8,8 @@ import {
 } from "../../context/UserContext";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/Header/Header";
-
+import styles from "./userProfilePage.module.css";
+import { Flex, Spinner } from "@chakra-ui/react";
 interface IUserProfilePage {
   self: boolean;
 }
@@ -21,6 +22,11 @@ function UserProfilePage(props: IUserProfilePage) {
   const [currentUser, setCurrentUser] = useState<userData | undefined>(
     undefined
   );
+  const baseImageUrl =
+    "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/";
+  const fixImageUrl = (url: string | undefined) => {
+    return url ? url.replace("/", "%2F") : url;
+  };
   const fetchAnotherUser = async () => {
     const requestParams = {
       method: "GET",
@@ -40,7 +46,12 @@ function UserProfilePage(props: IUserProfilePage) {
         lastName: data?.last_name ?? "",
         username: data.username,
         email: data.email,
-        imgUrl: data?.image_url,
+        imgUrl:
+          baseImageUrl +
+          (data.image
+            ? fixImageUrl(data.image_url)
+            : "mqdefault.jpeg") +
+          "?alt=media",
       });
     } else {
       setCurrentUser(undefined);
@@ -57,16 +68,27 @@ function UserProfilePage(props: IUserProfilePage) {
         fetchAnotherUser();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [self, user, username]);
   return (
     <>
-      <Header />
-      {currentUser ? <User self={self} user={currentUser} /> : <h1>Loading</h1>}
-      {currentUser ? (
-        <Wishlist self={self} curUser={currentUser} />
-      ) : (
-        <h1>Loading</h1>
-      )}
+      <div className={styles.container}>
+        <Header />
+        {currentUser ? (
+          <User self={self} user={currentUser} />
+        ) : (
+          <Flex align="center" justifyContent="center" padding={50}>
+            <Spinner />
+          </Flex>
+        )}
+        {currentUser ? (
+          <Wishlist self={self} curUser={currentUser} />
+        ) : (
+          <Flex align="center" justifyContent="center" padding={50}>
+            <Spinner />
+          </Flex>
+        )}
+      </div>
     </>
   );
 }

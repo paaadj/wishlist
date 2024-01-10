@@ -42,7 +42,7 @@ async def client():
         yield client_inside
 
 
-# pylint: disable=missing-function-docstring, protected-access
+# pylint: disable=missing-function-docstring
 @pytest.fixture(scope="function", autouse=True)
 async def initialize_tests():
     await init()

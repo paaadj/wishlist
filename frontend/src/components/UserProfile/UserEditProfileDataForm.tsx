@@ -1,7 +1,15 @@
 import { useForm } from "react-hook-form";
-import UserInput from "../UserInput/UserInput";
 import { useContext, useState } from "react";
 import { UserContext, UserContextType } from "../../context/UserContext";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+} from "@chakra-ui/react";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 interface IUserEditProfileData {
   firstName: string;
@@ -15,29 +23,57 @@ interface IUserEditProfileDataForm {
   prevLastName: string | undefined;
   prevUsername: string;
   prevEmail: string;
+  setActiveModal: React.Dispatch<React.SetStateAction<boolean>>;
+  onExit?: () => void;
 }
 
 function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
-  const { prevFirstName, prevLastName,prevUsername, prevEmail } = props;
+  const {
+    prevFirstName,
+    prevLastName,
+    prevUsername,
+    prevEmail,
+    setActiveModal,
+  } = props;
   const [firstName, setFirstName] = useState<string>(prevFirstName);
   const [lastName, setLastName] = useState<string>(prevLastName ?? "");
   const [username, setUsername] = useState<string>(prevUsername);
   const [email, setEmail] = useState<string>(prevEmail);
-  const { user, getAccessCookie } = useContext(UserContext) as UserContextType;
-  const { register, handleSubmit, reset } = useForm<IUserEditProfileData>({
+  const { user, setUser, getAccessCookie, requestProvider } = useContext(
+    UserContext
+  ) as UserContextType;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<IUserEditProfileData>({
     defaultValues: {
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-      email: user?.email,
+      firstName: user?.firstName ?? "",
+      lastName: user?.lastName ?? "",
+      username: user?.username ?? "",
+      email: user?.email ?? "",
     },
   });
   const onSubmitHandler = async (values: IUserEditProfileData) => {
     const formData = new FormData();
-
-    formData.append("first_name", firstName);
-    formData.append("last_name", lastName);
-    formData.append("username", username);
-    formData.append("email", email);
+    let formDataIsEmpty = true;
+    if (prevFirstName !== firstName) {
+      formData.append("first_name", firstName);
+      formDataIsEmpty = false;
+    }
+    if (prevLastName !== lastName) {
+      formData.append("last_name", lastName);
+      formDataIsEmpty = false;
+    }
+    if (prevUsername !== username) {
+      formData.append("username", username);
+      formDataIsEmpty = false;
+    }
+    if (prevEmail !== email) {
+      formData.append("email", email);
+      formDataIsEmpty = false;
+    }
 
     const requestParams = {
       method: "POST",
@@ -46,71 +82,106 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
       },
       body: formData,
     };
-    const response = await fetch("/backend/edit_info", requestParams);
-
-    if (response.ok) {
-    } else {
-    }
+    try {
+      if (!formDataIsEmpty) {
+        await requestProvider(
+          fetch,
+          "/backend/edit_info",
+          requestParams
+        );
+        if (user) {
+          setUser({
+            id: user.id,
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            email: email,
+            imgUrl: user.imgUrl,
+          });
+        }
+        reset();
+        setActiveModal(false);
+      }
+    } catch (err) {}
   };
 
   return (
     <>
-      <h3>Add Wish Item</h3>
+      <Heading
+        mb={5}
+        textAlign="center"
+        className="page-text page-title-text"
+        color="teal"
+      >
+        Edit profile data
+      </Heading>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <UserInput
-          type="text"
-          id="firstName"
-          placeholder="First name"
-          className="user-input"
-          imgSource="/img/username.png"
-          required={true}
-          {...register("firstName", {
-            onChange: (e) => {
-              setFirstName(e.target.value);
-            },
-          })}
-        />
-        <UserInput
-          type="text"
-          id="lastName"
-          placeholder="Last name"
-          className="user-input"
-          imgSource="/img/username.png"
-          required={false}
-          {...register("lastName", {
-            onChange: (e) => {
-              setLastName(e.target.value);
-            },
-          })}
-        />
-        <UserInput
-          type="text"
-          id="username"
-          placeholder="Username"
-          className="user-input"
-          imgSource="/img/username.png"
-          required={true}
-      
-          {...register("username", {
-            onChange: (e) => {
-              setUsername(e.target.value);
-            },
-          })}
-        />
-        <UserInput
-          type="email"
-          id="email"
-          placeholder="Email"
-          className="user-input"
-          imgSource="/img/email.png"
-          required={true}
-          {...register("email", {
-            onChange: (e) => {
-              setEmail(e.target.value);
-            },
-          })}
-        />
-        <button>Submit</button>
+        <FormControl>
+          <FormLabel htmlFor="firstName">First name</FormLabel>
+          <Input
+            type="text"
+            id="firstName"
+            placeholder="First name"
+            {...register("firstName", {
+              onChange: (e) => {
+                setFirstName(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel htmlFor="lastName">Last name</FormLabel>
+          <Input
+            type="text"
+            id="lastName"
+            placeholder="Last name"
+            {...register("lastName", {
+              onChange: (e) => {
+                setLastName(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+
+        <FormControl>
+          <FormLabel htmlFor="username">Username</FormLabel>
+          <Input
+            type="text"
+            id="username"
+            placeholder="Username"
+            {...register("username", {
+              onChange: (e) => {
+                setUsername(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+
+        <FormControl>
+          <FormLabel htmlFor="email">Email</FormLabel>
+          <Input
+            type="email"
+            id="email"
+            placeholder="Email"
+            {...register("email", {
+              onChange: (e) => {
+                setEmail(e.target.value);
+              },
+            })}
+          />
+        </FormControl>
+
+        <Flex justifyContent="center" alignItems="center" mt={5}>
+          <Button
+            mt={4}
+            colorScheme="teal"
+            type="submit"
+            isLoading={isSubmitting}
+            rightIcon={<ArrowForwardIcon />}
+          >
+            Submit
+          </Button>
+        </Flex>
       </form>
     </>
   );

@@ -1,10 +1,26 @@
 import { useForm } from "react-hook-form";
-import UserInput from "../UserInput/UserInput";
-import { ChangeEvent, Dispatch, SetStateAction, useContext, useState } from "react";
-import { UserContext, UserContextType } from "../../context/UserContext";
+import {
+  ChangeEvent,
+  useState,
+} from "react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+} from "@chakra-ui/react";
+import { ArrowForwardIcon, DeleteIcon } from "@chakra-ui/icons";
 
 interface IUserEditAvatarForm {
-  updateUserAvatarUrl: Dispatch<SetStateAction<string>>;
+  editUserAvatar: (
+    deleteUserAvatar: boolean,
+    imgBinary?: File,
+    username?: string,
+  ) => Promise<void>;
+  setActiveModal: React.Dispatch<React.SetStateAction<boolean>>;
+  username?: string;
 }
 
 interface IEditAvatar {
@@ -12,43 +28,28 @@ interface IEditAvatar {
 }
 
 function UserEditAvatarForm(props: IUserEditAvatarForm) {
-  const { updateUserAvatarUrl } = props;
+  const { editUserAvatar, setActiveModal, username } = props;
   const [userAvatar, setUserAvatar] = useState<File | undefined>(undefined);
-  const { register, handleSubmit, reset } = useForm<IEditAvatar>();
-  const { user, getAccessCookie } = useContext(UserContext) as UserContextType;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<IEditAvatar>();
 
-  const editUserAvatar = async (imgBinary?: File) => {
-    if (!imgBinary) {
-      return;
-    }
-    const formData = new FormData();
-    if (imgBinary) {
-      formData.append("image", imgBinary, imgBinary.name);
-    }
-
-    const requestParams = {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + getAccessCookie(),
-      },
-      body: formData,
-    };
-    const response = await fetch(`/backend/edit_info`, requestParams);
-    if (response.ok) {
-      const data = await response.json();
-      if (user && data) {
-        user.imgUrl = data.image_url;
-        updateUserAvatarUrl(user.imgUrl + `&t=${new Date().getTime()}` ?? "/img/username.png")
-      }
-    } else {
-      console.log("dont Edit avatar");
-    }
-  };
 
   const onSubmitHandler = async (values: IEditAvatar) => {
-    editUserAvatar(userAvatar);
+    editUserAvatar(false, userAvatar, username);
     setUserAvatar(undefined);
     reset();
+    setActiveModal(false);
+  };
+
+  const onDeleteHandler = async () => {
+    editUserAvatar(true);
+    setUserAvatar(undefined);
+    reset();
+    setActiveModal(false);
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -59,16 +60,45 @@ function UserEditAvatarForm(props: IUserEditAvatarForm) {
 
   return (
     <>
-      <h3>Edit avatar</h3>
-      <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <UserInput
-          type="file"
-          id="userAvatar"
-          {...register("userAvatar", { onChange: handleFileChange })}
-          className="user-input"
-          placeholder="Wish image"
-        />
-        <button>Submit</button>
+      <Heading
+        mb={5}
+        textAlign="center"
+        className="page-text page-title-text"
+        color="teal"
+      >
+        Edit avatar
+      </Heading>
+      <form id="editAvatarForm" onSubmit={handleSubmit(onSubmitHandler)}>
+        <FormControl>
+          <FormLabel htmlFor="userAvatar">Wish image</FormLabel>
+          <Input
+            type="file"
+            id="userAvatar"
+            placeholder="Wish image"
+            {...register("userAvatar", { onChange: handleFileChange })}
+          />
+        </FormControl>
+
+        <Flex justifyContent="center" alignItems="center" mt={5}>
+          <Button
+            mt={4}
+            colorScheme="teal"
+            type="submit"
+            isLoading={isSubmitting}
+            rightIcon={<ArrowForwardIcon />}
+          >
+            Edit Image
+          </Button>
+          <Button
+            mt={4}
+            colorScheme="teal"
+            type="button"
+            rightIcon={<DeleteIcon />}
+            onClick={onDeleteHandler}
+          >
+            Delete Image
+          </Button>
+        </Flex>
       </form>
     </>
   );

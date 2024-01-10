@@ -1,0 +1,61 @@
+.table {
+  border: 1px solid #424242;
+}
+.tr {
+  display: flex;
+  width: fit-content;
+}
+.th,
+.td {
+  box-shadow: inset 0 0 0 1px #424242;
+}
+.th {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: gray.400;
+  padding: 0.5rem;
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+  text-align: center;
+}
+.td {
+  margin: 1;
+  padding: 0.2rem;
+  background-color: transparent;
+  max-width: 100%;
+
+}
+.date-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.resizer {
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 5px;
+  background-color: #27bbff;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  border-radius: 6px;
+  transition: opacity 0.2s ease-in-out;
+}
+.resizer.isResizing {
+  background-color: #2eff31;
+  opacity: 1;
+}
+.table_header{
+    position: relative;
+}
+.table_header:hover > .resizer{
+    opacity: 1;
+}
+

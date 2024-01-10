@@ -3,8 +3,29 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import "./authentication.css";
-import UserInput from "../UserInput/UserInput";
 import { useNavigate } from "react-router-dom";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  IconButton,
+  Input,
+} from "@chakra-ui/react";
+import { ArrowLeftIcon } from "@chakra-ui/icons";
+
+interface IRegistration {
+  registerUser: (
+    firstName: string,
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    lastName?: string,
+  ) => Promise<void>;
+}
 
 interface IRegistrationInput {
   username: string;
@@ -49,7 +70,6 @@ const registrationValidationSchema = yup.object().shape({
   email: yup
     .string()
     .required("Email is a required field")
-    //.matches(emailRegex, "Email should have correct format")
     .test(
       "checkEmailAvailability",
       "This email is incorrect or already registered",
@@ -79,7 +99,8 @@ const registrationValidationSchema = yup.object().shape({
     .required("Confirm password is required"),
 });
 
-const Registration = () => {
+const RegistrationForm = (props : IRegistration) => {
+  const {registerUser} = props;
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -96,155 +117,144 @@ const Registration = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<IRegistrationInput>({
     defaultValues,
     resolver: yupResolver(registrationValidationSchema),
     mode: "onBlur",
   });
   const onSubmitHandler = async (values: IRegistrationInput) => {
-    const requestParams = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        first_name: firstName,
-        last_name: lastName,
-        username: username,
-        email: email,
-        password: password,
-      }),
-    };
-    console.log(lastName);
-    const response = await fetch("/backend/register", requestParams);
-    // const data = await response.json();
-
-    if (!response.ok) {
-      console.log("DB error");
-    } else {
-      // setToken(data.access_token);
-    
-      console.log("Registration successful");
-      navigate("/");
-    }
-    console.table(values);
+    registerUser(firstName, username, email, password, lastName);
   };
 
   return (
-    <div className="authentication-wrapper">
-      <div className="authentication-window">
-        <h3 className="authentication__title page-text page-title-text">
-          Sign Up
-        </h3>
-        <form
-          onSubmit={handleSubmit(onSubmitHandler)}
-          className="authentication-form"
+    <Flex
+      boxSizing="border-box"
+      direction="column"
+      minW="300px"
+      m={2}
+      w="500px"
+      maxWidth="100%"
+      bg="white"
+      borderRadius={10}
+      p={8}
+    >
+      <Flex align="center" mb={5}>
+        <IconButton
+          onClick={() => navigate("/")}
+          aria-label="Go back"
+          icon={<ArrowLeftIcon />}
+          bg="transparent"
+        />
+        <Heading
+          textAlign="center"
+          as="h3"
+          className=" page-text page-title-text"
         >
-          
-          <UserInput
+          Sign Up
+        </Heading>
+      </Flex>
+      <form
+        onSubmit={handleSubmit(onSubmitHandler)}
+        className="authentication-form"
+        id="signUpForm"
+      >
+        <FormControl isInvalid={!!errors.firstName}>
+          <FormLabel htmlFor="firstName">First name</FormLabel>
+          <Input
             type="text"
             id="firstName"
             placeholder="First name"
-            className="user-input"
-            imgSource="/img/username.png"
-            required={true}
-            error={!!errors.firstName}
-            helperText={errors.firstName?.message}
             {...register("firstName", {
               onChange: (e) => {
                 setFirstName(e.target.value);
               },
             })}
           />
-          <UserInput
+          <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={!!errors.lastName}>
+          <FormLabel htmlFor="firstName">Last name</FormLabel>
+          <Input
             type="text"
             id="lastName"
             placeholder="Last name"
-            className="user-input"
-            imgSource="/img/username.png"
-            required={false}
-            error={!!errors.lastName}
-            helperText={errors.lastName?.message}
             {...register("lastName", {
               onChange: (e) => {
                 setLastName(e.target.value);
               },
             })}
           />
-          <UserInput
+          <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={!!errors.username}>
+          <FormLabel htmlFor="firstName">Username</FormLabel>
+          <Input
             type="text"
             id="username"
             placeholder="Username"
-            className="user-input"
-            imgSource="/img/username.png"
-            required={true}
-            error={!!errors.username}
-            helperText={errors.username?.message}
             {...register("username", {
               onChange: (e) => {
                 setUsername(e.target.value);
               },
             })}
           />
-
-          <UserInput
+          <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={!!errors.email}>
+          <FormLabel htmlFor="firstName">Email</FormLabel>
+          <Input
             type="email"
             id="email"
             placeholder="Email"
-            className="user-input"
-            imgSource="/img/email.png"
-            required={true}
-            error={!!errors.email}
-            helperText={errors.email?.message}
             {...register("email", {
               onChange: (e) => {
                 setEmail(e.target.value);
               },
             })}
           />
-
-          <UserInput
+          <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={!!errors.password}>
+          <FormLabel htmlFor="firstName">Password</FormLabel>
+          <Input
             type="password"
             id="password"
             placeholder="Password"
-            className="user-input"
-            imgSource="/img/password.png"
-            required={true}
-            error={!!errors.password}
-            helperText={errors.password?.message}
             {...register("password", {
               onChange: (e) => {
                 setPassword(e.target.value);
               },
             })}
           />
-
-          <UserInput
+          <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={!!errors.confirmPassword}>
+          <FormLabel htmlFor="firstName">Confirm password</FormLabel>
+          <Input
             type="password"
             id="confirm-Password"
             placeholder="Confirm password"
-            className="user-input"
-            imgSource="/img/password.png"
-            required={true}
-            error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword?.message}
             {...register("confirmPassword", {
               onChange: (e) => {
                 setConfirmPassword(e.target.value);
               },
             })}
           />
-          
-          <div className="submit-wrapper">
-            <button className="submit-button" type="submit">
-              <span>Sign Up</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
+        </FormControl>
+      </form>
+      <Button
+        mt={5}
+        colorScheme="teal"
+        isLoading={isSubmitting}
+        type="submit"
+        form="signUpForm"
+      >
+        Sign Up
+      </Button>
+    </Flex>
   );
 };
 
-export default Registration;
+export default RegistrationForm;
