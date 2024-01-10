@@ -4,7 +4,9 @@ Configuration file
 
 
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 # pylint: disable=too-few-public-methods
 class Settings:
