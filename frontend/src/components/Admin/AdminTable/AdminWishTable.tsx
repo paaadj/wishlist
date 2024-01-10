@@ -143,16 +143,6 @@ function AdminWishTable(props: IAdminWishTable) {
     );
   };
 
-  // const handleRowEdit = (row: WishData) => {
-  //   updateData(row.id, {
-  //     title: "Gleb",
-  //     description: "Glebov",
-  //     link: "#",
-  //     image_url: "https://firebasestorage.googleapis.com/v0/b/wishlist-f1b1e.appspot.com/o/mqdefault.jpeg?alt=media",
-  //     reserved_user: 9,
-  //   });
-  // };
-
   return (
     <>
       <ModalWindow active={editFormIsActive} setActive={setEditFormIsActive}>
@@ -208,14 +198,6 @@ function AdminWishTable(props: IAdminWishTable) {
                 ))}
                 <Td w={24}>
                   <IconButton
-                    aria-label="See more"
-                    bg={"transparent"}
-                    icon={<ViewIcon color={"#a2d2ff"} />}
-                    onClick={() => {
-                      // handleRowEdit(row.original);
-                    }}
-                  />
-                  <IconButton
                     aria-label="Edit row"
                     bg={"transparent"}
                     icon={<EditIcon />}
@@ -229,7 +211,6 @@ function AdminWishTable(props: IAdminWishTable) {
                     icon={<DeleteIcon color={"#E32636"} />}
                     onClick={() => {
                       deleteWishItemFunc(row.original.id);
-                      // handleRowEdit(row.original);
                     }}
                   />
                 </Td>
