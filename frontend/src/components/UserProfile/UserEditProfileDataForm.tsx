@@ -76,7 +76,7 @@ function UserEditProfileDataForm(props: IUserEditProfileDataForm) {
     }
 
     const requestParams = {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         Authorization: "Bearer " + getAccessCookie(),
       },

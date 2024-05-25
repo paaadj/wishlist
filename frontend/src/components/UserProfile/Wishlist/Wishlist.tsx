@@ -314,7 +314,7 @@ function Wishlist(props: IWishlistProps) {
       }
 
       const requestParams = {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           Authorization: "Bearer " + getAccessCookie(),
         },

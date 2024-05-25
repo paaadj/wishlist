@@ -96,7 +96,7 @@ async def get_item_via_id(
     return item.to_response(user=user)
 
 
-@router.put("/update_item",
+@router.patch("/update_item",
             response_model=WishlistItemResponse,
             tags=["wishlist"])
 async def update_item(

@@ -76,7 +76,7 @@ async def register_user(user: UserCreate):
     return user.__dict__
 
 
-@auth_router.put("/edit_info", response_model=UserResponse, tags=["auth"])
+@auth_router.patch("/edit_info", response_model=UserResponse, tags=["auth"])
 async def edit_info(
     username: Annotated[str, Form()] = None,
     email: Annotated[EmailStr, Form()] = None,
