@@ -48,9 +48,9 @@ function UserProfilePage(props: IUserProfilePage) {
         email: data.email,
         imgUrl:
           baseImageUrl +
-          (data.image
+          (data.image_url
             ? fixImageUrl(data.image_url)
-            : "mqdefault.jpeg") +
+            : "user.jpg") +
           "?alt=media",
       });
     } else {

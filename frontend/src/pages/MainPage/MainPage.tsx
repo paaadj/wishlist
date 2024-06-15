@@ -9,7 +9,7 @@ import { UserContext, UserContextType } from "../../context/UserContext";
 
 function MainPage() {
   const [userScreenWidth, setUserScreenWidth] = useState(0);
-  const { user } = useContext(
+  const { user, getAccessCookie } = useContext(
     UserContext
   ) as UserContextType;
   useEffect(() => {
@@ -17,16 +17,37 @@ function MainPage() {
       setUserScreenWidth(window.innerWidth);
     });
   }, []);
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const response = await fetch("/backend/api/admin/check_admin", {
+          headers: {
+            Authorization: `Bearer ${getAccessCookie()}` // Добавляем заголовок Authorization
+          }
+        });
+        if (response.ok) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+      }
+    };
+  
+    checkAdminStatus();
+  }, []);
   return (
     <>
       <main className="main-container">
         <div className="title-content blue-color">
           <div className="title-text-controlls">
             <h1 className="page-text page-title-text title__text">
-              Unleash Your Wishlist
+            Wish. Share. Receive.
             </h1>
             <div className="title-controlls">
-              {user && user.username === "username" && <Link
+              {user && isAdmin && <Link
                 to="/admin"
                 className="title__button page-text page-reg-text white-color white-button-text"
               >
@@ -98,7 +119,7 @@ function MainPage() {
               {userScreenWidth <= 809 ? (
                 <div className="card-img-wrapper">
                   <img
-                    src="/img/bag.jpeg"
+                    src="/img/box2.png"
                     alt="Temp"
                     className="card-img first-card-img"
                   />
@@ -118,7 +139,7 @@ function MainPage() {
               {userScreenWidth > 809 ? (
                 <div className="card-img-wrapper">
                   <img
-                    src="/img/bag.jpeg"
+                    src="/img/box2.png"
                     alt="Temp"
                     className="card-img first-card-img"
                   />
@@ -130,7 +151,7 @@ function MainPage() {
             <MainPageCard>
               <div className="card-img-wrapper">
                 <img
-                  src="/img/bag.jpeg"
+                  src="/img/box2.png"
                   alt="Temp"
                   className="card-img second-card-img"
                 />

@@ -54,7 +54,7 @@ export const UserProvider = (props: any) => {
   ) => {
     try {
       const response = await func(path, requestParams);
-      if (response.status === 403) {
+      if (response.status === 401) {
         const refreshState = await tryRefreshToken();
         if (refreshState === true) {
           try {
@@ -98,6 +98,7 @@ export const UserProvider = (props: any) => {
       "http://127.0.0.1:8000/refresh_token",
       requestRefreshParams
     );
+    console.log(refreshResponse);
     if (!refreshResponse.ok) {
       await setAuthorizationTokens(undefined, undefined);
       return false;
@@ -138,7 +139,7 @@ export const UserProvider = (props: any) => {
         imgUrl: baseImageUrl +
         (data.image_url
           ? fixImageUrl(data.image_url)
-          : "mqdefault.jpeg") +
+          : "user.jpg") +
         "?alt=media",
       });
     } catch (err) {

@@ -26,7 +26,6 @@ interface ILoginInput {
 const registrationValidationSchema = yup.object().shape({
   username: yup
     .string()
-    .matches(/^([^0-9]*)$/, "Username should not contain numbers")
     .required("Username is a required field"),
   password: yup.string().required("Password is required"),
 });

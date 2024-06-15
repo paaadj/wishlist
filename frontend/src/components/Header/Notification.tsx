@@ -18,7 +18,7 @@ function Notification(props: INotification) {
     <div className="notification" onMouseEnter={onHoverNotification}>
       {type === "reserve reminder" && (
         <p className="page-text page-reg-text notification__text">
-          Reservation reminer for <span className="notification-reserve-item">{data.text}</span>
+          Reservation reminder for <span className="notification-reserve-item">{data.text}</span>
         </p>
       )}
       {!read && <div className="unreadNotification"></div>}

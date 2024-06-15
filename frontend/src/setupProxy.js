@@ -6,7 +6,7 @@ module.exports = function (app) {
   app.use(
     '/backend',
     createProxyMiddleware({
-      target: `http://${dom}:8000`,
+      target: `http://127.0.0.1:8000`,
       changeOrigin: true,
       pathRewrite: function (path, req) { return path.replace('/backend', '') }
     })

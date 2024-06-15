@@ -33,9 +33,14 @@
     justify-content: flex-start;
     row-gap: 20px;
     overflow-y: scroll;
-    min-height: 50vh;
+    min-height: 15vh;
     max-height: 50vh;
     padding-right: 5px;
+    overflow-y: scroll;
+}
+
+.authentication-form::-webkit-scrollbar {
+  display: none; /* Скрыть полосы прокрутки */
 }
 
 .user-input-wrapper {

@@ -46,7 +46,6 @@ const registrationValidationSchema = yup.object().shape({
   lastName: yup.string(),
   username: yup
     .string()
-    .matches(/^([^0-9]*)$/, "Username should not contain numbers")
     .required("Username is a required field")
     .test("length", "More than or exactly 8 symbols", (username) =>
       username ? username.length >= 8 : false
