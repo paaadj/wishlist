@@ -37,7 +37,7 @@ function MainPage() {
     };
   
     checkAdminStatus();
-  }, []);
+  }, [getAccessCookie]);
   return (
     <>
       <main className="main-container">

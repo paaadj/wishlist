@@ -50,7 +50,7 @@ function UserProfilePage(props: IUserProfilePage) {
           baseImageUrl +
           (data.image_url
             ? fixImageUrl(data.image_url)
-            : "user.jpg") +
+            : "mqdefault.jpeg") +
           "?alt=media",
       });
     } else {
