@@ -8,9 +8,9 @@ from fastapi import (APIRouter, Depends, File, Form, HTTPException, UploadFile,
                      status)
 from pydantic import AnyHttpUrl
 
-from api.wishlist_services import (cancel_reservation, create_item,
-                                   delete_item_image, edit_item, fetch_item,
-                                   fetch_wishlist, remove_item, reserve)
+from services.wishlist_services import (cancel_reservation, create_item,
+                                        delete_item_image, edit_item, fetch_item,
+                                        fetch_wishlist, remove_item, reserve)
 from auth.services import (get_current_user, get_current_user_or_none,
                            get_user_by_username)
 from models.user import User, UserResponse

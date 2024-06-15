@@ -23,8 +23,8 @@ class WishlistItemResponse(BaseModel):
     id: int
     title: str
     description: str
-    link: Optional[AnyHttpUrl] = None
-    image_url: Optional[str] = None
+    link: AnyHttpUrl | None
+    image_url: str | None
     reserved_user: ReservationStatusEnum
 
 
@@ -81,7 +81,7 @@ class WishlistItem(Model):
             id=self.id,
             title=self.title,
             description=self.description,
-            link=self.link,
+            link=self.link    ,
             image_url=self.image_url,
             reserved_user=reserved_user_response,
         )

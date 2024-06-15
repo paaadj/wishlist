@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import (APIRouter, Depends, Form, HTTPException, WebSocket,
                      WebSocketDisconnect, status, WebSocketException)
 
-from api.chat_services import send_message, send_message_to_connection
+from services.chat_services import send_message, send_message_to_connection
 from auth.services import get_current_user, get_current_user_or_none
 from models.chat import Chat, ChatMessage, ChatResponse, MessageResponse
 from models.user import User
@@ -18,7 +18,7 @@ connections: dict[int, set[(WebSocket, User | None)]] = {}
 async def chat_websocket(websocket: WebSocket, chat_id: int):
     await websocket.accept()
 
-    chat = await Chat.get_or_none(id=chat_id).prefetch_related(
+    chat = await Chat.get_or_none(wishlist_item_id=chat_id).prefetch_related(
         "wishlist_item__wishlist__user"
     )
 

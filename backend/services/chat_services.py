@@ -14,7 +14,7 @@ async def send_message(
     :param chat_id: id
     :param reply_to: id of message to reply else None
     """
-    chat = await Chat.get(id=chat_id)
+    chat = await Chat.get(wishlist_item_id=chat_id)
     reply_message = None
     if reply_to:
         reply_message = await ChatMessage.get_or_none(id=reply_to)

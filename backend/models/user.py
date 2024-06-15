@@ -50,7 +50,7 @@ class User(Model):
     password = fields.CharField(max_length=255)
     first_name = fields.CharField(max_length=30, validators=[MinLengthValidator(2)])
     last_name = fields.CharField(
-        max_length=30, null=True, validators=[MinLengthValidator(2)]
+        max_length=30, null=True
     )
     image_url = fields.CharField(
         max_length=150,

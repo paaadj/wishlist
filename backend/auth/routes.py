@@ -141,7 +141,7 @@ async def remove_image(user: User = Depends(get_current_user)):
 
 
 @auth_router.get("/users/me", response_model=UserResponse, tags=["auth"])
-async def get_user(user: User = Depends(get_current_user)):
+async def get_current_user(user: User = Depends(get_current_user)):
     """
     Get user by token \n
     **Require access_token in header** \n

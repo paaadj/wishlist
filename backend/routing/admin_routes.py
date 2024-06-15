@@ -9,8 +9,8 @@ from pydantic import AnyHttpUrl, EmailStr
 from tortoise.exceptions import ValidationError
 from tortoise.expressions import Q
 
-from api.wishlist_services import remove_image as delete_item_image
-from api.wishlist_services import upload_image as upload_item_image
+from services.wishlist_services import remove_image as delete_item_image
+from services.wishlist_services import upload_image as upload_item_image
 from auth.routes import check_email, check_username
 from auth.services import create_user
 from auth.services import delete_image as delete_user_image
@@ -357,3 +357,13 @@ async def delete_item(
         )
     await item.delete()
     return await item.to_admin_response()
+
+
+@router.get(
+    "/check_admin",
+    tags=["admin"],
+)
+async def check_admin(
+        admin: User = Depends(get_current_admin),
+):
+    return True

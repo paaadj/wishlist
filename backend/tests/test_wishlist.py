@@ -54,7 +54,7 @@ test_second_item = {
 }
 
 
-# /api/add_item testing
+# /services/add_item testing
 
 
 @pytest.mark.anyio
@@ -68,10 +68,10 @@ async def test_add_avg_item_to_wishlist(client: AsyncClient):
     headers = {
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
 
-    response_add = await client.post("/api/add_item", headers=headers, data=test_item)
+    response_add = await client.post("/services/add_item", headers=headers, data=test_item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
 
     # check that added item == item received from get_item
@@ -94,10 +94,10 @@ async def test_add_empty_string_title_item(client: AsyncClient):
     item = test_item.copy()
     item["title"] = ""
 
-    response_add = await client.post("/api/add_item", headers=headers, data=item)
+    response_add = await client.post("/services/add_item", headers=headers, data=item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that items table does not contain item
@@ -120,10 +120,10 @@ async def test_add_empty_string_description_item(client: AsyncClient):
     item = test_item.copy()
     item["description"] = ""
 
-    response_add = await client.post("/api/add_item", headers=headers, data=item)
+    response_add = await client.post("/services/add_item", headers=headers, data=item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that items table does not contain item
@@ -146,7 +146,7 @@ async def test_add_empty_string_link_item(client: AsyncClient):
     item = test_item.copy()
     item["link"] = ""
 
-    response_add = await client.post("/api/add_item", headers=headers, data=item)
+    response_add = await client.post("/services/add_item", headers=headers, data=item)
 
     # add item response code check
     assert response_add.status_code == 200
@@ -166,10 +166,10 @@ async def test_add_none_title_item(client: AsyncClient):
     item = test_item.copy()
     item.pop("title")
 
-    response_add = await client.post("/api/add_item", headers=headers, data=item)
+    response_add = await client.post("/services/add_item", headers=headers, data=item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that items table does not contain item
@@ -192,10 +192,10 @@ async def test_add_none_description_item(client: AsyncClient):
     item = test_item.copy()
     item.pop("description")
 
-    response_add = await client.post("/api/add_item", headers=headers, data=item)
+    response_add = await client.post("/services/add_item", headers=headers, data=item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that items table does not contain item
@@ -218,7 +218,7 @@ async def test_add_none_link_item(client: AsyncClient):
     item = test_item.copy()
     item.pop("link")
 
-    response_add = await client.post("/api/add_item", headers=headers, data=item)
+    response_add = await client.post("/services/add_item", headers=headers, data=item)
     # add item response code check
     assert response_add.status_code == 200
 
@@ -239,10 +239,10 @@ async def test_add_none_all_item(client: AsyncClient):
     item.pop("description")
     item.pop("title")
 
-    response_add = await client.post("/api/add_item", headers=headers, data=item)
+    response_add = await client.post("/services/add_item", headers=headers, data=item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that items table does not contain item
@@ -267,10 +267,10 @@ async def test_add_item_without_data(client: AsyncClient):
     item.pop("description")
     item.pop("title")
 
-    response_add = await client.post("/api/add_item", headers=headers)
+    response_add = await client.post("/services/add_item", headers=headers)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that items table does not contain item
@@ -286,10 +286,10 @@ async def test_add_item_without_auth(client: AsyncClient):
     """
     await client.post("/register", json=test_user)
 
-    response_add = await client.post("/api/add_item", data=test_item)
+    response_add = await client.post("/services/add_item", data=test_item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that items table does not contain item
@@ -311,11 +311,11 @@ async def test_add_existing_item(client: AsyncClient):
 
     second_item = test_item.copy()
 
-    await client.post("/api/add_item", headers=headers, data=test_item)
-    response_add = await client.post("/api/add_item", headers=headers, data=second_item)
+    await client.post("/services/add_item", headers=headers, data=test_item)
+    response_add = await client.post("/services/add_item", headers=headers, data=second_item)
 
     response_get = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
     items = response_get.json()["items"]
     # check that wishlist of user now have 2 items
@@ -324,7 +324,7 @@ async def test_add_existing_item(client: AsyncClient):
     assert response_add.status_code == 200
 
 
-# /api/reserve testing
+# /services/reserve testing
 
 @pytest.mark.anyio
 async def test_reserve_item_1_in_list(client: AsyncClient):
@@ -339,7 +339,7 @@ async def test_reserve_item_1_in_list(client: AsyncClient):
     headers1 = {
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
 
-    add_response = await client.post("/api/add_item", headers=headers1, data=test_item)
+    add_response = await client.post("/services/add_item", headers=headers1, data=test_item)
     item_id = add_response.json()["id"]
 
     data_for_token = {"username": avg_second_username,
@@ -349,10 +349,10 @@ async def test_reserve_item_1_in_list(client: AsyncClient):
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
 
     reserve_response = await client.post(
-        "/api/reserve", headers=headers2, params={"item_id": item_id}
+        "/services/reserve", headers=headers2, params={"item_id": item_id}
     )
 
-    get_item_response = await client.get("api/get_item", params={"item_id": item_id}, headers=headers2)
+    get_item_response = await client.get("services/get_item", params={"item_id": item_id}, headers=headers2)
 
     # reserve response code check
     assert reserve_response.status_code == 200
@@ -364,7 +364,7 @@ async def test_reserve_item_1_in_list(client: AsyncClient):
     assert get_item_response.json()["reserved_user"] == 2
 
 
-# /api/unreserve testing
+# /services/unreserve testing
 @pytest.mark.anyio
 async def test_unreserve_item_1_in_list(client: AsyncClient):
     """
@@ -378,7 +378,7 @@ async def test_unreserve_item_1_in_list(client: AsyncClient):
     headers1 = {
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
 
-    add_response = await client.post("/api/add_item", headers=headers1, data=test_item)
+    add_response = await client.post("/services/add_item", headers=headers1, data=test_item)
 
     item_id = add_response.json()["id"]
 
@@ -388,13 +388,13 @@ async def test_unreserve_item_1_in_list(client: AsyncClient):
     headers2 = {
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
 
-    await client.post("/api/reserve", headers=headers2, params={"item_id": item_id})
+    await client.post("/services/reserve", headers=headers2, params={"item_id": item_id})
 
     unreserve_response = await client.post(
-        "/api/unreserve", headers=headers2, params={"item_id": item_id}
+        "/services/unreserve", headers=headers2, params={"item_id": item_id}
     )
 
-    get_item_response = await client.get("api/get_item", params={"item_id": item_id})
+    get_item_response = await client.get("services/get_item", params={"item_id": item_id})
 
     # unreserve response code check
     assert unreserve_response.status_code == 200
@@ -406,7 +406,7 @@ async def test_unreserve_item_1_in_list(client: AsyncClient):
     assert get_item_response.json()["reserved_user"] == 0
 
 
-# /api/get_wishlist testing
+# /services/get_wishlist testing
 @pytest.mark.anyio
 async def test_get_empty_wishlist(client: AsyncClient):
     """
@@ -414,7 +414,7 @@ async def test_get_empty_wishlist(client: AsyncClient):
     """
     await client.post("/register", json=test_user)
 
-    response = await client.get("/api/get_wishlist", params={"username": avg_username})
+    response = await client.get("/services/get_wishlist", params={"username": avg_username})
     # response code check
     assert response.status_code == 200
 
@@ -429,9 +429,9 @@ async def test_get_wishlist(client: AsyncClient):
     response_token = await client.post("/token", data=data_for_token)
     headers = {
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
-    await client.post("/api/add_item", headers=headers, data=test_item)
+    await client.post("/services/add_item", headers=headers, data=test_item)
 
-    response = await client.get("/api/get_wishlist", params={"username": avg_username})
+    response = await client.get("/services/get_wishlist", params={"username": avg_username})
     items = response.json()["items"]
     # response code check
     assert response.status_code == 200
@@ -441,7 +441,7 @@ async def test_get_wishlist(client: AsyncClient):
     assert items[0]["title"] == avg_title
 
 
-# /api/delete testing
+# /services/delete testing
 
 @pytest.mark.anyio
 async def test_delete_item_1_in_list(client: AsyncClient):
@@ -455,14 +455,14 @@ async def test_delete_item_1_in_list(client: AsyncClient):
     headers1 = {
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
 
-    add_response = await client.post("/api/add_item", headers=headers1, data=test_item)
+    add_response = await client.post("/services/add_item", headers=headers1, data=test_item)
     item_id = add_response.json()["id"]
 
-    delete_response = await client.delete(f"/api/delete/{item_id}", headers=headers1)
+    delete_response = await client.delete(f"/services/delete/{item_id}", headers=headers1)
     wishlist_response = await client.get(
-        "/api/get_wishlist", params={"username": avg_username}
+        "/services/get_wishlist", params={"username": avg_username}
     )
-    get_item_response = await client.get("/api/get_item", params={"item_id": item_id})
+    get_item_response = await client.get("/services/get_item", params={"item_id": item_id})
 
     # delete response code check
     assert delete_response.status_code == 200
@@ -472,7 +472,7 @@ async def test_delete_item_1_in_list(client: AsyncClient):
     assert get_item_response.status_code == 404
 
 
-# /api/update_item testing
+# /services/update_item testing
 
 @pytest.mark.anyio
 async def test_update_item(client: AsyncClient):
@@ -486,17 +486,17 @@ async def test_update_item(client: AsyncClient):
     headers1 = {
         "Authorization": f"Bearer {response_token.json()['access_token']}"}
 
-    add_response = await client.post("/api/add_item", headers=headers1, data=test_item)
+    add_response = await client.post("/services/add_item", headers=headers1, data=test_item)
     item_id = add_response.json()["id"]
 
     update_response = await client.put(
-        "/api/update_item",
+        "/services/update_item",
         headers=headers1,
         params={"item_id": item_id},
         data=test_second_item,
     )
 
-    get_item_response = await client.get("/api/get_item", params={"item_id": item_id})
+    get_item_response = await client.get("/services/get_item", params={"item_id": item_id})
 
     # update response code check
     assert update_response.status_code == 200
